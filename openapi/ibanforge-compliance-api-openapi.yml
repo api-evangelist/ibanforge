@@ -1,0 +1,461 @@
+openapi: 3.1.0
+info:
+  title: IBANforge Compliance API
+  version: 1.4.3
+  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
+  contact:
+    url: https://ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: Compliance
+  description: Compliance check endpoint — IBAN validation + sanctions + SEPA + VoP + risk score (paid via x402)
+paths:
+  /v1/iban/compliance:
+    post:
+      operationId: complianceCheck
+      summary: Full IBAN compliance check
+      description: 'Validates an IBAN and returns everything from /v1/iban/validate PLUS a full compliance layer: sanctions screening (OFAC), FATF status, SEPA Instant reachability, VoP participant check, and a composite risk score (0-100). Costs $0.02 USDC via x402.'
+      tags:
+      - Compliance
+      security:
+      - x402Payment: []
+      - apiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - iban
+              properties:
+                iban:
+                  type: string
+                  description: IBAN to check
+                  example: DE89370400440532013000
+      responses:
+        '200':
+          description: Compliance check result (includes full IBAN validation + compliance layer)
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/IBANValidationResult'
+                - type: object
+                  properties:
+                    compliance:
+                      $ref: '#/components/schemas/ComplianceResult'
+        '400':
+          description: Missing or malformed request body
+        '402':
+          description: Payment required (x402) — $0.02 USDC
+components:
+  schemas:
+    ComplianceResult:
+      type: object
+      required:
+      - sanctions
+      - reachability
+      - vop
+      - risk_score
+      - risk_level
+      - flags
+      properties:
+        sanctions:
+          type: object
+          properties:
+            country_sanctioned:
+              type: boolean
+            bank_sanctioned:
+              type: boolean
+            matched_lists:
+              type: array
+              items:
+                type: string
+              example:
+              - OFAC
+            fatf_status:
+              type: string
+              enum:
+              - member
+              - grey_list
+              - black_list
+              - non_member
+        reachability:
+          type: object
+          properties:
+            sepa_instant:
+              type: boolean
+              description: Whether the bank supports SEPA Instant Credit Transfer
+            sct:
+              type: boolean
+              description: SEPA Credit Transfer participant
+            sdd:
+              type: boolean
+              description: SEPA Direct Debit participant
+        vop:
+          type: object
+          properties:
+            participant:
+              type: boolean
+              description: Whether the bank participates in Verification of Payee
+            status:
+              type: string
+              enum:
+              - active
+              - pending
+              - inactive
+              - not_found
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          nullable: true
+          description: 'Composite risk score (0 = no risk, 100 = critical). null when the IBAN did not validate: there was nothing to score.'
+        risk_level:
+          type: string
+          enum:
+          - low
+          - medium
+          - elevated
+          - high
+          - critical
+          - unassessable
+          description: 'unassessable means the IBAN itself failed validation, so no screening was possible. It is the absence of a verdict, never a favourable one: do not treat it as low.'
+        flags:
+          type: array
+          items:
+            type: string
+          description: List of specific risk flags detected
+          example:
+          - fatf_grey_list
+          - emi_issuer
+          - no_vop
+    IBANValidationResult:
+      type: object
+      required:
+      - iban
+      - valid
+      - cost_usdc
+      properties:
+        iban:
+          type: string
+          description: The IBAN as provided (normalized)
+        valid:
+          type: boolean
+        country:
+          type: object
+          properties:
+            code:
+              type: string
+              example: GB
+            name:
+              type: string
+              example: United Kingdom
+          required:
+          - code
+          - name
+        check_digits:
+          type: string
+          example: '29'
+        bban:
+          type: object
+          properties:
+            bank_code:
+              type: string
+            branch_code:
+              type: string
+            account_number:
+              type: string
+          required:
+          - bank_code
+          - account_number
+        bic:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+              example: NWBKGB2L
+            bank_name:
+              type: string
+              nullable: true
+            city:
+              type: string
+              nullable: true
+          required:
+          - code
+          - bank_name
+          - city
+        formatted:
+          type: string
+          description: IBAN formatted in groups of 4
+          example: GB29 NWBK 6016 1331 9268 19
+        clearing:
+          type: object
+          nullable: true
+          description: Swiss clearing enrichment from the SIX BankMaster directory — present for CH and LI IBANs only, and included at no extra cost in the 0.005 USDC validation. Full rail participation, not just a name lookup.
+          properties:
+            iid:
+              type: string
+              description: Zero-padded 5-digit IID / BC-Nummer
+              example: '00230'
+            name:
+              type: string
+              example: UBS Switzerland AG
+            type:
+              type: string
+              enum:
+              - bank
+              - cantonal_bank
+              - postfinance
+              - raiffeisen
+              - central_bank
+              - foreign_participant
+            town:
+              type: string
+              example: Zürich
+            sic:
+              type: boolean
+              description: SIC (Swiss Interbank Clearing) participation
+            instant_payments_chf:
+              type: boolean
+              description: Instant Payments CHF participation
+            eurosic:
+              type: boolean
+              description: euroSIC participation
+            qr_iid:
+              type: string
+              nullable: true
+              description: QR-IID allocation for QR-bill reference, null when the institution has none
+        error:
+          type: string
+          enum:
+          - invalid_format
+          - unsupported_country
+          - wrong_length
+          - checksum_failed
+        error_detail:
+          type: string
+        cost_usdc:
+          type: number
+          example: 0.005
+        processing_ms:
+          type: number
+        sepa:
+          type: object
+          description: SEPA compliance details. Only present when the IBAN is valid and the country participates in SEPA.
+          properties:
+            member:
+              type: boolean
+              description: Whether the IBAN country is a SEPA member
+            schemes:
+              type: array
+              description: SEPA schemes the institution supports (SCT = Credit Transfer, SDD = Direct Debit, SCT_INST = Instant Credit Transfer)
+              items:
+                type: string
+                enum:
+                - SCT
+                - SDD
+                - SCT_INST
+            vop_required:
+              type: boolean
+              description: Whether Verification of Payee (VoP) is required under EU Instant Payments Regulation for this institution
+            vop_participant:
+              type: boolean
+              nullable: true
+              description: 'Bank-level VoP readiness: true when the resolved institution is listed as "ready" in the EPC Verification of Payee scheme register; false when it is not; null when no institution was resolved. Listing means the bank answers VoP requests — it does not run the name check for you.'
+          required:
+          - member
+          - schemes
+          - vop_required
+        issuer:
+          type: object
+          description: Issuer classification for the institution behind the IBAN. Useful for vIBAN detection and KYC enrichment. Only present when the IBAN is valid and the BIC is resolved.
+          properties:
+            type:
+              type: string
+              nullable: true
+              enum:
+              - bank
+              - digital_bank
+              - emi
+              - payment_institution
+              - null
+              description: 'Type of financial institution (bank = traditional bank, digital_bank = neobank/challenger, emi = Electronic Money Institution, payment_institution = licensed PI). Null when we hold no support for a type: falling back to bank would be an assertion, and a payee pre-flight must not be handed one.'
+            name:
+              type: string
+              description: Name of the institution holding this BIC
+            classification:
+              type: string
+              enum:
+              - curated
+              - default
+              description: Whether the type was established or assumed. curated = the BIC8 is in the issuer set, so this is an identification. default = nothing is on file and 'bank' is the fallback, which covers 42,195 of 43,199 distinct BIC8 (97.7%, recounted 29/07/2026; the count drifts at every monthly refresh). When sizing exposure to virtual IBANs, count only curated.
+            iban_issuer:
+              type: string
+              enum:
+              - confirmed
+              - not_listed
+              description: 'Whether the country''s own list of IBAN-issuing providers names the holder of this bank code. Present only where such a list exists, today NL. confirmed = the identifier belongs to a provider that issues IBANs. not_listed = it resolves to a BIC, but the holder is not among the known issuers, so the account may not exist: measured 29/07/2026, only 90 of our 815 Dutch codes are on that list and the rest resolve to corporate treasuries that hold a Dutch BIC for their own SWIFT traffic. NOT a denial, because the Dutch list is explicitly not exhaustive, which is also why NL keeps bank_code_check.authoritative false.'
+          required:
+          - type
+          - name
+          - classification
+        risk_indicators:
+          type: object
+          description: AML/CFT risk indicators derived from the IBAN structure, issuer type, and country. Designed for compliance pre-screening and fraud prevention workflows. Only present when the IBAN is valid.
+          properties:
+            issuer_type:
+              type: string
+              nullable: true
+              enum:
+              - bank
+              - digital_bank
+              - emi
+              - payment_institution
+              - null
+              description: Type of the issuing institution (mirrors issuer.type for convenience). Null when the bank code resolved no institution — it used to default to "bank", which typed an institution that had not been found. Read bank_code_check to tell an unresolved code from a genuine bank.
+            country_risk:
+              type: string
+              enum:
+              - standard
+              - elevated
+              - high
+              description: Country-level risk classification based on FATF grey/black lists and EU high-risk third countries
+            test_bic:
+              type: boolean
+              description: Whether the resolved BIC is a test/sandbox code (position 8 = 0)
+            sepa_reachable:
+              type: boolean
+              description: 'Whether SEPA Credit Transfers reach this COUNTRY. Derived from the country, not from the account: it stays true on an IBAN whose bank code resolved nothing. See sepa_reachable_scope.'
+            sepa_reachable_scope:
+              type: string
+              enum:
+              - country
+              description: The scope sepa_reachable holds at. Present so the field cannot be read as an account-level assertion.
+            vop_coverage:
+              type: boolean
+              description: Whether the institution is covered by Verification of Payee, reducing payee impersonation risk
+          required:
+          - issuer_type
+          - country_risk
+          - test_bic
+          - sepa_reachable
+          - sepa_reachable_scope
+          - vop_coverage
+        bank_code_check:
+          type: object
+          description: Separate verdict on the BBAN bank code. `valid` answers ISO 13616 (structure + mod-97) and says nothing about whether the bank code identifies an institution; this field answers that, and states how much weight the answer carries. Present only when the IBAN is valid.
+          properties:
+            value:
+              type: string
+              description: 'The bank code that was actually checked. Normally identical to bban.bank_code. It differs in Finland, where the monetary institution code is 1 to 4 characters depending on its leading digits while bban.bank_code stays the fixed positional slice: a Nordea IBAN carries bban.bank_code "123" and value "1". When they differ, this field is the one the verdict is about.'
+            status:
+              type: string
+              enum:
+              - verified
+              - not_in_register
+              - unavailable
+              description: 'verified: resolves to an institution we can name. not_in_register: it does not, in reference data we do hold for this country — actionable as non-existence ONLY when authoritative is true. unavailable: we hold no reference data for this country, so no opinion.'
+            match:
+              type: string
+              nullable: true
+              enum:
+              - register
+              - prefix
+              - null
+              description: 'register: exact key in the reference set, deterministic. prefix: the bic8 LIKE fallback, reachable only in the 30 countries whose bank code may open on a letter (a BIC8 always does) — check candidates.'
+            register:
+              type: string
+              nullable: true
+              description: Name of the reference set consulted.
+            authoritative:
+              type: boolean
+              description: 'True only where that reference set is the national register: today CH and LI against the SIX BankMaster, DE against the Bundesbank Bankleitzahlendatei, FI against the Finance Finland monetary institution list, AT against the Oesterreichische Nationalbank SEPA-Zahlungsverkehrs-Verzeichnis, and BE against the Banque nationale de Belgique bank identification codes. This is the flag to branch on: everywhere else an absence is evidence of absence from our data, not of non-existence. One asymmetry worth knowing: CH, LI, DE, AT and BE allocate codes to individual institutions, while FI allocates prefixes to banking groups, so a Finnish verified confirms the group and its BIC rather than one specific bank. The negative direction carries full weight in all six.'
+            candidates:
+              type: integer
+              description: BIC8 the prefix search matched. Present only for match=prefix. Greater than 1 means the returned BIC is one of several and may belong to a different institution than the account does.
+            retired:
+              type: boolean
+              description: 'Present and true when an authoritative register marks the code for deletion: the institution is being retired. The code WAS allocated, so this is a verified result, not a denial. See superseded_by.'
+            superseded_by:
+              type: string
+              description: The bank code that takes over, when the register names one. Re-paper the beneficiary against it.
+            institution:
+              type: object
+              description: 'What the national register publishes about the allocated institution. Present only on an authoritative answer — composite-map hits stay bare (naming a BIC holder is the bic block, and its address would imply a register that was not consulted). Depth varies by register: SIX (CH/LI) and the OeNB (AT) publish the full seat address, the Bundesbank (DE) publishes postal code and town only, the BNB (BE) publishes names alone; Finland stays without this block, its codes belong to banking groups. Absent fields are null, never guessed. This is the institution allocated the BANK CODE — not a branch, and not proof of any account.'
+              properties:
+                name:
+                  type: string
+                street:
+                  type: string
+                  nullable: true
+                  description: One line, house number included, matching the GLEIF shape. Null where the register publishes none (DE, BE).
+                post_code:
+                  type: string
+                  nullable: true
+                town:
+                  type: string
+                  nullable: true
+                country:
+                  type: string
+                lei:
+                  type: string
+                  nullable: true
+                  description: Legal Entity Identifier, where the register publishes one (the OeNB does, 99% of entries).
+              required:
+              - name
+              - street
+              - post_code
+              - town
+              - country
+            as_of:
+              type: string
+              description: Year-month the consulted reference set was last refreshed.
+          required:
+          - value
+          - status
+          - match
+          - register
+          - authoritative
+          - as_of
+        next_steps:
+          type: array
+          description: 'Ordered advice derived from THIS result: what blocks a payment first, what merely enriches it after. Branch on `code`, never on the prose. Absent or empty for an IBAN that failed validation, since the error already says what to do.'
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                description: 'Stable identifier. Today: bank_code_not_allocated (the national register denies the code, do not send), bank_code_retired (allocated but being withdrawn, re-paper against superseded_by), verify_payee_name (we cannot confirm it, treat as unavailable and let a name check decide), bic_is_advisory (the BIC was picked from several candidates), issuer_not_a_known_iban_issuer (the code resolves to a BIC, but its holder is not among the providers known to issue IBANs in that country), test_bic, expect_virtual_iban (curated non-bank issuer, account holder and IBAN holder often differ), screen_compliance.'
+              do:
+                type: string
+                description: The instruction, in one sentence an agent can relay to a person.
+              because:
+                type: string
+                description: The field of this response that produced the step, so the advice is auditable.
+              action:
+                type: string
+                description: An IBANforge call that performs the step, when one exists.
+            required:
+            - code
+            - do
+            - because
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: X-Payment
+      description: x402 USDC micropayment token
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

@@ -1,46 +1,181 @@
 aid: ibanforge
 accessModel:
-  pricing: unknown
-  onboarding: unknown
-  trial: false
-  try_now: false
-  public: false
-  label: Unknown
-  confidence: low
-  source: []
-  generated: '2026-07-22'
-  method: derived
+  pricing: published
+  onboarding: self-serve
+  trial: true
+  try_now: true
+  public: true
+  label: Paid (free tier) · Self-serve signup
+  confidence: high
+  source:
+    - https://ibanforge.com/pricing
+    - https://api.ibanforge.com/v1/demo
+    - https://api.ibanforge.com/mcp
+  generated: '2026-08-06'
+  method: verified
+  notes: >-
+    Free tier is 200 requests/month against an emailed key, no card. GET /v1/demo
+    answers unauthenticated, and the HTTP MCP transport returns full paid responses
+    for 10 tool calls per IP per day with no key and no wallet. Paid access is
+    prepaid credit packs (card or USDC) or per-call x402 on Base L2.
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ibanforge.png
 name: IBANforge
-description: "IBAN validation and BIC/SWIFT lookup for 75+ countries with 121K+ bank entries"
-url: https://api.ibanforge.com
+description: >-
+  Pre-payout IBAN screening for developers and AI agents — validation, issuing-bank
+  identification against national bank registers, Swiss clearing including QR-IID,
+  bank-level sanctions, SEPA and VoP reachability, and risk scoring across 89 IBAN
+  countries.
+url: https://api.ibanforge.com/apis.json
 specificationVersion: '0.20'
 created: '2026-05-28'
-modified: '2026-05-28'
-x-source: public-apis/public-apis
+modified: '2026-08-06'
+x-source: provider-published
 x-category: "Finance"
-x-tier: 3
-x-tier-reason: bulk-registered-from-public-apis
+x-tier: 1
+x-tier-reason: provider-published-artifacts-verified-2026-08-06
+x-evidence:
+  verified: '2026-08-06'
+  trigger: https://github.com/api-search/inbox/issues/3
+  method: >-
+    Every artifact below fetched and confirmed 200 against a control path returning
+    404 on the same host. The OpenAPI in openapi/_original/ is the provider's own
+    document, harvested — not reconstructed.
+  supersedes: >-
+    Profile was bulk-registered from public-apis/public-apis on 2026-05-28 with a
+    single Documentation pointer and no contract, which zeroed contract_quality,
+    governance, operational_transparency, commercial_clarity and all 14
+    agent-readiness dimensions.
 tags:
   - Finance
-  - Public APIs
+  - Banking
+  - Compliance
+  - MCP
 apis:
-  - name: IBANforge
-    description: "IBAN validation and BIC/SWIFT lookup for 75+ countries with 121K+ bank entries"
-    humanURL: https://api.ibanforge.com
-    baseURL: https://api.ibanforge.com
-    tags:
-      - Finance
-    properties:
-      - type: Documentation
-        url: https://api.ibanforge.com
+- name: IBANforge
+  description: >-
+    Pre-payout IBAN screening: validation, issuing-bank identification, Swiss
+    clearing, bank-level sanctions, SEPA and VoP reachability, and risk scoring.
+  humanURL: https://ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Finance
+  properties:
+  - type: Documentation
+    url: https://ibanforge.com/docs
+  - type: OpenAPI
+    url: https://api.ibanforge.com/openapi.json
+- aid: ibanforge:ibanforge-api-keys-api
+  name: IBANforge API Keys API
+  description: API key management — generate free keys and check usage
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - API Keys
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-api-keys-api-openapi.yml
+- aid: ibanforge:ibanforge-bic-api
+  name: IBANforge BIC API
+  description: BIC/SWIFT lookup endpoints (paid via x402)
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - BIC
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-bic-api-openapi.yml
+- aid: ibanforge:ibanforge-compliance-api
+  name: IBANforge Compliance API
+  description: >-
+    Compliance check endpoint — IBAN validation + sanctions + SEPA + VoP + risk score (paid via x402)
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Compliance
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-compliance-api-openapi.yml
+- aid: ibanforge:ibanforge-credits-api
+  name: IBANforge Credits API
+  description: >-
+    Prepaid credit bundles — pay once in USDC (x402), get an API key with N credits; batch validation
+    debits 1 credit per IBAN
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Credits
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-credits-api-openapi.yml
+- aid: ibanforge:ibanforge-free-api
+  name: IBANforge Free API
+  description: Free endpoints — no payment required
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Free
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-free-api-openapi.yml
+- aid: ibanforge:ibanforge-iban-api
+  name: IBANforge IBAN API
+  description: IBAN validation endpoints (paid via x402)
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - IBAN
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-iban-api-openapi.yml
+- aid: ibanforge:ibanforge-mcp-api
+  name: IBANforge MCP API
+  description: Model Context Protocol endpoint for AI agents (Streamable HTTP)
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - MCP
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-mcp-api-openapi.yml
+- aid: ibanforge:ibanforge-swiss-clearing-api
+  name: IBANforge Swiss Clearing API
+  description: Swiss BC-Nummer / IID clearing lookup (paid via x402)
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Swiss Clearing
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-swiss-clearing-api-openapi.yml
 common:
   - type: VulnerabilityDisclosure
     url: security/ibanforge-vulnerability-disclosure.yml
   - type: DomainSecurity
     url: security/ibanforge-domain-security.yml
   - type: Website
-    url: https://api.ibanforge.com
+    url: https://ibanforge.com
+  - type: Documentation
+    url: https://ibanforge.com/docs
+  - type: MCPServer
+    url: mcp/ibanforge-mcp.yml
+  - type: AgentCard
+    url: a2a/ibanforge-a2a.yml
+  - type: APICatalog
+    url: well-known/ibanforge-well-known.yml
+  - type: LlmsText
+    url: llms/ibanforge-llms.txt
+  - type: SecurityTxt
+    url: https://api.ibanforge.com/.well-known/security.txt
+  - type: StatusPage
+    url: https://ibanforge.com/status
+  - type: TermsOfService
+    url: https://ibanforge.com/en/legal/terms
+  - type: PrivacyPolicy
+    url: https://ibanforge.com/en/legal/dpa
+  - type: Pricing
+    url: https://ibanforge.com/pricing
+  - type: x402
+    url: https://api.ibanforge.com/.well-known/x402
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
   - url: https://ibanforge.com/en/blog

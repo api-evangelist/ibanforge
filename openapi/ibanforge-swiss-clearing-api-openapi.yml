@@ -1,0 +1,155 @@
+openapi: 3.1.0
+info:
+  title: IBANforge Swiss Clearing API
+  version: 1.4.3
+  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
+  contact:
+    url: https://ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: Swiss Clearing
+  description: Swiss BC-Nummer / IID clearing lookup (paid via x402)
+paths:
+  /v1/ch/clearing/{iid}:
+    get:
+      operationId: lookupChClearing
+      summary: Swiss BC-Nummer / IID clearing lookup
+      description: Returns institution details, payment service participation (SIC, euroSIC, Instant Payments CHF), and QR-IID allocation for a Swiss BC-Nummer (IID). Costs 0.003 USDC via x402.
+      tags:
+      - Swiss Clearing
+      security:
+      - x402Payment: []
+      - apiKey: []
+      parameters:
+      - name: iid
+        in: path
+        required: true
+        description: Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)
+        schema:
+          type: string
+          pattern: ^\d{1,5}$
+          example: '230'
+      responses:
+        '200':
+          description: Clearing lookup result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChClearingResult'
+        '400':
+          description: Invalid IID format
+        '402':
+          description: Payment required (x402)
+components:
+  schemas:
+    ChClearingResult:
+      type: object
+      required:
+      - iid
+      - found
+      properties:
+        iid:
+          type: string
+          example: '00230'
+          description: Zero-padded 5-digit IID
+        found:
+          type: boolean
+        institution:
+          type: object
+          properties:
+            name:
+              type: string
+              example: UBS Switzerland AG
+            type:
+              type: string
+              enum:
+              - bank
+              - cantonal_bank
+              - postfinance
+              - raiffeisen
+              - central_bank
+              - foreign_participant
+            iid_type:
+              type: string
+              enum:
+              - headquarters
+              - branch
+              - other
+            headquarters_iid:
+              type: string
+              nullable: true
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              nullable: true
+            building_number:
+              type: string
+              nullable: true
+            post_code:
+              type: string
+              nullable: true
+            town:
+              type: string
+              nullable: true
+            country:
+              type: string
+              example: CH
+        bic:
+          type: string
+          nullable: true
+          example: UBSWCHZH80A
+        payment_services:
+          type: object
+          properties:
+            sic:
+              type: boolean
+              description: SIC (Swiss Interbank Clearing) participation
+            rtgs_chf:
+              type: boolean
+              description: Real-Time Gross Settlement CHF
+            instant_payments_chf:
+              type: boolean
+              description: Instant Payments CHF
+            eurosic:
+              type: boolean
+              description: euroSIC participation
+            lsv_bdd_chf:
+              type: boolean
+              description: LSV/BDD CHF direct debit
+            lsv_bdd_eur:
+              type: boolean
+              description: LSV/BDD EUR direct debit
+        sic_iid:
+          type: string
+          nullable: true
+        qr_iid:
+          type: string
+          nullable: true
+          description: QR-IID for QR-bill payments
+        valid_on:
+          type: string
+          format: date
+        cost_usdc:
+          type: number
+          example: 0.003
+        processing_ms:
+          type: number
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: X-Payment
+      description: x402 USDC micropayment token
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

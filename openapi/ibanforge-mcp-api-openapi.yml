@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: IBANforge MCP API
+  version: 1.4.3
+  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
+  contact:
+    url: https://ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: MCP
+  description: Model Context Protocol endpoint for AI agents (Streamable HTTP)
+paths:
+  /mcp:
+    post:
+      operationId: mcpStreamableHttp
+      summary: MCP endpoint for AI agents (Streamable HTTP)
+      description: 'Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes the same capabilities as this REST API as 5 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec.'
+      tags:
+      - MCP
+      externalDocs:
+        description: MCP setup guide (Claude Desktop, Cursor, HTTP transport)
+        url: https://ibanforge.com/docs/mcp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON-RPC 2.0 request (initialize, tools/list, tools/call, ...) per the MCP specification
+              required:
+              - jsonrpc
+              - method
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                  - '2.0'
+                id:
+                  oneOf:
+                  - type: string
+                  - type: integer
+                method:
+                  type: string
+                  example: tools/list
+                params:
+                  type: object
+      responses:
+        '200':
+          description: JSON-RPC 2.0 response (application/json or text/event-stream, depending on Accept header)
+        '400':
+          description: Malformed JSON-RPC request
+components:
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: X-Payment
+      description: x402 USDC micropayment token
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

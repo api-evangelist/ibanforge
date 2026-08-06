@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: IBANforge Credits API
+  version: 1.4.3
+  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
+  contact:
+    url: https://ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: Credits
+  description: Prepaid credit bundles — pay once in USDC (x402), get an API key with N credits; batch validation debits 1 credit per IBAN
+paths:
+  /v1/credits/bundles:
+    get:
+      operationId: listCreditBundles
+      summary: List prepaid credit bundles (free)
+      description: Lists the available prepaid credit bundles with prices. Buy a bundle once via x402 (POST /v1/credits/buy/{bundle}) and receive an API key preloaded with N credits (1 credit = 1 validation/lookup; batch validation debits 1 credit per IBAN) — credits never expire. Card checkout is also available at https://ibanforge.com/pricing.
+      tags:
+      - Credits
+      responses:
+        '200':
+          description: Available bundles
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - bundles
+                properties:
+                  bundles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                          enum:
+                          - 1k
+                          - 5k
+                          - 25k
+                        credits:
+                          type: integer
+                          example: 1000
+                        price_usdc:
+                          type: number
+                          example: 5
+                        price_per_call_usdc:
+                          type: number
+                          example: 0.005
+                        buy_endpoint:
+                          type: string
+                          example: POST /v1/credits/buy/1k
+                  payment_method:
+                    type: string
+                    example: x402 USDC on Base mainnet
+                  documentation:
+                    type: string
+  /v1/credits/buy/{bundle}:
+    post:
+      operationId: buyCreditBundle
+      summary: Buy a prepaid credit bundle (x402, USDC)
+      description: 'Pay once via x402 (USDC on Base) and receive a fresh API key preloaded with the bundle credits. Bundles: 1k = $5, 5k = $20, 25k = $80. Credits never expire. Optionally pass {"email": "..."} in the body to attach the key to an email — anonymous keys are fully functional too. Check the balance with GET /v1/credits/balance.'
+      tags:
+      - Credits
+      security:
+      - x402Payment: []
+      parameters:
+      - name: bundle
+        in: path
+        required: true
+        description: Bundle slug
+        schema:
+          type: string
+          enum:
+          - 1k
+          - 5k
+          - 25k
+          example: 1k
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Optional — attach the key to an email address
+      responses:
+        '201':
+          description: Credit key minted (shown only once — save it)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - api_key
+                - credits
+                - bundle
+                properties:
+                  api_key:
+                    type: string
+                    description: Full API key — shown only once
+                  key_prefix:
+                    type: string
+                  credits:
+                    type: integer
+                    example: 1000
+                  bundle:
+                    type: string
+                    example: 1k
+                  price_paid_usdc:
+                    type: number
+                    example: 5
+                  price_per_call_usdc:
+                    type: number
+                    example: 0.005
+                  usage_hint:
+                    type: string
+                  balance_endpoint:
+                    type: string
+                    example: GET /v1/credits/balance
+                  message:
+                    type: string
+        '402':
+          description: Payment required (x402) — bundle price in USDC
+        '404':
+          description: Unknown bundle slug — choose 1k, 5k or 25k
+components:
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: X-Payment
+      description: x402 USDC micropayment token
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

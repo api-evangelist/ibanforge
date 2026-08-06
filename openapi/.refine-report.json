@@ -1,0 +1,25 @@
+{
+  "provider": "ibanforge",
+  "sources": [
+    "ibanforge-openapi.yml"
+  ],
+  "outputs": [
+    "ibanforge-api-keys-api-openapi.yml",
+    "ibanforge-bic-api-openapi.yml",
+    "ibanforge-compliance-api-openapi.yml",
+    "ibanforge-credits-api-openapi.yml",
+    "ibanforge-free-api-openapi.yml",
+    "ibanforge-iban-api-openapi.yml",
+    "ibanforge-mcp-api-openapi.yml",
+    "ibanforge-swiss-clearing-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/ibanforge-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "apis.yml register: written (+8 apis, 9 total)"
+  ],
+  "skipped": []
+}

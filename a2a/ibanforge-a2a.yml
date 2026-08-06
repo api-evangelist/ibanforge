@@ -1,0 +1,43 @@
+generated: '2026-08-06'
+method: declared
+publisher: IBANforge
+source: https://api.ibanforge.com/.well-known/agent-card.json
+description: >-
+  IBANforge's provider-authored A2A Agent Card. The saved document matches the
+  provider route and the A2A AgentCard structure. The card is explicit that
+  IBANforge is a tool-style API (REST + MCP) rather than a conversational A2A
+  agent, and exists so A2A-aware crawlers can index the skills.
+discovery:
+  path: /.well-known/agent-card.json
+  canonical: true
+  host: api.ibanforge.com
+conformance:
+  spec: A2A 1.0.0
+  grade: near-conformant
+  protocol_version: 0.3.0
+  preferred_transport: HTTP+JSON
+  deviations:
+    - >-
+      Declares protocolVersion 0.3.0 rather than 1.0.0. Every required AgentCard
+      field is present and correctly shaped — notably `capabilities` is an object,
+      not the array that fails 41 of the 65 agent cards surveyed 2026-07-28 — so
+      this is a version lag, not a structural defect.
+card:
+  name: IBANforge
+  description: >-
+    Pre-payout IBAN screening: validation, issuing-bank identification, sanctions
+    (OFAC), Swiss clearing, SEPA + VoP reachability and risk scoring.
+  url: https://api.ibanforge.com
+  version: 1.4.3
+  documentation_url: https://ibanforge.com/docs
+  skills: 5
+  file: ibanforge-agent-card.json
+x-evidence:
+  declared: '2026-08-06'
+  url: https://api.ibanforge.com/.well-known/agent-card.json
+  expected_content_type: application/json
+  status: 200
+  verified: '2026-08-06'
+  note: >-
+    Provider-authored route is live and returns the saved Agent Card. Verified
+    against a control path on the same host that returns 404, so the 200 is real.

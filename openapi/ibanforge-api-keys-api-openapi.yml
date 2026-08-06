@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: IBANforge API Keys API
+  version: 1.4.3
+  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
+  contact:
+    url: https://ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: API Keys
+  description: API key management — generate free keys and check usage
+paths:
+  /v1/keys/generate:
+    post:
+      operationId: generateApiKey
+      summary: Generate a free API key
+      description: Generates a free API key with 200 requests/month quota (batch validation counts 1 request per IBAN). One key per email per day.
+      tags:
+      - API Keys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email address for key registration
+      responses:
+        '201':
+          description: API key generated (shown only once)
+        '400':
+          description: Invalid email
+        '429':
+          description: Rate limited — one key per email per day
+  /v1/keys/usage:
+    get:
+      operationId: getApiKeyUsage
+      summary: Check API key usage
+      description: Returns current month usage and remaining quota for the provided API key.
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      responses:
+        '200':
+          description: Usage statistics for the current month
+        '401':
+          description: Missing or invalid API key
+  /stats:
+    get:
+      operationId: getStats
+      summary: Detailed statistics
+      description: Returns detailed API usage statistics broken down by operation type. Requires authentication — these figures include revenue and are not public.
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      responses:
+        '200':
+          description: Statistics overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsOverview'
+        '403':
+          description: 'Authentication required — send Authorization: Bearer ifk_...'
+  /stats/history:
+    get:
+      operationId: getStatsHistory
+      summary: Historical statistics
+      description: Returns per-day statistics for the requested period. Requires authentication — these figures include revenue and are not public.
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      parameters:
+      - name: period
+        in: query
+        required: false
+        description: Number of days to retrieve (1–90, default 7)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 90
+          default: 7
+      responses:
+        '200':
+          description: Historical stats array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                      format: date
+                    total:
+                      type: integer
+                    revenue:
+                      type: number
+                  required:
+                  - date
+                  - total
+                  - revenue
+        '403':
+          description: 'Authentication required — send Authorization: Bearer ifk_...'
+components:
+  schemas:
+    StatsOverview:
+      type: object
+      required:
+      - total_operations
+      - by_type
+      - total_revenue_usdc
+      - top_countries
+      - last_7_days
+      properties:
+        total_operations:
+          type: integer
+        by_type:
+          type: object
+          properties:
+            iban_validate:
+              type: object
+              properties:
+                total:
+                  type: integer
+                valid_count:
+                  type: integer
+                success_rate:
+                  type: number
+            iban_batch:
+              type: object
+              properties:
+                total:
+                  type: integer
+                valid_count:
+                  type: integer
+                success_rate:
+                  type: number
+            bic_lookup:
+              type: object
+              properties:
+                total:
+                  type: integer
+                found_count:
+                  type: integer
+                hit_rate:
+                  type: number
+        total_revenue_usdc:
+          type: number
+          deprecated: true
+          description: Deprecated alias for total_revenue_attempted_usdc. Use /admin/revenue for on-chain settled USDC.
+        total_revenue_attempted_usdc:
+          type: number
+          description: SUM of revenue_usdc in daily_stats. Reflects x402 calls that PASSED the payment middleware verify step, NOT a confirmation of on-chain settlement. For settled USDC see /admin/revenue.
+        revenue_note:
+          type: string
+        top_countries:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              count:
+                type: integer
+        last_7_days:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              total:
+                type: integer
+              revenue:
+                type: number
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: X-Payment
+      description: x402 USDC micropayment token
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

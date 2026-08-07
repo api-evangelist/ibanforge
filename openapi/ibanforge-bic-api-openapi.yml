@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
-  title: IBANforge BIC API
+  title: Ibanforge BIC API
   version: 1.4.3
-  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
   contact:
     url: https://ibanforge.com
+  description: 'Operations tagged BIC across 2 of this provider''s published API definitions: ibanforge-bic-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -45,6 +45,11 @@ paths:
           description: Invalid BIC format
         '402':
           description: Payment required (x402)
+    servers:
+    - url: https://api.ibanforge.com
+      description: Production
+    - url: http://localhost:3000
+      description: Local development
 components:
   schemas:
     BICLookupResult:
@@ -165,6 +170,135 @@ components:
           example: 0.003
         processing_ms:
           type: number
+    BICLookupResult_2:
+      type: object
+      required:
+      - bic
+      - bic8
+      - bic11
+      - found
+      - valid_format
+      - institution
+      - country
+      - city
+      - branch_code
+      - branch_info
+      - lei
+      - lei_status
+      - is_test_bic
+      - source
+      - cost_usdc
+      properties:
+        bic:
+          type: string
+          example: UBSWCHZH
+        bic8:
+          type: string
+          example: UBSWCHZH
+        bic11:
+          type: string
+          example: UBSWCHZHXXX
+        found:
+          type: boolean
+        valid_format:
+          type: boolean
+        institution:
+          type:
+          - string
+          - 'null'
+          example: UBS AG
+        country:
+          type: object
+          required:
+          - code
+          - name
+          properties:
+            code:
+              type: string
+              example: CH
+            name:
+              type: string
+              example: Switzerland
+        city:
+          type:
+          - string
+          - 'null'
+        address:
+          type: object
+          description: Registered head-office address (present when available — GLEIF or directory sourced)
+          properties:
+            type:
+              type: string
+              example: registered
+            street:
+              type:
+              - string
+              - 'null'
+              example: Bahnhofstrasse 45
+            post_code:
+              type:
+              - string
+              - 'null'
+              example: '8001'
+            region:
+              type:
+              - string
+              - 'null'
+              example: CH-ZH
+            city:
+              type:
+              - string
+              - 'null'
+              example: Zurich
+            country:
+              type: string
+              example: CH
+            romanized:
+              type:
+              - string
+              - 'null'
+            romanization:
+              type: string
+              example: original_latin
+            source:
+              type: string
+              example: GLEIF
+            language:
+              type: string
+              example: en
+            as_of:
+              type: string
+              format: date
+        address_available:
+          type: boolean
+        branch_code:
+          type: string
+          example: XXX
+        branch_info:
+          type:
+          - string
+          - 'null'
+        lei:
+          type:
+          - string
+          - 'null'
+        lei_status:
+          type:
+          - string
+          - 'null'
+        is_test_bic:
+          type: boolean
+        source:
+          type:
+          - string
+          - 'null'
+        note:
+          type: string
+        cost_usdc:
+          type: number
+          example: 0.003
+        processing_ms:
+          type: number
   securitySchemes:
     x402Payment:
       type: apiKey
@@ -178,3 +312,6 @@ components:
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt
+x-refined-from:
+- ibanforge-bic-api-openapi.yml
+- ibanforge-openapi.yml

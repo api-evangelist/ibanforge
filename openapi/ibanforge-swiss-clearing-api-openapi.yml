@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
-  title: IBANforge Swiss Clearing API
+  title: Ibanforge Swiss Clearing API
   version: 1.4.3
-  description: 'Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds. IBAN validation, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID / SIX BankMaster — full payment-rail participation, the deepest Swiss clearing data in any public API), EMI/vIBAN classification, SEPA Instant + VoP reachability, and sanctions + risk scoring. Three ways to pay, no dead-ends: a free API key (200 req/month), prepaid credit packs (card or USDC), or pay-per-call via x402 micropayments (USDC on Base L2, no signup).'
   contact:
     url: https://ibanforge.com
+  description: 'Operations tagged Swiss Clearing across 2 of this provider''s published API definitions: ibanforge-openapi.yml, ibanforge-swiss-clearing-api-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -44,9 +44,116 @@ paths:
           description: Invalid IID format
         '402':
           description: Payment required (x402)
+    servers:
+    - url: https://api.ibanforge.com
+      description: Production
+    - url: http://localhost:3000
+      description: Local development
 components:
   schemas:
     ChClearingResult:
+      type: object
+      required:
+      - iid
+      - found
+      properties:
+        iid:
+          type: string
+          example: '00230'
+          description: Zero-padded 5-digit IID
+        found:
+          type: boolean
+        institution:
+          type: object
+          properties:
+            name:
+              type: string
+              example: UBS Switzerland AG
+            type:
+              type: string
+              enum:
+              - bank
+              - cantonal_bank
+              - postfinance
+              - raiffeisen
+              - central_bank
+              - foreign_participant
+            iid_type:
+              type: string
+              enum:
+              - headquarters
+              - branch
+              - other
+            headquarters_iid:
+              type:
+              - string
+              - 'null'
+        address:
+          type: object
+          properties:
+            street:
+              type:
+              - string
+              - 'null'
+            building_number:
+              type:
+              - string
+              - 'null'
+            post_code:
+              type:
+              - string
+              - 'null'
+            town:
+              type:
+              - string
+              - 'null'
+            country:
+              type: string
+              example: CH
+        bic:
+          type:
+          - string
+          - 'null'
+          example: UBSWCHZH80A
+        payment_services:
+          type: object
+          properties:
+            sic:
+              type: boolean
+              description: SIC (Swiss Interbank Clearing) participation
+            rtgs_chf:
+              type: boolean
+              description: Real-Time Gross Settlement CHF
+            instant_payments_chf:
+              type: boolean
+              description: Instant Payments CHF
+            eurosic:
+              type: boolean
+              description: euroSIC participation
+            lsv_bdd_chf:
+              type: boolean
+              description: LSV/BDD CHF direct debit
+            lsv_bdd_eur:
+              type: boolean
+              description: LSV/BDD EUR direct debit
+        sic_iid:
+          type:
+          - string
+          - 'null'
+        qr_iid:
+          type:
+          - string
+          - 'null'
+          description: QR-IID for QR-bill payments
+        valid_on:
+          type: string
+          format: date
+        cost_usdc:
+          type: number
+          example: 0.003
+        processing_ms:
+          type: number
+    ChClearingResult_2:
       type: object
       required:
       - iid
@@ -153,3 +260,6 @@ components:
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt
+x-refined-from:
+- ibanforge-openapi.yml
+- ibanforge-swiss-clearing-api-openapi.yml

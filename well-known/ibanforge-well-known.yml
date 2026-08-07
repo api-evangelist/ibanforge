@@ -1,50 +1,56 @@
 generated: '2026-08-06'
 method: declared
 publisher: IBANforge
-description: >-
-  Provider-authored discovery surface for IBANforge's public API and MCP server.
-  Every path below was fetched on 2026-08-06; both hosts return a genuine 404 on a
-  control path, so these 200s are real and not a catch-all handler.
+description: Provider-authored discovery surface for IBANforge's public API and MCP server. Every path
+  below was fetched on 2026-08-06; both hosts return a genuine 404 on a control path, so these 200s
+  are real and not a catch-all handler.
 hosts:
-  - host: https://api.ibanforge.com
-    documents:
-      - path: /.well-known/api-catalog
-        status: 200
-        type: application/linkset+json
-      - path: /.well-known/agent-card.json
-        status: 200
-        type: application/json
-      - path: /.well-known/mcp/server-card.json
-        status: 200
-        type: application/json
-      - path: /.well-known/agents.json
-        status: 200
-        type: application/json
-      - path: /.well-known/x402
-        status: 200
-        type: application/json
-      - path: /.well-known/security.txt
-        status: 200
-        type: text/plain
-      - path: /.well-known/oauth-protected-resource
-        status: 200
-        type: application/json
-      - path: /.well-known/oauth-authorization-server
-        status: 404
-      - path: /.well-known/api-onboarding
-        status: 404
-      - path: /.well-known/ai-plugin.json
-        status: 404
-  - host: https://ibanforge.com
-    documents:
-      - path: /.well-known/security.txt
-        status: 200
-        type: text/plain
+- host: https://api.ibanforge.com
+  documents:
+  - path: /.well-known/api-catalog
+    status: 200
+    type: application/linkset+json
+  - path: /.well-known/agent-card.json
+    status: 200
+    type: application/json
+  - path: /.well-known/mcp/server-card.json
+    status: 200
+    type: application/json
+  - path: /.well-known/agents.json
+    status: 200
+    type: application/json
+  - path: /.well-known/x402
+    status: 200
+    type: application/json
+  - path: /.well-known/security.txt
+    status: 200
+    type: text/plain
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    type: application/json
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-onboarding
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://ibanforge.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    type: text/plain
 x-evidence:
   declared: '2026-08-06'
   verified: '2026-08-06'
   control_path_status: 404
-  note: >-
-    Control path /this-path-does-not-exist-control-9f3a returns 404 on both
-    api.ibanforge.com and ibanforge.com, so the 200s above are real credit rather
-    than soft-404 false positives.
+  note: Control path /this-path-does-not-exist-control-9f3a returns 404 on both api.ibanforge.com and
+    ibanforge.com, so the 200s above are real credit rather than soft-404 false positives.
+x-notes:
+- '2026-08-07: provider fixed the three null-in-enum schemas within a day of being told, and root-caused
+  it further than we did — the document declared 3.1.0 while still carrying 42 OpenAPI 3.0 `nullable:
+  true` keywords, which 3.1 ignores. All 42 converted to type arrays; zero remain. Re-harvested and
+  verified. NOTE FOR US: spectral:oas 6.16.3 still crashes on the corrected document with `Cannot read
+  properties of null (reading ''enum'')`. Reproduced with a minimal, entirely valid 3.1 document using
+  type: [''string'',''null''] and enum containing null, so the crash is a SPECTRAL defect, not a defect
+  in this provider''s spec. Our 2026-08-06 note that their spec ''fails the most common lint'' was right
+  about the symptom and wrong about the cause.'

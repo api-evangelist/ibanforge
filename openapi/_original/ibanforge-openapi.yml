@@ -348,8 +348,9 @@ paths:
                     type: integer
                     example: 17
                   bban:
-                    type: object
-                    nullable: true
+                    type:
+                    - object
+                    - 'null'
                     description: BBAN field positions, 0-indexed within the BBAN. null when no structure
                       is declared for the country. charset uses SWIFT registry notation (n=digits, a=uppercase
                       letters, c=alphanumeric, e.g. "5!n").
@@ -362,8 +363,9 @@ paths:
                           length:
                             type: integer
                           charset:
-                            type: string
-                            nullable: true
+                            type:
+                            - string
+                            - 'null'
                       branch_code:
                         type: object
                         properties:
@@ -372,8 +374,9 @@ paths:
                           length:
                             type: integer
                           charset:
-                            type: string
-                            nullable: true
+                            type:
+                            - string
+                            - 'null'
                       account_number:
                         type: object
                         properties:
@@ -382,11 +385,13 @@ paths:
                           length:
                             type: integer
                           charset:
-                            type: string
-                            nullable: true
+                            type:
+                            - string
+                            - 'null'
                   bban_pattern:
-                    type: string
-                    nullable: true
+                    type:
+                    - string
+                    - 'null'
                     description: Full BBAN pattern in SWIFT IBAN Registry notation (e.g. "5!n12!c") —
                       what /v1/iban/validate enforces structurally on top of length + mod-97.
                     example: 5!n12!c
@@ -406,12 +411,14 @@ paths:
                       vop_required:
                         type: boolean
                   example_iban:
-                    type: string
-                    nullable: true
+                    type:
+                    - string
+                    - 'null'
                     example: CH9300762011623852957
                   example_iban_note:
-                    type: string
-                    nullable: true
+                    type:
+                    - string
+                    - 'null'
                     description: 'Says what example_iban is: an illustration from the SWIFT IBAN Registry
                       whose bank code is not guaranteed to be allocated. 36 of the 89 come back bank_code_check.status
                       not_in_register, which is the example being fictional rather than a gap in our data.
@@ -859,18 +866,21 @@ components:
           - bank_code
           - account_number
         bic:
-          type: object
-          nullable: true
+          type:
+          - object
+          - 'null'
           properties:
             code:
               type: string
               example: NWBKGB2L
             bank_name:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             city:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
           required:
           - code
           - bank_name
@@ -880,8 +890,9 @@ components:
           description: IBAN formatted in groups of 4
           example: GB29 NWBK 6016 1331 9268 19
         clearing:
-          type: object
-          nullable: true
+          type:
+          - object
+          - 'null'
           description: Swiss clearing enrichment from the SIX BankMaster directory — present for CH and
             LI IBANs only, and included at no extra cost in the 0.005 USDC validation. Full rail participation,
             not just a name lookup.
@@ -915,8 +926,9 @@ components:
               type: boolean
               description: euroSIC participation
             qr_iid:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               description: QR-IID allocation for QR-bill reference, null when the institution has none
         error:
           type: string
@@ -955,8 +967,9 @@ components:
               description: Whether Verification of Payee (VoP) is required under EU Instant Payments Regulation
                 for this institution
             vop_participant:
-              type: boolean
-              nullable: true
+              type:
+              - boolean
+              - 'null'
               description: 'Bank-level VoP readiness: true when the resolved institution is listed as
                 "ready" in the EPC Verification of Payee scheme register; false when it is not; null when
                 no institution was resolved. Listing means the bank answers VoP requests — it does not
@@ -971,8 +984,9 @@ components:
             and KYC enrichment. Only present when the IBAN is valid and the BIC is resolved.
           properties:
             type:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               enum:
               - bank
               - digital_bank
@@ -1019,8 +1033,9 @@ components:
             IBAN is valid.
           properties:
             issuer_type:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               enum:
               - bank
               - digital_bank
@@ -1088,8 +1103,9 @@ components:
                 when authoritative is true. unavailable: we hold no reference data for this country, so
                 no opinion.'
             match:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               enum:
               - register
               - prefix
@@ -1098,8 +1114,9 @@ components:
                 LIKE fallback, reachable only in the 30 countries whose bank code may open on a letter
                 (a BIC8 always does) — check candidates.'
             register:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               description: Name of the reference set consulted.
             authoritative:
               type: boolean
@@ -1140,21 +1157,25 @@ components:
                 name:
                   type: string
                 street:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   description: One line, house number included, matching the GLEIF shape. Null where the
                     register publishes none (DE, BE).
                 post_code:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                 town:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                 country:
                   type: string
                 lei:
-                  type: string
-                  nullable: true
+                  type:
+                  - string
+                  - 'null'
                   description: Legal Entity Identifier, where the register publishes one (the OeNB does,
                     99% of entries).
               required:
@@ -1189,7 +1210,9 @@ components:
                   and let a name check decide), bic_is_advisory (the BIC was picked from several candidates),
                   issuer_not_a_known_iban_issuer (the code resolves to a BIC, but its holder is not among
                   the providers known to issue IBANs in that country), test_bic, expect_virtual_iban (curated
-                  non-bank issuer, account holder and IBAN holder often differ), screen_compliance.'
+                  non-bank issuer, account holder and IBAN holder often differ), screen_compliance, generate_payment_qr
+                  (partner handoff to PayQR on a register-confirmed SEPA account: generate and self-check
+                  a SPAYD or EPC/GiroCode payment QR).'
               do:
                 type: string
                 description: The instruction, in one sentence an agent can relay to a person.
@@ -1198,7 +1221,8 @@ components:
                 description: The field of this response that produced the step, so the advice is auditable.
               action:
                 type: string
-                description: An IBANforge call that performs the step, when one exists.
+                description: 'The call that performs the step, when one exists: an IBANforge endpoint,
+                  or the partner site for a partner handoff.'
             required:
             - code
             - do
@@ -1294,8 +1318,9 @@ components:
         valid_format:
           type: boolean
         institution:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           example: UBS AG
         country:
           type: object
@@ -1310,8 +1335,9 @@ components:
               type: string
               example: Switzerland
         city:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         address:
           type: object
           description: Registered head-office address (present when available — GLEIF or directory sourced)
@@ -1320,27 +1346,32 @@ components:
               type: string
               example: registered
             street:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               example: Bahnhofstrasse 45
             post_code:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               example: '8001'
             region:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               example: CH-ZH
             city:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
               example: Zurich
             country:
               type: string
               example: CH
             romanized:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             romanization:
               type: string
               example: original_latin
@@ -1359,19 +1390,23 @@ components:
           type: string
           example: XXX
         branch_info:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         lei:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         lei_status:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         is_test_bic:
           type: boolean
         source:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         note:
           type: string
         cost_usdc:
@@ -1435,10 +1470,11 @@ components:
               - inactive
               - not_found
         risk_score:
-          type: integer
+          type:
+          - integer
+          - 'null'
           minimum: 0
           maximum: 100
-          nullable: true
           description: 'Composite risk score (0 = no risk, 100 = critical). null when the IBAN did not
             validate: there was nothing to score.'
         risk_level:
@@ -1495,29 +1531,35 @@ components:
               - branch
               - other
             headquarters_iid:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
         address:
           type: object
           properties:
             street:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             building_number:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             post_code:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             town:
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             country:
               type: string
               example: CH
         bic:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           example: UBSWCHZH80A
         payment_services:
           type: object
@@ -1541,11 +1583,13 @@ components:
               type: boolean
               description: LSV/BDD EUR direct debit
         sic_iid:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         qr_iid:
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           description: QR-IID for QR-bill payments
         valid_on:
           type: string

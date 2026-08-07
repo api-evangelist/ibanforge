@@ -1,7 +1,15 @@
 {
   "provider": "ibanforge",
   "sources": [
-    "ibanforge-openapi.yml"
+    "ibanforge-api-keys-api-openapi.yml",
+    "ibanforge-bic-api-openapi.yml",
+    "ibanforge-compliance-api-openapi.yml",
+    "ibanforge-credits-api-openapi.yml",
+    "ibanforge-free-api-openapi.yml",
+    "ibanforge-iban-api-openapi.yml",
+    "ibanforge-mcp-api-openapi.yml",
+    "ibanforge-openapi.yml",
+    "ibanforge-swiss-clearing-api-openapi.yml"
   ],
   "outputs": [
     "ibanforge-api-keys-api-openapi.yml",
@@ -19,7 +27,15 @@
   "errors": [],
   "warnings": [],
   "notes": [
-    "apis.yml register: written (+8 apis, 9 total)"
+    "tag 'API Keys' spans 2 source specs (ibanforge-api-keys-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'BIC' spans 2 source specs (ibanforge-bic-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'Compliance' spans 2 source specs (ibanforge-compliance-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'Credits' spans 2 source specs (ibanforge-credits-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'Free' spans 2 source specs (ibanforge-free-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'IBAN' spans 2 source specs (ibanforge-iban-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'MCP' spans 2 source specs (ibanforge-mcp-api-openapi.yml, ibanforge-openapi.yml): per-path servers applied",
+    "tag 'Swiss Clearing' spans 2 source specs (ibanforge-openapi.yml, ibanforge-swiss-clearing-api-openapi.yml): per-path servers applied",
+    "apis.yml register: written (+0 apis, 8 total)"
   ],
   "skipped": []
 }

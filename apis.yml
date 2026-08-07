@@ -51,19 +51,6 @@ tags:
   - Compliance
   - MCP
 apis:
-- name: IBANforge
-  description: >-
-    Pre-payout IBAN screening: validation, issuing-bank identification, Swiss
-    clearing, bank-level sanctions, SEPA and VoP reachability, and risk scoring.
-  humanURL: https://ibanforge.com
-  baseURL: https://api.ibanforge.com
-  tags:
-  - Finance
-  properties:
-  - type: Documentation
-    url: https://ibanforge.com/docs
-  - type: OpenAPI
-    url: https://api.ibanforge.com/openapi.json
 - aid: ibanforge:ibanforge-api-keys-api
   name: IBANforge API Keys API
   description: API key management — generate free keys and check usage

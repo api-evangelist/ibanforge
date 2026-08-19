@@ -26,7 +26,7 @@ description: >-
   bank-level sanctions, SEPA and VoP reachability, and risk scoring across 89 IBAN
   countries.
 url: https://api.ibanforge.com/apis.json
-specificationVersion: '0.20'
+specificationVersion: '0.23'
 created: '2026-05-28'
 modified: '2026-08-06'
 x-source: provider-published

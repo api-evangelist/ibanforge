@@ -1,0 +1,369 @@
+{
+  "item": [
+    {
+      "id": "97545a60-4c9f-4b62-a4cf-602a5752c1c6",
+      "name": "Credits",
+      "description": {
+        "content": "Prepaid credit bundles — pay once in USDC (x402), get an API key with N credits; batch validation debits 1 credit per IBAN",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "514711e8-92fd-47ff-81eb-5f376242aa0a",
+          "name": "List prepaid credit bundles (free)",
+          "request": {
+            "name": "List prepaid credit bundles (free)",
+            "description": {
+              "content": "Lists the available prepaid credit bundles with prices. Buy a bundle once via x402 (POST /v1/credits/buy/{bundle}) and receive an API key preloaded with N credits (1 credit = 1 validation/lookup; batch validation debits 1 credit per IBAN) — credits never expire. Card checkout is also available at https://ibanforge.com/pricing.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "credits",
+                "bundles"
+              ],
+              "host": [
+                "{{v1-credits-bundles-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "04b57297-37cd-4d0a-b38f-d43f28c6dac5",
+              "name": "Available bundles",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "credits",
+                    "bundles"
+                  ],
+                  "host": [
+                    "{{v1-credits-bundles-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"bundles\": [\n    {\n      \"slug\": \"1k\",\n      \"credits\": 1000,\n      \"price_usdc\": 5,\n      \"price_per_call_usdc\": 0.005,\n      \"buy_endpoint\": \"POST /v1/credits/buy/1k\"\n    },\n    {\n      \"slug\": \"5k\",\n      \"credits\": 1000,\n      \"price_usdc\": 5,\n      \"price_per_call_usdc\": 0.005,\n      \"buy_endpoint\": \"POST /v1/credits/buy/1k\"\n    }\n  ],\n  \"payment_method\": \"x402 USDC on Base mainnet\",\n  \"documentation\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "12f94009-cd16-4c86-b308-e693a0b042b3",
+          "name": "Buy a prepaid credit bundle (x402, USDC)",
+          "request": {
+            "name": "Buy a prepaid credit bundle (x402, USDC)",
+            "description": {
+              "content": "Pay once via x402 (USDC on Base) and receive a fresh API key preloaded with the bundle credits. Bundles: 1k = $5, 5k = $20, 25k = $80. Credits never expire. Optionally pass {\"email\": \"...\"} in the body to attach the key to an email — anonymous keys are fully functional too. Check the balance with GET /v1/credits/balance.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "credits",
+                "buy",
+                ":bundle"
+              ],
+              "host": [
+                "{{v1-credits-buy-bundle-Url}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "bundle",
+                  "description": "(Required) Bundle slug"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "d1e20087-c1d8-4a73-b9c2-4d9a810e96b2",
+              "name": "Credit key minted (shown only once — save it)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "credits",
+                    "buy",
+                    ":bundle"
+                  ],
+                  "host": [
+                    "{{v1-credits-buy-bundle-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bundle",
+                      "description": "(Required) Bundle slug"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"api_key\": \"string\",\n  \"credits\": 1000,\n  \"bundle\": \"1k\",\n  \"key_prefix\": \"string\",\n  \"price_paid_usdc\": 5,\n  \"price_per_call_usdc\": 0.005,\n  \"usage_hint\": \"string\",\n  \"balance_endpoint\": \"GET /v1/credits/balance\",\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "03f6d227-9073-4bdb-bd79-8b27d79151d2",
+              "name": "Payment required (x402) — bundle price in USDC",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "credits",
+                    "buy",
+                    ":bundle"
+                  ],
+                  "host": [
+                    "{{v1-credits-buy-bundle-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bundle",
+                      "description": "(Required) Bundle slug"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "89be6f7e-e44c-4d97-bc8d-c7cd6e113aeb",
+              "name": "Unknown bundle slug — choose 1k, 5k or 25k",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "credits",
+                    "buy",
+                    ":bundle"
+                  ],
+                  "host": [
+                    "{{v1-credits-buy-bundle-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bundle",
+                      "description": "(Required) Bundle slug"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-credits-bundles-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-credits-buy-bundle-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "ae98a1ec-25cb-4a23-8c90-9f80868e280b",
+    "name": "Ibanforge Credits API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged Credits across 2 of this provider's published API definitions: ibanforge-credits-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

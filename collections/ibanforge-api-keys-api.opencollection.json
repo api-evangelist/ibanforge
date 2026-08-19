@@ -1,0 +1,86 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ibanforge API Keys API",
+    "version": "1.4.3"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "API Keys",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Generate a free API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ibanforge.com/v1/keys/generate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generates a free API key with 200 requests/month quota (batch validation counts 1 request per IBAN). One key per email per day."
+        },
+        {
+          "info": {
+            "name": "Check API key usage",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ibanforge.com/v1/keys/usage",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns current month usage and remaining quota for the provided API key."
+        },
+        {
+          "info": {
+            "name": "Detailed statistics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ibanforge.com/stats",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns detailed API usage statistics broken down by operation type. Requires authentication — these figures include revenue and are not public."
+        },
+        {
+          "info": {
+            "name": "Historical statistics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ibanforge.com/stats/history",
+            "params": [
+              {
+                "name": "period",
+                "value": "",
+                "type": "query",
+                "description": "Number of days to retrieve (1–90, default 7)"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Returns per-day statistics for the requested period. Requires authentication — these figures include revenue and are not public."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

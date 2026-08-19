@@ -1,0 +1,39 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ibanforge Compliance API",
+    "version": "1.4.3"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Compliance",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Full IBAN compliance check",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ibanforge.com/v1/iban/compliance",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-Payment",
+              "value": "{{X-Payment}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Validates an IBAN and returns everything from /v1/iban/validate PLUS a full compliance layer: sanctions screening (OFAC), FATF status, SEPA Instant reachability, VoP participant check, and a composite risk score (0-100). Costs $0.02 USDC via x402."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

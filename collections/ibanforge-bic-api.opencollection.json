@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ibanforge BIC API",
+    "version": "1.4.3"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "BIC",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Lookup a BIC/SWIFT code",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ibanforge.com/v1/bic/:code",
+            "params": [
+              {
+                "name": "code",
+                "value": "",
+                "type": "path",
+                "description": "BIC/SWIFT code (8 or 11 characters)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "X-Payment",
+              "value": "{{X-Payment}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Returns institution details for a BIC/SWIFT code (8 or 11 characters). Costs 0.003 USDC via x402."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,253 @@
+{
+  "item": [
+    {
+      "id": "99e3d0cb-aa84-48b1-820e-dbfed4117007",
+      "name": "Swiss Clearing",
+      "description": {
+        "content": "Swiss BC-Nummer / IID clearing lookup (paid via x402)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ed5775a6-1dbf-444d-861e-7cb188de7ab4",
+          "name": "Swiss BC-Nummer / IID clearing lookup",
+          "request": {
+            "name": "Swiss BC-Nummer / IID clearing lookup",
+            "description": {
+              "content": "Returns institution details, payment service participation (SIC, euroSIC, Instant Payments CHF), and QR-IID allocation for a Swiss BC-Nummer (IID). Costs 0.003 USDC via x402.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "ch",
+                "clearing",
+                ":iid"
+              ],
+              "host": [
+                "{{v1-ch-clearing-iid-Url}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "iid",
+                  "description": "(Required) Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f11b5344-71ee-4591-9fd6-532819cf33da",
+              "name": "Clearing lookup result",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "ch",
+                    "clearing",
+                    ":iid"
+                  ],
+                  "host": [
+                    "{{v1-ch-clearing-iid-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "iid",
+                      "description": "(Required) Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"iid\": \"00230\",\n  \"found\": true,\n  \"institution\": {\n    \"name\": \"UBS Switzerland AG\",\n    \"type\": \"postfinance\",\n    \"iid_type\": \"other\",\n    \"headquarters_iid\": \"string\"\n  },\n  \"address\": {\n    \"street\": \"string\",\n    \"building_number\": \"string\",\n    \"post_code\": \"string\",\n    \"town\": \"string\",\n    \"country\": \"CH\"\n  },\n  \"bic\": \"UBSWCHZH80A\",\n  \"payment_services\": {\n    \"sic\": true,\n    \"rtgs_chf\": false,\n    \"instant_payments_chf\": true,\n    \"eurosic\": false,\n    \"lsv_bdd_chf\": false,\n    \"lsv_bdd_eur\": true\n  },\n  \"sic_iid\": \"string\",\n  \"qr_iid\": \"string\",\n  \"valid_on\": \"1996-10-23\",\n  \"cost_usdc\": 0.003,\n  \"processing_ms\": 4179.729131055293\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b46a2d76-fed1-456e-8ed6-51ed179b6a90",
+              "name": "Invalid IID format",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "ch",
+                    "clearing",
+                    ":iid"
+                  ],
+                  "host": [
+                    "{{v1-ch-clearing-iid-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "iid",
+                      "description": "(Required) Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "8caf1126-3666-4a52-8721-1feed30e8800",
+              "name": "Payment required (x402)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "ch",
+                    "clearing",
+                    ":iid"
+                  ],
+                  "host": [
+                    "{{v1-ch-clearing-iid-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "iid",
+                      "description": "(Required) Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-ch-clearing-iid-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "7130779d-5a26-4b69-a167-edf24bcd5dee",
+    "name": "Ibanforge Swiss Clearing API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged Swiss Clearing across 2 of this provider's published API definitions: ibanforge-openapi.yml, ibanforge-swiss-clearing-api-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

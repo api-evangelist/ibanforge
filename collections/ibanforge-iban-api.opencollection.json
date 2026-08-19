@@ -1,0 +1,60 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ibanforge IBAN API",
+    "version": "1.4.3"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "IBAN",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Validate a single IBAN",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ibanforge.com/v1/iban/validate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-Payment",
+              "value": "{{X-Payment}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Validates an IBAN and returns parsed components including country, check digits, BBAN, and optional BIC lookup. Costs 0.005 USDC via x402."
+        },
+        {
+          "info": {
+            "name": "Validate up to 100 IBANs in one request",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ibanforge.com/v1/iban/batch",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-Payment",
+              "value": "{{X-Payment}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Validates a list of IBANs and returns results for each. Costs $0.002 USDC per IBAN via x402 (e.g. 10 IBANs = $0.020, 100 IBANs = $0.200). On API keys, a batch debits 1 request/credit per IBAN — free tier and prepaid packs alike."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

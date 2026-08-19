@@ -1,0 +1,155 @@
+{
+  "item": [
+    {
+      "id": "ca12d281-5f3d-42fe-b02c-94ca62054521",
+      "name": "MCP",
+      "description": {
+        "content": "Model Context Protocol endpoint for AI agents (Streamable HTTP)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "da282b14-9a4c-44b1-a5c9-7aef6676cc48",
+          "name": "MCP endpoint for AI agents (Streamable HTTP)",
+          "request": {
+            "name": "MCP endpoint for AI agents (Streamable HTTP)",
+            "description": {
+              "content": "Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes the same capabilities as this REST API as 5 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "mcp"
+              ],
+              "host": [
+                "{{mcp-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"<string>\",\n  \"method\": \"<string>\",\n  \"id\": \"<string>\",\n  \"params\": \"<object>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "23c11b72-f068-4585-bda4-da47683ac316",
+              "name": "JSON-RPC 2.0 response (application/json or text/event-stream, depending on Accept header)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "mcp"
+                  ],
+                  "host": [
+                    "{{mcp-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"jsonrpc\": \"<string>\",\n  \"method\": \"tools/list\",\n  \"id\": \"<string>\",\n  \"params\": \"<object>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "a7712241-a497-4fb5-999a-85404c96a535",
+              "name": "Malformed JSON-RPC request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "mcp"
+                  ],
+                  "host": [
+                    "{{mcp-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"jsonrpc\": \"<string>\",\n  \"method\": \"tools/list\",\n  \"id\": \"<string>\",\n  \"params\": \"<object>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "mcp-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "04bc4e94-0fc3-4d06-9208-a443f7b2c248",
+    "name": "Ibanforge MCP API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged MCP across 2 of this provider's published API definitions: ibanforge-mcp-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

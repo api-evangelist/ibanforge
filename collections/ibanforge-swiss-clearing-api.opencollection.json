@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ibanforge Swiss Clearing API",
+    "version": "1.4.3"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Swiss Clearing",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Swiss BC-Nummer / IID clearing lookup",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ibanforge.com/v1/ch/clearing/:iid",
+            "params": [
+              {
+                "name": "iid",
+                "value": "",
+                "type": "path",
+                "description": "Swiss BC-Nummer / IID (1-5 digits, zero-padded to 5)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "X-Payment",
+              "value": "{{X-Payment}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Returns institution details, payment service participation (SIC, euroSIC, Instant Payments CHF), and QR-IID allocation for a Swiss BC-Nummer (IID). Costs 0.003 USDC via x402."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

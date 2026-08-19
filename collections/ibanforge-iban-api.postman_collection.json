@@ -1,0 +1,476 @@
+{
+  "item": [
+    {
+      "id": "7ebb21b5-21e6-4eb3-8858-766f95323f31",
+      "name": "IBAN",
+      "description": {
+        "content": "IBAN validation endpoints (paid via x402)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "36d991af-eccd-4d3f-a41c-06d0cf930201",
+          "name": "Validate a single IBAN",
+          "request": {
+            "name": "Validate a single IBAN",
+            "description": {
+              "content": "Validates an IBAN and returns parsed components including country, check digits, BBAN, and optional BIC lookup. Costs 0.005 USDC via x402.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "validate"
+              ],
+              "host": [
+                "{{v1-iban-validate-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"iban\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "8943a094-4362-4a11-a4a3-594c22ac1516",
+              "name": "Validation result",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{v1-iban-validate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"GB29NWBK60161331926819\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"iban\": \"string\",\n  \"valid\": true,\n  \"cost_usdc\": 0.005,\n  \"country\": {\n    \"code\": \"GB\",\n    \"name\": \"United Kingdom\"\n  },\n  \"check_digits\": \"29\",\n  \"bban\": {\n    \"bank_code\": \"string\",\n    \"account_number\": \"string\",\n    \"branch_code\": \"string\"\n  },\n  \"bic\": {\n    \"code\": \"NWBKGB2L\",\n    \"bank_name\": \"string\",\n    \"city\": \"string\"\n  },\n  \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n  \"clearing\": {\n    \"iid\": \"00230\",\n    \"name\": \"UBS Switzerland AG\",\n    \"type\": \"foreign_participant\",\n    \"town\": \"Zürich\",\n    \"sic\": true,\n    \"instant_payments_chf\": false,\n    \"eurosic\": true,\n    \"qr_iid\": \"string\"\n  },\n  \"error\": \"unsupported_country\",\n  \"error_detail\": \"string\",\n  \"processing_ms\": 9207.129327403754,\n  \"sepa\": {\n    \"member\": false,\n    \"schemes\": [\n      \"SCT_INST\",\n      \"SCT_INST\"\n    ],\n    \"vop_required\": true,\n    \"vop_participant\": false\n  },\n  \"issuer\": {\n    \"type\": \"bank\",\n    \"name\": \"string\",\n    \"classification\": \"default\",\n    \"iban_issuer\": \"confirmed\"\n  },\n  \"risk_indicators\": {\n    \"issuer_type\": \"emi\",\n    \"country_risk\": \"standard\",\n    \"test_bic\": false,\n    \"sepa_reachable\": true,\n    \"sepa_reachable_scope\": \"country\",\n    \"vop_coverage\": true\n  },\n  \"bank_code_check\": {\n    \"value\": \"string\",\n    \"status\": \"unavailable\",\n    \"match\": null,\n    \"register\": \"string\",\n    \"authoritative\": false,\n    \"as_of\": \"string\",\n    \"candidates\": 5887,\n    \"retired\": false,\n    \"superseded_by\": \"string\",\n    \"institution\": {\n      \"name\": \"string\",\n      \"street\": \"string\",\n      \"post_code\": \"string\",\n      \"town\": \"string\",\n      \"country\": \"string\",\n      \"lei\": \"string\"\n    }\n  },\n  \"next_steps\": [\n    {\n      \"code\": \"string\",\n      \"do\": \"string\",\n      \"because\": \"string\",\n      \"action\": \"string\"\n    },\n    {\n      \"code\": \"string\",\n      \"do\": \"string\",\n      \"because\": \"string\",\n      \"action\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "965e5fc7-aa6f-4177-bba1-6fa75d9befb1",
+              "name": "Missing or malformed request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{v1-iban-validate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"GB29NWBK60161331926819\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "523c1468-9633-4b8e-987b-a517e40d16cd",
+              "name": "Payment required (x402)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{v1-iban-validate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"GB29NWBK60161331926819\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e191f808-23bc-41a0-96fc-0fe3d4de5ff1",
+          "name": "Validate up to 100 IBANs in one request",
+          "request": {
+            "name": "Validate up to 100 IBANs in one request",
+            "description": {
+              "content": "Validates a list of IBANs and returns results for each. Costs $0.002 USDC per IBAN via x402 (e.g. 10 IBANs = $0.020, 100 IBANs = $0.200). On API keys, a batch debits 1 request/credit per IBAN — free tier and prepaid packs alike.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "batch"
+              ],
+              "host": [
+                "{{v1-iban-batch-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ibans\": [\n    \"<string>\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "551ff638-d600-4498-b918-ba874bbb75a6",
+              "name": "Batch validation results",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "batch"
+                  ],
+                  "host": [
+                    "{{v1-iban-batch-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ibans\": [\n    \"GB29NWBK60161331926819\",\n    \"DE89370400440532013000\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"results\": [\n    {\n      \"iban\": \"string\",\n      \"valid\": false,\n      \"cost_usdc\": 0.005,\n      \"country\": {\n        \"code\": \"GB\",\n        \"name\": \"United Kingdom\"\n      },\n      \"check_digits\": \"29\",\n      \"bban\": {\n        \"bank_code\": \"string\",\n        \"account_number\": \"string\",\n        \"branch_code\": \"string\"\n      },\n      \"bic\": {\n        \"code\": \"NWBKGB2L\",\n        \"bank_name\": \"string\",\n        \"city\": \"string\"\n      },\n      \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n      \"clearing\": {\n        \"iid\": \"00230\",\n        \"name\": \"UBS Switzerland AG\",\n        \"type\": \"central_bank\",\n        \"town\": \"Zürich\",\n        \"sic\": true,\n        \"instant_payments_chf\": false,\n        \"eurosic\": true,\n        \"qr_iid\": \"string\"\n      },\n      \"error\": \"invalid_format\",\n      \"error_detail\": \"string\",\n      \"processing_ms\": 1790.5079951024916,\n      \"sepa\": {\n        \"member\": true,\n        \"schemes\": [\n          \"SDD\",\n          \"SCT_INST\"\n        ],\n        \"vop_required\": false,\n        \"vop_participant\": false\n      },\n      \"issuer\": {\n        \"type\": \"emi\",\n        \"name\": \"string\",\n        \"classification\": \"default\",\n        \"iban_issuer\": \"not_listed\"\n      },\n      \"risk_indicators\": {\n        \"issuer_type\": \"digital_bank\",\n        \"country_risk\": \"high\",\n        \"test_bic\": true,\n        \"sepa_reachable\": true,\n        \"sepa_reachable_scope\": \"country\",\n        \"vop_coverage\": true\n      },\n      \"bank_code_check\": {\n        \"value\": \"string\",\n        \"status\": \"unavailable\",\n        \"match\": null,\n        \"register\": \"string\",\n        \"authoritative\": false,\n        \"as_of\": \"string\",\n        \"candidates\": 4155,\n        \"retired\": false,\n        \"superseded_by\": \"string\",\n        \"institution\": {\n          \"name\": \"string\",\n          \"street\": \"string\",\n          \"post_code\": \"string\",\n          \"town\": \"string\",\n          \"country\": \"string\",\n          \"lei\": \"string\"\n        }\n      },\n      \"next_steps\": [\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        },\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        }\n      ]\n    },\n    {\n      \"iban\": \"string\",\n      \"valid\": true,\n      \"cost_usdc\": 0.005,\n      \"country\": {\n        \"code\": \"GB\",\n        \"name\": \"United Kingdom\"\n      },\n      \"check_digits\": \"29\",\n      \"bban\": {\n        \"bank_code\": \"string\",\n        \"account_number\": \"string\",\n        \"branch_code\": \"string\"\n      },\n      \"bic\": {\n        \"code\": \"NWBKGB2L\",\n        \"bank_name\": \"string\",\n        \"city\": \"string\"\n      },\n      \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n      \"clearing\": {\n        \"iid\": \"00230\",\n        \"name\": \"UBS Switzerland AG\",\n        \"type\": \"bank\",\n        \"town\": \"Zürich\",\n        \"sic\": false,\n        \"instant_payments_chf\": true,\n        \"eurosic\": false,\n        \"qr_iid\": \"string\"\n      },\n      \"error\": \"wrong_length\",\n      \"error_detail\": \"string\",\n      \"processing_ms\": 3243.215715922032,\n      \"sepa\": {\n        \"member\": true,\n        \"schemes\": [\n          \"SCT_INST\",\n          \"SCT_INST\"\n        ],\n        \"vop_required\": true,\n        \"vop_participant\": false\n      },\n      \"issuer\": {\n        \"type\": \"digital_bank\",\n        \"name\": \"string\",\n        \"classification\": \"default\",\n        \"iban_issuer\": \"not_listed\"\n      },\n      \"risk_indicators\": {\n        \"issuer_type\": null,\n        \"country_risk\": \"standard\",\n        \"test_bic\": true,\n        \"sepa_reachable\": true,\n        \"sepa_reachable_scope\": \"country\",\n        \"vop_coverage\": false\n      },\n      \"bank_code_check\": {\n        \"value\": \"string\",\n        \"status\": \"verified\",\n        \"match\": null,\n        \"register\": \"string\",\n        \"authoritative\": false,\n        \"as_of\": \"string\",\n        \"candidates\": 6575,\n        \"retired\": false,\n        \"superseded_by\": \"string\",\n        \"institution\": {\n          \"name\": \"string\",\n          \"street\": \"string\",\n          \"post_code\": \"string\",\n          \"town\": \"string\",\n          \"country\": \"string\",\n          \"lei\": \"string\"\n        }\n      },\n      \"next_steps\": [\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        },\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        }\n      ]\n    }\n  ],\n  \"count\": 8815,\n  \"valid_count\": 6417,\n  \"cost_usdc\": 787.4598420006951\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c72cbe88-b5bb-4e0c-b669-f51d7ed0f040",
+              "name": "Missing or malformed request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "batch"
+                  ],
+                  "host": [
+                    "{{v1-iban-batch-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ibans\": [\n    \"GB29NWBK60161331926819\",\n    \"DE89370400440532013000\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "c30abf57-a06b-4add-bd49-1df20f6f1946",
+              "name": "Payment required (x402)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "batch"
+                  ],
+                  "host": [
+                    "{{v1-iban-batch-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ibans\": [\n    \"GB29NWBK60161331926819\",\n    \"DE89370400440532013000\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-validate-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-batch-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "82f344f9-39d1-45f1-a4df-e9d8cbe444df",
+    "name": "Ibanforge IBAN API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged IBAN across 2 of this provider's published API definitions: ibanforge-iban-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

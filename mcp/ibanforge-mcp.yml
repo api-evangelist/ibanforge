@@ -3,11 +3,10 @@ method: declared
 publisher: IBANforge
 status: published
 source: https://api.ibanforge.com/.well-known/mcp/server-card.json
-description: >-
-  IBANforge operates an official remote MCP server over Streamable HTTP, plus a
-  stdio server published to npm as `ibanforge-mcp`. The HTTP transport answers a
-  full handshake and tool calls with NO credentials — the provider offers 10 free
-  tool calls per IP per day as a taster, returning the complete paid response.
+description: IBANforge operates an official remote MCP server over Streamable HTTP, plus a stdio server
+  published to npm as `ibanforge-mcp`. The HTTP transport answers a full handshake and tool calls with
+  NO credentials — the provider offers 10 free tool calls per IP per day as a taster, returning the complete
+  paid response.
 server:
   name: ibanforge
   transport: http
@@ -15,9 +14,8 @@ server:
   url: https://api.ibanforge.com/mcp
   manifest: https://api.ibanforge.com/.well-known/mcp/server-card.json
   auth: none-for-taster
-  auth_note: >-
-    Paid use takes `Authorization: Bearer ifk_…` (free key, 200 req/month) or
-    x402/USDC on Base L2. The MCP taster requires neither.
+  auth_note: 'Paid use takes `Authorization: Bearer ifk_…` (free key, 200 req/month) or x402/USDC on Base
+    L2. The MCP taster requires neither.'
   version: 1.4.3
   protocol_version: '2025-06-18'
 stdio:
@@ -27,31 +25,30 @@ stdio:
   command: npx -y ibanforge-mcp
 documentation: https://ibanforge.com/docs
 tools:
-  - name: validate_iban
-    description: >-
-      Verify whether a European IBAN is valid and enrich it with bank, compliance
-      and routing data.
-  - name: batch_validate_iban
-    description: Validate up to 100 IBANs in a single call.
-  - name: lookup_bic
-    description: >-
-      Resolve a BIC / SWIFT code into the underlying bank: name, country, city,
-      LEI and register.
-  - name: check_compliance
-    description: >-
-      Full pre-flight compliance check on an IBAN before sending a SEPA or
-      cross-border payment.
-  - name: lookup_ch_clearing
-    description: >-
-      Resolve a Swiss BC-Nummer / IID into the underlying institution.
+- name: validate_iban
+  description: Verify whether a European IBAN is valid and enrich it with bank, compliance and routing
+    data.
+- name: batch_validate_iban
+  description: Validate up to 100 IBANs in a single call.
+- name: lookup_bic
+  description: 'Resolve a BIC / SWIFT code into the underlying bank: name, country, city, LEI and register.'
+- name: check_compliance
+  description: Full pre-flight compliance check on an IBAN before sending a SEPA or cross-border payment.
+- name: lookup_ch_clearing
+  description: Resolve a Swiss BC-Nummer / IID into the underlying institution.
 x-evidence:
   declared: '2026-08-06'
   verified: '2026-08-06'
   url: https://api.ibanforge.com/mcp
   status: 200
-  method: >-
-    Full Streamable HTTP handshake performed unauthenticated — initialize (200),
-    notifications/initialized (202), tools/list (5 tools), and tools/call
-    validate_iban, which returned the complete paid response including SIX
-    BankMaster clearing data. This is a provider-run server, not an
-    API-Evangelist-derived candidate.
+  method: Full Streamable HTTP handshake performed unauthenticated — initialize (200), notifications/initialized
+    (202), tools/list (5 tools), and tools/call validate_iban, which returned the complete paid response
+    including SIX BankMaster clearing data. This is a provider-run server, not an API-Evangelist-derived
+    candidate.
+deployment:
+  mode: remote
+  endpoint: https://api.ibanforge.com/mcp
+  verified: probed
+  probe: live
+  checked: '2026-08-12'
+  source: catalog MCP census

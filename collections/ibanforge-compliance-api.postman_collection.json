@@ -1,0 +1,254 @@
+{
+  "item": [
+    {
+      "id": "c5dc5ee2-4acd-4231-a686-207550bb0b7c",
+      "name": "Compliance",
+      "description": {
+        "content": "Compliance check endpoint — IBAN validation + sanctions + SEPA + VoP + risk score (paid via x402)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4d64344f-377d-47d1-8486-f92f14b611f0",
+          "name": "Full IBAN compliance check",
+          "request": {
+            "name": "Full IBAN compliance check",
+            "description": {
+              "content": "Validates an IBAN and returns everything from /v1/iban/validate PLUS a full compliance layer: sanctions screening (OFAC), FATF status, SEPA Instant reachability, VoP participant check, and a composite risk score (0-100). Costs $0.02 USDC via x402.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "compliance"
+              ],
+              "host": [
+                "{{v1-iban-compliance-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"iban\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f98d5248-8e86-46d1-b379-581120bc0917",
+              "name": "Compliance check result (includes full IBAN validation + compliance layer)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "compliance"
+                  ],
+                  "host": [
+                    "{{v1-iban-compliance-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"DE89370400440532013000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"iban\": \"string\",\n  \"valid\": true,\n  \"cost_usdc\": 0.005,\n  \"country\": {\n    \"code\": \"GB\",\n    \"name\": \"United Kingdom\"\n  },\n  \"check_digits\": \"29\",\n  \"bban\": {\n    \"bank_code\": \"string\",\n    \"account_number\": \"string\",\n    \"branch_code\": \"string\"\n  },\n  \"bic\": {\n    \"code\": \"NWBKGB2L\",\n    \"bank_name\": \"string\",\n    \"city\": \"string\"\n  },\n  \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n  \"clearing\": {\n    \"iid\": \"00230\",\n    \"name\": \"UBS Switzerland AG\",\n    \"type\": \"raiffeisen\",\n    \"town\": \"Zürich\",\n    \"sic\": false,\n    \"instant_payments_chf\": true,\n    \"eurosic\": false,\n    \"qr_iid\": \"string\"\n  },\n  \"error\": \"checksum_failed\",\n  \"error_detail\": \"string\",\n  \"processing_ms\": 2630.7901282186594,\n  \"sepa\": {\n    \"member\": true,\n    \"schemes\": [\n      \"SCT_INST\",\n      \"SCT\"\n    ],\n    \"vop_required\": true,\n    \"vop_participant\": false\n  },\n  \"issuer\": {\n    \"type\": \"digital_bank\",\n    \"name\": \"string\",\n    \"classification\": \"default\",\n    \"iban_issuer\": \"confirmed\"\n  },\n  \"risk_indicators\": {\n    \"issuer_type\": \"payment_institution\",\n    \"country_risk\": \"elevated\",\n    \"test_bic\": true,\n    \"sepa_reachable\": true,\n    \"sepa_reachable_scope\": \"country\",\n    \"vop_coverage\": false\n  },\n  \"bank_code_check\": {\n    \"value\": \"string\",\n    \"status\": \"verified\",\n    \"match\": null,\n    \"register\": \"string\",\n    \"authoritative\": true,\n    \"as_of\": \"string\",\n    \"candidates\": 9618,\n    \"retired\": true,\n    \"superseded_by\": \"string\",\n    \"institution\": {\n      \"name\": \"string\",\n      \"street\": \"string\",\n      \"post_code\": \"string\",\n      \"town\": \"string\",\n      \"country\": \"string\",\n      \"lei\": \"string\"\n    }\n  },\n  \"next_steps\": [\n    {\n      \"code\": \"string\",\n      \"do\": \"string\",\n      \"because\": \"string\",\n      \"action\": \"string\"\n    },\n    {\n      \"code\": \"string\",\n      \"do\": \"string\",\n      \"because\": \"string\",\n      \"action\": \"string\"\n    }\n  ],\n  \"compliance\": {\n    \"sanctions\": {\n      \"country_sanctioned\": false,\n      \"bank_sanctioned\": true,\n      \"matched_lists\": [\n        \"OFAC\"\n      ],\n      \"fatf_status\": \"member\"\n    },\n    \"reachability\": {\n      \"sepa_instant\": true,\n      \"sct\": false,\n      \"sdd\": true\n    },\n    \"vop\": {\n      \"participant\": false,\n      \"status\": \"inactive\"\n    },\n    \"risk_score\": 65,\n    \"risk_level\": \"critical\",\n    \"flags\": [\n      \"fatf_grey_list\",\n      \"emi_issuer\",\n      \"no_vop\"\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0aed8910-b8a6-413a-9d5c-2c4d56936db5",
+              "name": "Missing or malformed request body",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "compliance"
+                  ],
+                  "host": [
+                    "{{v1-iban-compliance-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"DE89370400440532013000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "fe71a1b0-539c-4c30-ad58-f5a8038932fa",
+              "name": "Payment required (x402) — $0.02 USDC",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "compliance"
+                  ],
+                  "host": [
+                    "{{v1-iban-compliance-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"iban\": \"DE89370400440532013000\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-compliance-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "b7c2fb30-bcf2-42e0-ad14-17e197e60784",
+    "name": "Ibanforge Compliance API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged Compliance across 2 of this provider's published API definitions: ibanforge-compliance-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

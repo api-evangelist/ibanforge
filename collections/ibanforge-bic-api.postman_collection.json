@@ -1,0 +1,249 @@
+{
+  "item": [
+    {
+      "id": "87305162-55f1-4305-9de6-6e76a3d024a0",
+      "name": "BIC",
+      "description": {
+        "content": "BIC/SWIFT lookup endpoints (paid via x402)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "785b80c8-8c4a-4945-9db6-0212394e85cc",
+          "name": "Lookup a BIC/SWIFT code",
+          "request": {
+            "name": "Lookup a BIC/SWIFT code",
+            "description": {
+              "content": "Returns institution details for a BIC/SWIFT code (8 or 11 characters). Costs 0.003 USDC via x402.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "bic",
+                ":code"
+              ],
+              "host": [
+                "{{v1-bic-code-Url}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "code",
+                  "description": "(Required) BIC/SWIFT code (8 or 11 characters)"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-Payment"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3a35d3a2-28df-4468-8025-08ed390d3d02",
+              "name": "BIC lookup result",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "bic",
+                    ":code"
+                  ],
+                  "host": [
+                    "{{v1-bic-code-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "code",
+                      "description": "(Required) BIC/SWIFT code (8 or 11 characters)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"bic\": \"UBSWCHZH\",\n  \"bic8\": \"UBSWCHZH\",\n  \"bic11\": \"UBSWCHZHXXX\",\n  \"found\": false,\n  \"valid_format\": true,\n  \"institution\": \"UBS AG\",\n  \"country\": {\n    \"code\": \"CH\",\n    \"name\": \"Switzerland\"\n  },\n  \"city\": \"string\",\n  \"branch_code\": \"XXX\",\n  \"branch_info\": \"string\",\n  \"lei\": \"string\",\n  \"lei_status\": \"string\",\n  \"is_test_bic\": false,\n  \"source\": \"string\",\n  \"cost_usdc\": 0.003,\n  \"address\": {\n    \"type\": \"registered\",\n    \"street\": \"Bahnhofstrasse 45\",\n    \"post_code\": \"8001\",\n    \"region\": \"CH-ZH\",\n    \"city\": \"Zurich\",\n    \"country\": \"CH\",\n    \"romanized\": \"string\",\n    \"romanization\": \"original_latin\",\n    \"source\": \"GLEIF\",\n    \"language\": \"en\",\n    \"as_of\": \"1998-06-03\"\n  },\n  \"address_available\": false,\n  \"note\": \"string\",\n  \"processing_ms\": 9418.24533636218\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0517446d-15fb-4187-a2a9-97c1b89042a1",
+              "name": "Invalid BIC format",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "bic",
+                    ":code"
+                  ],
+                  "host": [
+                    "{{v1-bic-code-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "code",
+                      "description": "(Required) BIC/SWIFT code (8 or 11 characters)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "63a1adb5-002f-4ef9-af77-772cd4f997db",
+              "name": "Payment required (x402)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "bic",
+                    ":code"
+                  ],
+                  "host": [
+                    "{{v1-bic-code-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "code",
+                      "description": "(Required) BIC/SWIFT code (8 or 11 characters)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-Payment",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-bic-code-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "eb6286ad-073a-4126-bcd2-930b9498ae03",
+    "name": "Ibanforge BIC API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged BIC across 2 of this provider's published API definitions: ibanforge-bic-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

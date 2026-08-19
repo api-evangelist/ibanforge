@@ -1,0 +1,606 @@
+{
+  "item": [
+    {
+      "id": "2db38260-ede2-4ba1-8b26-5e4f1a963b05",
+      "name": "API Keys",
+      "description": {
+        "content": "API key management — generate free keys and check usage",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "3496d85f-233a-4bc6-a09a-80541fd750a9",
+          "name": "Generate a free API key",
+          "request": {
+            "name": "Generate a free API key",
+            "description": {
+              "content": "Generates a free API key with 200 requests/month quota (batch validation counts 1 request per IBAN). One key per email per day.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "keys",
+                "generate"
+              ],
+              "host": [
+                "{{v1-keys-generate-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "08bb7d2b-4475-4ebd-a264-dc4aa238d2a8",
+              "name": "API key generated (shown only once)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "keys",
+                    "generate"
+                  ],
+                  "host": [
+                    "{{v1-keys-generate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "5fcd440a-36b2-4304-8122-e5b3d79cfcb0",
+              "name": "Invalid email",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "keys",
+                    "generate"
+                  ],
+                  "host": [
+                    "{{v1-keys-generate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ff63c5e0-de85-44b9-b20d-3e406ac7a65b",
+              "name": "Rate limited — one key per email per day",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "keys",
+                    "generate"
+                  ],
+                  "host": [
+                    "{{v1-keys-generate-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3ed43c47-f7ae-443e-81a8-8b12d43e4d3a",
+          "name": "Check API key usage",
+          "request": {
+            "name": "Check API key usage",
+            "description": {
+              "content": "Returns current month usage and remaining quota for the provided API key.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "keys",
+                "usage"
+              ],
+              "host": [
+                "{{v1-keys-usage-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "94ab6516-e9a0-4e8b-a45a-ccf787e33500",
+              "name": "Usage statistics for the current month",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "keys",
+                    "usage"
+                  ],
+                  "host": [
+                    "{{v1-keys-usage-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "ab364676-2efe-45d0-b287-1de6eb43f756",
+              "name": "Missing or invalid API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "keys",
+                    "usage"
+                  ],
+                  "host": [
+                    "{{v1-keys-usage-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6fcd2e50-9bd2-40ae-bcd2-f70c219a3d36",
+          "name": "Detailed statistics",
+          "request": {
+            "name": "Detailed statistics",
+            "description": {
+              "content": "Returns detailed API usage statistics broken down by operation type. Requires authentication — these figures include revenue and are not public.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "stats"
+              ],
+              "host": [
+                "{{stats-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "e83f114d-3057-40fc-adc3-5b6c2b263faa",
+              "name": "Statistics overview",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "stats"
+                  ],
+                  "host": [
+                    "{{stats-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total_operations\": 5014,\n  \"by_type\": {\n    \"iban_validate\": {\n      \"total\": 8404,\n      \"valid_count\": 5820,\n      \"success_rate\": 8435.45307347725\n    },\n    \"iban_batch\": {\n      \"total\": 7363,\n      \"valid_count\": 4830,\n      \"success_rate\": 5046.624125916514\n    },\n    \"bic_lookup\": {\n      \"total\": 5143,\n      \"found_count\": 3655,\n      \"hit_rate\": 5016.7906679441285\n    }\n  },\n  \"total_revenue_usdc\": 5488.733864941215,\n  \"top_countries\": [\n    {\n      \"country\": \"string\",\n      \"count\": 7073\n    },\n    {\n      \"country\": \"string\",\n      \"count\": 1527\n    }\n  ],\n  \"last_7_days\": [\n    {\n      \"date\": \"1974-12-07\",\n      \"total\": 7745,\n      \"revenue\": 9607.336684523087\n    },\n    {\n      \"date\": \"1991-05-21\",\n      \"total\": 6135,\n      \"revenue\": 7712.745941274011\n    }\n  ],\n  \"total_revenue_attempted_usdc\": 2433.432022647262,\n  \"revenue_note\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "57d90d6a-ef49-4736-bc34-5b42c9a10111",
+              "name": "Authentication required — send Authorization: Bearer ifk_...",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "stats"
+                  ],
+                  "host": [
+                    "{{stats-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "83fcf456-1ef9-4284-aea9-39481ebacd5a",
+          "name": "Historical statistics",
+          "request": {
+            "name": "Historical statistics",
+            "description": {
+              "content": "Returns per-day statistics for the requested period. Requires authentication — these figures include revenue and are not public.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "stats",
+                "history"
+              ],
+              "host": [
+                "{{stats-history-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "period",
+                  "value": "7",
+                  "description": "Number of days to retrieve (1–90, default 7)"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b1710801-3753-4ee2-983d-0dab464d7331",
+              "name": "Historical stats array",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "stats",
+                    "history"
+                  ],
+                  "host": [
+                    "{{stats-history-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "period",
+                      "value": "7"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"date\": \"1980-12-07\",\n    \"total\": 564,\n    \"revenue\": 5678.1397954072145\n  },\n  {\n    \"date\": \"2001-09-23\",\n    \"total\": 2152,\n    \"revenue\": 1726.9164898781298\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "507796ac-549e-4400-9e1d-224940b96a8a",
+              "name": "Authentication required — send Authorization: Bearer ifk_...",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "stats",
+                    "history"
+                  ],
+                  "host": [
+                    "{{stats-history-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "period",
+                      "value": "7"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-keys-generate-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-keys-usage-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "stats-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "stats-history-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "c5cba5b1-a667-4354-aa98-2fa5f2240fe5",
+    "name": "Ibanforge API Keys API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged API Keys across 2 of this provider's published API definitions: ibanforge-api-keys-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

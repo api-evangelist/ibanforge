@@ -1,0 +1,704 @@
+{
+  "item": [
+    {
+      "id": "7108801e-c4dc-4062-817f-aab52d61dcd5",
+      "name": "Free",
+      "description": {
+        "content": "Free endpoints — no payment required",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "faff7d80-2db8-4576-b487-5409cedcbbb0",
+          "name": "Free IBAN format check (mod-97 + structure)",
+          "request": {
+            "name": "Free IBAN format check (mod-97 + structure)",
+            "description": {
+              "content": "FREE pure-format IBAN check: ISO 13616 mod-97 checksum, country-specific length, and BBAN parsing. No payment, no API key, no quota (global rate limit only). Does NOT touch the BIC, SEPA, VoP, sanctions, or Swiss clearing databases — use POST /v1/iban/validate ($0.005) when you need the full enrichment. Ideal for pre-filtering malformed IBANs before paying for validation.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "format"
+              ],
+              "host": [
+                "{{v1-iban-format-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "iban",
+                  "value": "<string>",
+                  "description": "(Required) IBAN to check (spaces allowed, will be normalized)"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ae506bc7-2629-4dd8-a1c2-38593cd95abd",
+              "name": "Format check result. valid=true includes parsed components; valid=false includes error + error_detail. Both include an upgrade_to_full_validation hint.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "format"
+                  ],
+                  "host": [
+                    "{{v1-iban-format-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "iban",
+                      "value": "CH1000230000000012345"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"iban\": \"CH1000230000000012345\",\n  \"valid\": false,\n  \"upgrade_to_full_validation\": \"string\",\n  \"formatted\": \"CH10 0023 0000 0000 1234 5\",\n  \"country\": {\n    \"code\": \"CH\",\n    \"name\": \"Switzerland\"\n  },\n  \"check_digits\": \"10\",\n  \"bban\": {\n    \"bank_code\": \"00230\",\n    \"branch_code\": \"string\",\n    \"account_number\": \"000000012345\"\n  },\n  \"error\": \"invalid_format\",\n  \"error_detail\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "54705401-a115-4714-b477-c4d45db30a12",
+              "name": "Missing ?iban= query parameter, or IBAN shorter than 15 / longer than 34 characters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "format"
+                  ],
+                  "host": [
+                    "{{v1-iban-format-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "iban",
+                      "value": "CH1000230000000012345"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b276a8d5-c8df-4dd2-b0de-31ef069b89fc",
+          "name": "List all supported IBAN countries (free)",
+          "request": {
+            "name": "List all supported IBAN countries (free)",
+            "description": {
+              "content": "FREE metadata endpoint: lists every supported IBAN country with its IBAN length, SEPA membership, and whether a BBAN structure breakdown and example IBAN are available. Use GET /v1/iban/structure/{country} for the full per-country template.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "structure"
+              ],
+              "host": [
+                "{{v1-iban-structure-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "033757a1-ffda-4250-9d7b-efda7e30aaea",
+              "name": "List of supported countries",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "structure"
+                  ],
+                  "host": [
+                    "{{v1-iban-structure-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"total\": 9107,\n  \"countries\": [\n    {\n      \"code\": \"CH\",\n      \"name\": \"Switzerland\",\n      \"iban_length\": 21,\n      \"sepa_member\": false,\n      \"has_bban_structure\": true,\n      \"has_example\": false\n    },\n    {\n      \"code\": \"CH\",\n      \"name\": \"Switzerland\",\n      \"iban_length\": 21,\n      \"sepa_member\": true,\n      \"has_bban_structure\": true,\n      \"has_example\": true\n    }\n  ],\n  \"endpoint_per_country\": \"GET /v1/iban/structure/:country\",\n  \"cost_usdc\": 0\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9ae61a37-3b60-4e9c-a0b2-ca69bc7caf46",
+          "name": "IBAN structure template for a country (free)",
+          "request": {
+            "name": "IBAN structure template for a country (free)",
+            "description": {
+              "content": "FREE metadata endpoint: returns the IBAN structural template for a country — total IBAN length, BBAN field positions (bank code / branch code / account number, 0-indexed within the BBAN), SEPA membership + schemes + VoP obligation, and a canonical example IBAN to copy-paste. Use it when an agent needs to know the IBAN format for a country before crafting a validation call.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "iban",
+                "structure",
+                ":country"
+              ],
+              "host": [
+                "{{v1-iban-structure-country-Url}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "country",
+                  "description": "(Required) ISO 3166-1 alpha-2 country code (case-insensitive)"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8ee1c83b-1226-4a92-a424-0ad23527ade7",
+              "name": "IBAN structure template",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "structure",
+                    ":country"
+                  ],
+                  "host": [
+                    "{{v1-iban-structure-country-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "country",
+                      "description": "(Required) ISO 3166-1 alpha-2 country code (case-insensitive)"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"country\": {\n    \"code\": \"CH\",\n    \"name\": \"Switzerland\"\n  },\n  \"iban_length\": 21,\n  \"bban_length\": 17,\n  \"sepa\": {\n    \"member\": true,\n    \"schemes\": [\n      \"SCT_INST\",\n      \"SCT_INST\"\n    ],\n    \"vop_required\": true\n  },\n  \"cost_usdc\": 0,\n  \"bban\": {\n    \"bank_code\": {\n      \"start\": 9579,\n      \"length\": 9418,\n      \"charset\": \"string\"\n    },\n    \"branch_code\": {\n      \"start\": 5978,\n      \"length\": 9559,\n      \"charset\": \"string\"\n    },\n    \"account_number\": {\n      \"start\": 2196,\n      \"length\": 5300,\n      \"charset\": \"string\"\n    }\n  },\n  \"bban_pattern\": \"5!n12!c\",\n  \"example_iban\": \"CH9300762011623852957\",\n  \"example_iban_note\": \"string\",\n  \"notes\": \"string\",\n  \"upgrade_hint\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "71948aaa-b723-4ebf-bd55-a2323109aefa",
+              "name": "Invalid country code (must be 2 letters), or literal {country} placeholder sent unsubstituted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "structure",
+                    ":country"
+                  ],
+                  "host": [
+                    "{{v1-iban-structure-country-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "country",
+                      "description": "(Required) ISO 3166-1 alpha-2 country code (case-insensitive)"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "704b2721-3935-438b-94df-208b4ee4402f",
+              "name": "Country not covered — see GET /v1/iban/structure for the full list",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "iban",
+                    "structure",
+                    ":country"
+                  ],
+                  "host": [
+                    "{{v1-iban-structure-country-Url}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "country",
+                      "description": "(Required) ISO 3166-1 alpha-2 country code (case-insensitive)"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bdfb826d-c91a-4cd2-9e98-a4f80852ce93",
+          "name": "Generate test IBANs with REAL bank codes",
+          "request": {
+            "name": "Generate test IBANs with REAL bank codes",
+            "description": {
+              "content": "Free. Generates structurally valid test IBANs whose bank codes are drawn from the national registers we serve (CH, DE, AT, BE) — unlike the usual generators, whose checksum-valid IBANs carry arbitrary codes no register allocated. Account digits are random and belong to nobody. Each item ships with the proof: our own bank_code_check answer for that IBAN.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "test-iban"
+              ],
+              "host": [
+                "{{v1-test-iban-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "country",
+                  "value": "<string>",
+                  "description": "Omit for a random supported country"
+                },
+                {
+                  "disabled": false,
+                  "key": "count",
+                  "value": "1"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "64eeef0c-bbc0-40fd-bc65-bf53b1bea0ec",
+              "name": "Generated test IBANs, each with its register proof",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "test-iban"
+                  ],
+                  "host": [
+                    "{{v1-test-iban-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "count",
+                      "value": "1"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"test_ibans\": [\n    {\n      \"iban\": \"string\",\n      \"formatted\": \"string\",\n      \"country\": \"string\",\n      \"proof\": {},\n      \"note\": \"string\"\n    },\n    {\n      \"iban\": \"string\",\n      \"formatted\": \"string\",\n      \"country\": \"string\",\n      \"proof\": {},\n      \"note\": \"string\"\n    }\n  ],\n  \"disclaimer\": \"string\",\n  \"cost_usdc\": 6137.445555793991\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "eafb1904-9f1c-4395-a2da-7b9c7b4e24d4",
+              "name": "Unsupported country",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "test-iban"
+                  ],
+                  "host": [
+                    "{{v1-test-iban-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "country",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "count",
+                      "value": "1"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "99e13739-9559-4cad-a7fc-66c9f26d43b8",
+          "name": "Free demo results",
+          "request": {
+            "name": "Free demo results",
+            "description": {
+              "content": "Returns example IBAN and BIC validation results. No payment required.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "demo"
+              ],
+              "host": [
+                "{{v1-demo-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e6fba5fb-bdae-4f47-a909-e9b831b0b600",
+              "name": "Demo results",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "demo"
+                  ],
+                  "host": [
+                    "{{v1-demo-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\",\n  \"iban_examples\": [\n    {\n      \"iban\": \"string\",\n      \"valid\": false,\n      \"cost_usdc\": 0.005,\n      \"country\": {\n        \"code\": \"GB\",\n        \"name\": \"United Kingdom\"\n      },\n      \"check_digits\": \"29\",\n      \"bban\": {\n        \"bank_code\": \"string\",\n        \"account_number\": \"string\",\n        \"branch_code\": \"string\"\n      },\n      \"bic\": {\n        \"code\": \"NWBKGB2L\",\n        \"bank_name\": \"string\",\n        \"city\": \"string\"\n      },\n      \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n      \"clearing\": {\n        \"iid\": \"00230\",\n        \"name\": \"UBS Switzerland AG\",\n        \"type\": \"raiffeisen\",\n        \"town\": \"Zürich\",\n        \"sic\": false,\n        \"instant_payments_chf\": false,\n        \"eurosic\": false,\n        \"qr_iid\": \"string\"\n      },\n      \"error\": \"unsupported_country\",\n      \"error_detail\": \"string\",\n      \"processing_ms\": 4978.251563462987,\n      \"sepa\": {\n        \"member\": true,\n        \"schemes\": [\n          \"SDD\",\n          \"SCT\"\n        ],\n        \"vop_required\": true,\n        \"vop_participant\": false\n      },\n      \"issuer\": {\n        \"type\": \"bank\",\n        \"name\": \"string\",\n        \"classification\": \"default\",\n        \"iban_issuer\": \"confirmed\"\n      },\n      \"risk_indicators\": {\n        \"issuer_type\": \"emi\",\n        \"country_risk\": \"elevated\",\n        \"test_bic\": false,\n        \"sepa_reachable\": false,\n        \"sepa_reachable_scope\": \"country\",\n        \"vop_coverage\": true\n      },\n      \"bank_code_check\": {\n        \"value\": \"string\",\n        \"status\": \"verified\",\n        \"match\": null,\n        \"register\": \"string\",\n        \"authoritative\": false,\n        \"as_of\": \"string\",\n        \"candidates\": 1965,\n        \"retired\": false,\n        \"superseded_by\": \"string\",\n        \"institution\": {\n          \"name\": \"string\",\n          \"street\": \"string\",\n          \"post_code\": \"string\",\n          \"town\": \"string\",\n          \"country\": \"string\",\n          \"lei\": \"string\"\n        }\n      },\n      \"next_steps\": [\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        },\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        }\n      ]\n    },\n    {\n      \"iban\": \"string\",\n      \"valid\": true,\n      \"cost_usdc\": 0.005,\n      \"country\": {\n        \"code\": \"GB\",\n        \"name\": \"United Kingdom\"\n      },\n      \"check_digits\": \"29\",\n      \"bban\": {\n        \"bank_code\": \"string\",\n        \"account_number\": \"string\",\n        \"branch_code\": \"string\"\n      },\n      \"bic\": {\n        \"code\": \"NWBKGB2L\",\n        \"bank_name\": \"string\",\n        \"city\": \"string\"\n      },\n      \"formatted\": \"GB29 NWBK 6016 1331 9268 19\",\n      \"clearing\": {\n        \"iid\": \"00230\",\n        \"name\": \"UBS Switzerland AG\",\n        \"type\": \"raiffeisen\",\n        \"town\": \"Zürich\",\n        \"sic\": true,\n        \"instant_payments_chf\": true,\n        \"eurosic\": true,\n        \"qr_iid\": \"string\"\n      },\n      \"error\": \"unsupported_country\",\n      \"error_detail\": \"string\",\n      \"processing_ms\": 3752.2596429124,\n      \"sepa\": {\n        \"member\": true,\n        \"schemes\": [\n          \"SDD\",\n          \"SDD\"\n        ],\n        \"vop_required\": true,\n        \"vop_participant\": false\n      },\n      \"issuer\": {\n        \"type\": \"digital_bank\",\n        \"name\": \"string\",\n        \"classification\": \"curated\",\n        \"iban_issuer\": \"not_listed\"\n      },\n      \"risk_indicators\": {\n        \"issuer_type\": \"emi\",\n        \"country_risk\": \"high\",\n        \"test_bic\": false,\n        \"sepa_reachable\": true,\n        \"sepa_reachable_scope\": \"country\",\n        \"vop_coverage\": false\n      },\n      \"bank_code_check\": {\n        \"value\": \"string\",\n        \"status\": \"not_in_register\",\n        \"match\": \"prefix\",\n        \"register\": \"string\",\n        \"authoritative\": true,\n        \"as_of\": \"string\",\n        \"candidates\": 1422,\n        \"retired\": false,\n        \"superseded_by\": \"string\",\n        \"institution\": {\n          \"name\": \"string\",\n          \"street\": \"string\",\n          \"post_code\": \"string\",\n          \"town\": \"string\",\n          \"country\": \"string\",\n          \"lei\": \"string\"\n        }\n      },\n      \"next_steps\": [\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        },\n        {\n          \"code\": \"string\",\n          \"do\": \"string\",\n          \"because\": \"string\",\n          \"action\": \"string\"\n        }\n      ]\n    }\n  ],\n  \"bic_examples\": [\n    {\n      \"label\": \"string\",\n      \"bic\": \"string\",\n      \"endpoint\": \"string\"\n    },\n    {\n      \"label\": \"string\",\n      \"bic\": \"string\",\n      \"endpoint\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "09d5afae-1530-44fc-8a20-14ccf7a48a11",
+          "name": "Health check",
+          "request": {
+            "name": "Health check",
+            "description": {
+              "content": "Returns API health status, uptime, and basic statistics.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "health"
+              ],
+              "host": [
+                "{{health-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a8a5a4b3-fd2b-4dc9-979d-2057d894ca3d",
+              "name": "Health status",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "health"
+                  ],
+                  "host": [
+                    "{{health-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"version\": \"1.4.3\",\n  \"uptime_seconds\": 8788.64695673498,\n  \"bic_database_entries\": 121716,\n  \"bic_data_last_updated\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-format-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-structure-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-iban-structure-country-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-test-iban-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "v1-demo-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://api.ibanforge.com",
+      "key": "health-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "e9d94dd9-d644-45ab-bab2-33cce4d88f5d",
+    "name": "Ibanforge Free API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Operations tagged Free across 2 of this provider's published API definitions: ibanforge-free-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.",
+      "type": "text/plain"
+    }
+  }
+}

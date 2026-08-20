@@ -57,6 +57,8 @@ apis:
   humanURL: https://api.ibanforge.com
   baseURL: https://api.ibanforge.com
   tags:
+  - APIKeys
+  tags_raw:
   - API Keys
   properties:
   - type: OpenAPI

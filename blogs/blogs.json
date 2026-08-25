@@ -3,13 +3,12 @@
   "feeds": [
     {
       "source": "https://ibanforge.com/en/blog",
-      "feed_url": "https://ibanforge.com/en/blog",
+      "feed_url": "https://ibanforge.com/rss.xml",
       "title": "",
       "saved": 0,
-      "method": "none",
-      "error": "parse_failed"
+      "method": "discovered"
     }
   ],
-  "fetched": "2026-08-15T12:11:08Z",
+  "fetched": "2026-08-22T20:20:02Z",
   "post_count": 11
 }

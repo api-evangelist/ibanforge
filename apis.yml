@@ -149,6 +149,9 @@ apis:
   - type: OpenAPI
     url: openapi/ibanforge-swiss-clearing-api-openapi.yml
 common:
+  - type: CapabilityMap
+    url: capabilities/ibanforge-capability-edges.yml
+    name: IBANforge Business Capability Map
   - type: VulnerabilityDisclosure
     url: security/ibanforge-vulnerability-disclosure.yml
   - type: DomainSecurity

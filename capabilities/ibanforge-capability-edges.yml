@@ -1,0 +1,25 @@
+slug: ibanforge
+provider: IBANforge
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Banking & Capital Markets
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Compliance
+  spec_file: ibanforge-compliance-api-openapi.yml
+  capability_id: BC-1400.20
+  capability_id_l1: BC-1400
+  capability_name: Sanctions Screening Management
+  confidence: 0.7
+  evidence: 'POST /v1/iban/compliance complianceCheck Full IBAN compliance check; schemas: ComplianceResult,
+    IBANValidationResult; vendor: "bank-level sanctions"'
+  reason: Compliance check combines IBAN validation with bank-level sanctions screening before payout,
+    aligning with sanctions screening; some ambiguity as it also covers validation/reachability.

@@ -184,6 +184,8 @@ common:
     url: https://github.com/public-apis/public-apis
   - url: https://ibanforge.com/en/blog
     type: Blog
+  - type: Support
+    url: mailto:support@ibanforge.com
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

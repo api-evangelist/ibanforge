@@ -104,6 +104,8 @@ apis:
   humanURL: https://api.ibanforge.com
   baseURL: https://api.ibanforge.com
   tags:
+  - Credit
+  tags_raw:
   - Credits
   properties:
   - type: OpenAPI

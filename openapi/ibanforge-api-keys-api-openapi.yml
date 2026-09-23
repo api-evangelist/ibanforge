@@ -1,10 +1,10 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Ibanforge API Keys API
+  title: IBANforge API Keys API
   version: 1.4.3
+  description: Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds.
   contact:
     url: https://ibanforge.com
-  description: 'Operations tagged API Keys across 2 of this provider''s published API definitions: ibanforge-api-keys-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -41,11 +41,6 @@ paths:
           description: Invalid email
         '429':
           description: Rate limited — one key per email per day
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
   /v1/keys/usage:
     get:
       operationId: getApiKeyUsage
@@ -60,11 +55,6 @@ paths:
           description: Usage statistics for the current month
         '401':
           description: Missing or invalid API key
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
   /stats:
     get:
       operationId: getStats
@@ -83,11 +73,6 @@ paths:
                 $ref: '#/components/schemas/StatsOverview'
         '403':
           description: 'Authentication required — send Authorization: Bearer ifk_...'
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
   /stats/history:
     get:
       operationId: getStatsHistory
@@ -130,11 +115,6 @@ paths:
                   - revenue
         '403':
           description: 'Authentication required — send Authorization: Bearer ifk_...'
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
 components:
   schemas:
     StatsOverview:
@@ -221,6 +201,3 @@ components:
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt
-x-refined-from:
-- ibanforge-api-keys-api-openapi.yml
-- ibanforge-openapi.yml

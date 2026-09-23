@@ -1,10 +1,10 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Ibanforge Credits API
+  title: IBANforge Credits API
   version: 1.4.3
+  description: Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds.
   contact:
     url: https://ibanforge.com
-  description: 'Operations tagged Credits across 2 of this provider''s published API definitions: ibanforge-credits-api-openapi.yml, ibanforge-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -59,11 +59,6 @@ paths:
                     example: x402 USDC on Base mainnet
                   documentation:
                     type: string
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
   /v1/credits/buy/{bundle}:
     post:
       operationId: buyCreditBundle
@@ -136,11 +131,6 @@ paths:
           description: Payment required (x402) — bundle price in USDC
         '404':
           description: Unknown bundle slug — choose 1k, 5k or 25k
-    servers:
-    - url: https://api.ibanforge.com
-      description: Production
-    - url: http://localhost:3000
-      description: Local development
 components:
   securitySchemes:
     x402Payment:
@@ -155,6 +145,3 @@ components:
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt
-x-refined-from:
-- ibanforge-credits-api-openapi.yml
-- ibanforge-openapi.yml

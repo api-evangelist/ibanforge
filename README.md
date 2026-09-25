@@ -64,28 +64,31 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-IBAN validation and BIC/SWIFT lookup for 75+ countries with 121K+ bank entries
+Pre-payout IBAN screening for developers and AI agents: IBAN validation in 89 countries, a bank-code
+verdict from the national register where one is read, BIC/SWIFT lookup, Swiss clearing (BC-Nummer / QR-IID),
+bank-level sanctions, SEPA and VoP readiness, and compliance risk scoring. Profile re-harvested 2026-09-25
+from IBANforge's served OpenAPI 1.8.0 (https://api.ibanforge.com/openapi.json).
 
 **APIs.yml:** [apis.yml](apis.yml)
 
 ## Type
 - **x-type:** company
-- **x-tier:** 3 (bulk-registered from public-apis)
-- **source:** [public-apis/public-apis](https://github.com/public-apis/public-apis) — category: Finance
+- **x-tier:** 1 (provider-published artifacts, verified)
+- **source:** provider-published (originally bulk-registered from [public-apis/public-apis](https://github.com/public-apis/public-apis))
 
-## API
-- **IBANforge** — [Documentation](https://api.ibanforge.com)
+## APIs
+- IBAN, BIC, Compliance, Swiss Clearing, Free, API Keys, Account, Credits and MCP — see [apis.yml](apis.yml) and [openapi/](openapi/)
+- Base URL: https://api.ibanforge.com · Docs: https://ibanforge.com/docs · MCP: https://api.ibanforge.com/mcp
 
 ## Tags
-Finance, Public APIs
+Finance, Banking, Compliance, MCP, A2A
 
 ## Notes
-This entry was bulk-registered as part of a public-apis catalog sweep on 2026-05-28.
-A real OpenAPI artifact will be added during a follow-up enrichment pass if the provider publishes one.
+This entry was bulk-registered from public-apis on 2026-05-28, rebuilt from provider-published artifacts on 2026-08-06, and re-harvested at the provider's request (api-evangelist/ibanforge#1) on 2026-09-25.
 
 ## Timestamps
 - **Created:** 2026-05-28
-- **Modified:** 2026-05-28
+- **Modified:** 2026-09-25
 
 ## Maintainers
 - **Kin Lane** — kin@apievangelist.com

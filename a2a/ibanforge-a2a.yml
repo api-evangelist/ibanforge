@@ -1,44 +1,51 @@
-generated: '2026-08-07'
-method: declared
-publisher: IBANforge
+generated: '2026-09-25'
+method: probed
+generator: harvest-agent-card.py
 source: https://api.ibanforge.com/.well-known/agent-card.json
-description: IBANforge's provider-authored A2A Agent Card. The saved document matches the provider route
-  and the A2A AgentCard structure. The card is explicit that IBANforge is a tool-style API (REST + MCP)
-  rather than a conversational A2A agent, and exists so A2A-aware crawlers can index the skills.
+card:
+  file: a2a/ibanforge-agent-card.json
+  name: IBANforge
+  version: 1.8.0
 discovery:
   path: /.well-known/agent-card.json
   canonical: true
   host: api.ibanforge.com
+x-evidence:
+  fetched: '2026-09-25'
+  url: https://api.ibanforge.com/.well-known/agent-card.json
+  http_status: 200
+  content_type: application/json
+  body_bytes: 4889
+  body_parses_as: json object
 conformance:
   spec: A2A 1.0.0
   grade: conformant
   protocol_version: '1.0'
-  preferred_transport: HTTP+JSON
-  supported_interfaces:
-  - url: https://api.ibanforge.com
-    protocolBinding: HTTP+JSON
-    protocolVersion: '1.0'
-  deviations: []
-  upgraded: 'Was near-conformant on 2026-08-06, graded down solely for declaring protocolVersion 0.3.0.
-    The provider upgraded within a day of being told, and did it properly rather than bumping the version
-    string: supportedInterfaces adopted as the normative shape (url + protocolBinding + protocolVersion),
-    and the extended-card flag relocated into capabilities. The flat 0.3-era fields are retained alongside
-    DELIBERATELY, because crawlers reading agent cards today still look there — a considered choice,
-    not leftover cruft.'
-card:
-  name: IBANforge
-  description: 'Pre-payout IBAN screening: validation, issuing-bank identification, sanctions (OFAC),
-    Swiss clearing, SEPA + VoP reachability and risk scoring.'
-  url: https://api.ibanforge.com
-  version: 1.4.3
-  documentation_url: https://ibanforge.com/docs
-  skills: 5
-  file: ibanforge-agent-card.json
-x-evidence:
-  declared: '2026-08-07'
+  transport: HTTP+JSON
+  card_shape: 0.3 (top-level protocolVersion)
+  hard_checks:
+    capabilities_is_object: true
+    protocol_version_present: true
+    skills_is_array: true
+  optional_fields:
+    transport_declared: true
+    defaultInputModes: true
+    defaultOutputModes: true
+  deviations: &id001 []
+cards:
+- file: a2a/ibanforge-agent-card.json
+  primary: true
+  host: api.ibanforge.com
   url: https://api.ibanforge.com/.well-known/agent-card.json
-  status: 200
-  verified: '2026-08-07'
-  note: Re-verified after the provider upgraded. protocolVersion 1.0, supportedInterfaces present and
-    correctly shaped, capabilities an object, all required AgentCard fields present, 5 skills. Provider-authored
-    route, live.
+  http_status: 200
+  name: IBANforge
+  grade: conformant
+  deviations: *id001
+- file: a2a/ibanforge-ibanforge-agent-card.json
+  primary: false
+  host: ibanforge.com
+  url: https://ibanforge.com/.well-known/agent-card.json
+  http_status: 200
+  name: IBANforge
+  grade: conformant
+  deviations: []

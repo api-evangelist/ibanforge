@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-biclookup-result-schema.json",
+  "title": "BICLookupResult",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-bic-api-openapi.yml#/components/schemas/BICLookupResult",
+  "type": "object",
+  "required": [
+    "bic",
+    "bic8",
+    "bic11",
+    "found",
+    "valid_format",
+    "institution",
+    "country",
+    "city",
+    "branch_code",
+    "branch_info",
+    "lei",
+    "lei_status",
+    "is_test_bic",
+    "source",
+    "cost_usdc"
+  ],
+  "properties": {
+    "attribution": {
+      "type": "object",
+      "description": "Free tier only. When these results are shown to people, display `text` with a link to `url`; backend-only use owes nothing. Absent on paid plans and on x402 calls.",
+      "required": [
+        "required",
+        "text",
+        "url",
+        "note"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "bic": {
+      "type": "string"
+    },
+    "bic8": {
+      "type": "string"
+    },
+    "bic11": {
+      "type": "string"
+    },
+    "found": {
+      "type": "boolean",
+      "description": "True only when the directory row names an institution: a record is complete or not found."
+    },
+    "valid_format": {
+      "type": "boolean"
+    },
+    "institution": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country": {
+      "type": "object",
+      "required": [
+        "code",
+        "name"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Always characters 5-6 of the BIC."
+        },
+        "name": {
+          "type": "string",
+          "description": "The row's country name, then the ISO name, and the code only when neither exists. Named on a BIC we do not hold as well."
+        }
+      }
+    },
+    "city": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Null, never an empty string, when the source leaves the town blank."
+    },
+    "address": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Registered head-office address (present when available, GLEIF or directory sourced). null when no registered address is on file, found or not; address_available says the same.",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "street": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "post_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "region": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "city": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "country": {
+          "type": "string"
+        },
+        "romanized": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "romanization": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "address_available": {
+      "type": "boolean"
+    },
+    "postal_address": {
+      "type": "object",
+      "description": "The institution seat expressed as an ISO 20022 PostalAddress, for the November 2026 structured-address rules (SPS 2026 in force 14 Nov 2026, Fedwire production 16 Nov 2026, T2 R2026.NOV). Purely additive — the `address` block beside it is unchanged and keeps the full untruncated street. Present only when TwnNm and Ctry can both be filled; absent fields are absent, never guessed.",
+      "properties": {
+        "strt_nm": {
+          "type": "string",
+          "description": "StrtNm. Present ONLY when the source really separates street from number — in practice the SIX BankMaster register for Swiss and Liechtenstein institutions. Its absence means the source published one concatenated line (which is then served as adr_line), NOT that the institution has no street."
+        },
+        "bldg_nb": {
+          "type": "string",
+          "description": "BldgNb. Same condition as strt_nm — never split out of a joined line."
+        },
+        "pst_cd": {
+          "type": "string",
+          "description": "PstCd."
+        },
+        "twn_nm": {
+          "type": "string",
+          "description": "TwnNm. Mandatory in SPS and Fedwire; always present when this block is."
+        },
+        "ctry": {
+          "type": "string",
+          "description": "Ctry, ISO 3166-1 alpha-2."
+        },
+        "adr_line": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 70
+          },
+          "maxItems": 2,
+          "description": "AdrLine, at most 2 lines of at most 70 characters, never repeating a value already served in a structured element above. A concatenated street line goes here rather than into strt_nm. Omitted rather than truncated when the line cannot fit in two lines — the full line stays in the `address` block."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "structured",
+            "hybrid"
+          ],
+          "description": "structured: every element served has its own ISO 20022 element, no AdrLine. hybrid: structured elements plus at most two AdrLine. Derived from the block, so it cannot disagree with the fields it labels."
+        },
+        "source": {
+          "type": "string",
+          "description": "The dataset this address came from, named as its publisher names it. It can differ from `address.source`: a Swiss institution is served from the SIX register while `address` stays GLEIF."
+        },
+        "as_of": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "When the SOURCE last stated this address (a SIX validity date, a GLEIF filing date). Null when the dataset publishes none — never a clock read, and never the date our database was refreshed."
+        }
+      },
+      "required": [
+        "twn_nm",
+        "ctry",
+        "format",
+        "source",
+        "as_of"
+      ]
+    },
+    "branch_code": {
+      "type": "string"
+    },
+    "branch_info": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lei": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lei_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_test_bic": {
+      "type": "boolean"
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Code of the dataset this row comes from; source_name spells it out."
+    },
+    "source_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Human name of the dataset this row comes from. Null when nothing was found."
+    },
+    "source_as_of": {
+      "type": "string",
+      "description": "Year-month the source DATA is from, present ONLY when the row's dataset is a frozen public copy re-imported unchanged. Absent means no gap has been established, never 'this is current'."
+    },
+    "listed_in_current_source": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Whether the BIC8 asked about still appears in a list refreshed this cycle (GLEIF, the directory sources that carry no vintage, a national register, the EPC scheme registers), on every answer of valid format, found or not: a BIC absent from the directory can still be listed by an EPC register. true when one of them carries it; null when it was not found in what could be read in full (never false by default). It answers true or null today: the EBA STEP2 and NBP lists are only read through our deduplicated directory, so an absence is not proven. It does not prove the bank still exists under this name."
+    },
+    "official_identity": {
+      "type": "object",
+      "description": "Present ONLY when a central bank publishes the holder of the code we resolved: reached by LEI on any BIC lookup, and by the national bank code for FR and ES. Absent rather than negative on a miss, and never able to change `valid` or `bank_code_check` — the publishers relay codes, they do not allocate them.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The institution's name as the publisher writes it. May differ from `institution` / `bic.bank_name`, which come from the BIC directory — both are served so the two can be compared rather than one silently overwriting the other."
+        },
+        "lei": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Null where the publisher lists none, which is common for money market funds and branches."
+        },
+        "address": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "One-line registered address as published. Null when the publisher gives none."
+        },
+        "category": {
+          "type": "string",
+          "description": "The publisher's classification."
+        },
+        "matched_by": {
+          "type": "string",
+          "enum": [
+            "lei",
+            "national_code"
+          ],
+          "description": "lei: joined on the LEI the resolved BIC row carries — exact, and unscoped by country because a legal identity does not change with which of an entity's BICs was asked about. national_code: joined on the bank code the publisher itself publishes (FR five digits, ES four digits)."
+        },
+        "source": {
+          "type": "string",
+          "description": "The publisher, cited as both licences require."
+        },
+        "free_of_charge": {
+          "type": "string",
+          "description": "Both publishers require that buyers of a product incorporating their data be told, on EVERY access, that the information is available free of charge from the publisher's own website. This API is sold, so that notice ships inside every block rather than living on a documentation page."
+        },
+        "attribution": {
+          "type": "string",
+          "description": "The citation formula the Banco de España requires, reproduced verbatim. Spanish blocks only — the ECB asks to be cited as the source, which `source` does."
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of the list this row came from, read from the published file and never from a clock. Both lists are republished every business day."
+        },
+        "authoritative": {
+          "type": "boolean",
+          "enum": [
+            false
+          ],
+          "description": "Always false. Both publishers relay; neither allocates bank codes, and the attribution of a code remains the national authority's. Read `bank_code_check.authoritative` for the verdict that can be branched on."
+        }
+      },
+      "required": [
+        "name",
+        "lei",
+        "address",
+        "category",
+        "matched_by",
+        "source",
+        "free_of_charge",
+        "as_of",
+        "authoritative"
+      ]
+    },
+    "note": {
+      "type": "string",
+      "description": "Present only when the lookup has something to qualify, typically that coverage may be partial for an unresolved code. Absent on a plain hit."
+    },
+    "sanctions": {
+      "type": "object",
+      "description": "Bank-level sanctions screen, run on every answer including a \"found: false\" one. `listed` is null, never false, when the database could not be read: a check that did not happen must not look like a check that passed. Screens the institution behind the BIC8, never a beneficiary name.",
+      "required": [
+        "screened",
+        "listed"
+      ],
+      "properties": {
+        "screened": {
+          "type": "boolean",
+          "description": "Whether the screen ran."
+        },
+        "listed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "true when the institution appears on a screened list, false when it does not, null when the screen could not run, or when nothing matched while one of the lists this service names is not loaded on this deployment (see unscreened_lists): a no on the lists read is not a no on the missing one."
+        },
+        "unscreened_lists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Present only when one of the lists this service names is not loaded on this deployment: those lists were not consulted. Absent when every named list was read."
+        },
+        "matched_lists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The lists that matched. Empty when none did."
+        }
+      }
+    },
+    "cost_usdc": {
+      "type": "number"
+    },
+    "processing_ms": {
+      "type": "number"
+    }
+  }
+}

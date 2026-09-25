@@ -1,0 +1,79 @@
+generated: '2026-09-25'
+method: searched
+source: https://ibanforge.com/docs/errors
+sources:
+- https://ibanforge.com/docs/errors
+- https://ibanforge.com/docs/api-keys
+- https://ibanforge.com/pricing
+- https://api.ibanforge.com/.well-known/rate-limits.yml
+- https://api.ibanforge.com/openapi.json
+name: IBANforge API Conventions
+auth:
+  style: 'Authorization: Bearer ifk_… (free, credit-pack and Pro keys), or x402 USDC per-call payment via
+    PAYMENT-SIGNATURE (v2) / X-PAYMENT (v1); account page uses an HttpOnly session cookie (ibanforge_account).'
+  see: authentication/ibanforge-authentication.yml
+idempotency:
+  coverage: partial
+  scope:
+  - buyCreditBundle
+  mechanism: No Idempotency-Key header. On POST /v1/credits/buy/{bundle}, a payment already seen whose purchase
+    was not credited answers 409 (payment_pending, payment_refused or payment_reversed) and nothing is settled
+    again; 502 settlement_unconfirmed tells the caller not to pay again before checking the transfer.
+  note: The rest of the surface is read-only validation and lookup (safe to retry). The MCP tools declare
+    readOnlyHint/idempotentHint annotations.
+reversibility:
+  write_surface: key management (generate, claim, rotate, revoke, device grant), account session, credit
+    purchase, feedback. Validation and lookup routes are read-only.
+  operations:
+  - operation: revokeApiKey
+    reversal: none
+    note: 'The spec states: "Irreversible — use POST /v1/keys/rotate instead if you want a working replacement."'
+    grade: documented
+  - operation: generateApiKey
+    reversal: revokeApiKey
+    window: null
+    grade: documented
+  - operation: openAccountSession
+    reversal: closeAccountSession
+    window: null
+    grade: documented
+  - operation: credit pack purchase by card (Stripe checkout)
+    reversal: refund
+    window: Unused card-paid packs are refundable for 14 days.
+    docs: https://ibanforge.com/pricing
+    grade: verified
+  - operation: buyCreditBundle
+    reversal: none stated
+    note: The docs state a refund window for card-paid packs only; no refund path is stated for USDC purchases.
+dry_run:
+  available: true
+  note: GET /v1/demo, GET /v1/test-iban and the free GET /v1/iban/format pre-flight let a caller rehearse without spending.
+pagination:
+  style: page
+  params:
+  - page
+  applies_to: GET /v1/account/overview
+  note: Batch validation takes up to 100 IBANs per request instead of paging.
+errors:
+  envelope: '{"error": "<token>", "message": "<sentence>"}'
+  see: errors/ibanforge-problem-types.yml
+  note: An invalid IBAN is 200 with valid false; unknown BIC/IID is 200 with found false.
+rate_limit_signaling:
+  headers:
+  - RateLimit-Limit
+  - RateLimit-Remaining
+  - RateLimit-Reset
+  - X-RateLimit-Limit
+  - X-RateLimit-Remaining
+  - X-RateLimit-Reset
+  - Retry-After
+  exhausted_status: 429
+  see: rate-limits/ibanforge-rate-limits.yml
+billing_signaling:
+  headers:
+  - X-Charged-From
+  - X-Credits-Topup-Url
+versioning:
+  scheme: semver
+  path: /v1
+  see: lifecycle/ibanforge-lifecycle.yml

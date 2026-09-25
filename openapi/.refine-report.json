@@ -1,10 +1,11 @@
 {
   "provider": "ibanforge",
   "sources": [
-    "_original/ibanforge-openapi.yml"
+    "_original/ibanforge-openapi.json"
   ],
   "outputs": [
     "ibanforge-api-keys-api-openapi.yml",
+    "ibanforge-account-api-openapi.yml",
     "ibanforge-bic-api-openapi.yml",
     "ibanforge-compliance-api-openapi.yml",
     "ibanforge-credits-api-openapi.yml",
@@ -18,8 +19,8 @@
   "warnings": [],
   "notes": [
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
-    "ibanforge-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "apis.yml register: already-registered"
+    "ibanforge-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: written (+1 apis, 9 total)"
   ],
   "skipped": [
     "ibanforge-api-keys-api-openapi.yml: previously refined output, superseded by openapi/_original/",

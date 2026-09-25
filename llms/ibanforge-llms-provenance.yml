@@ -1,0 +1,6 @@
+generated: '2026-09-25'
+method: probed
+generator: harvest-llms.py
+source: https://ibanforge.com/llms.txt
+bytes: 20884
+note: saved verbatim; the provider's own document

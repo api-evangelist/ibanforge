@@ -1,0 +1,35 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for IBANforge Compliance API (compliance-api)
+  version: 1.0.0
+extends: openapi/ibanforge-compliance-api-openapi.yml
+x-generated: '2026-09-25'
+x-method: generated
+x-source: openapi/ibanforge-compliance-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist:
+      catalog: https://apis.io/ibanforge
+      provider: IBANforge
+      maintainer: Kin Lane <kin@apievangelist.com>
+      artifacts:
+      - apis.yml
+      - conventions/ibanforge-conventions.yml
+      - errors/ibanforge-problem-types.yml
+      - rate-limits/ibanforge-rate-limits.yml
+      - lifecycle/ibanforge-lifecycle.yml
+      - packages/ibanforge-packages.yml
+      - mcp/ibanforge-mcp.yml
+      - mcp/ibanforge-tool-crosswalk.yml
+- target: $.info
+  update:
+    x-rate-limits:
+      default: 100 requests / 1 minute per client IP
+      exhausted_status: 429
+      retry_after: true
+      source: https://api.ibanforge.com/.well-known/rate-limits.yml
+- target: $.paths['/v1/iban/compliance'].post
+  update:
+    x-mcp-tool: check_compliance
+    x-mcp-server: https://api.ibanforge.com/mcp

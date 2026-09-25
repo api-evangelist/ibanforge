@@ -1,0 +1,82 @@
+generated: '2026-09-25'
+method: searched
+source: https://ibanforge.com/docs/errors
+docs: https://ibanforge.com/docs/errors
+name: IBANforge Error Reference
+format: application/json
+envelope:
+  shape: '{"error": "<token>", "message": "<sentence>"}'
+  note: Branch on error, which is stable; message may be reworded. 402 bodies are the x402 payment envelope,
+    with cause.reason when a precise reason applies. An invalid IBAN is not an error status — POST /v1/iban/validate
+    answers 200 with valid false, an error code and error_detail.
+problems:
+- status: 400
+  title: Bad Request
+  type: invalid_json | invalid_request | empty_batch | batch_too_large | invalid_bic_format | placeholder_literal | invalid_iid_format | missing_iban | invalid_iban_length
+  description: Malformed JSON, a missing field, or an invalid parameter.
+  remediation: Fix the request body or parameter named by the error token.
+- status: 401
+  title: Unauthorized
+  type: missing_key | invalid_key
+  description: The key routes only (GET /v1/keys/usage, GET /v1/keys/report, GET /v1/credits/balance, POST /v1/keys/claim, POST /v1/keys/revoke, POST /v1/keys/rotate). A paid route never answers 401.
+  remediation: Send a valid Bearer ifk_ key.
+- status: 402
+  title: Payment Required
+  type: trial_exhausted | trial_unavailable | monthly_quota_exhausted | monthly_quota_insufficient | credits_exhausted | credits_insufficient | invalid_api_key | key_revoked_burst
+  description: A paid route called without a usable way to pay; the body is the x402 payment envelope with cause.reason.
+  remediation: Pay via x402 (PAYMENT-SIGNATURE / X-PAYMENT), recharge the key via cause.credits.topup / X-Credits-Topup-Url, or wait for the trial reset (Monday 00:00 UTC).
+- status: 403
+  title: Forbidden
+  type: verification_required | forbidden_origin
+  description: POST /v1/keys/generate with an address from a network that took a key recently (a code was mailed); or approving/refusing a device key from another origin.
+  remediation: Repeat the request with the mailed code; approve device keys from the ibanforge.com page.
+- status: 404
+  title: Not Found
+  type: not_found | invalid_key
+  description: Unknown endpoint (the body lists the main routes). On POST /v1/keys/revoke and /rotate, invalid_key means the key is unknown or already revoked. An unknown BIC or IID is 200 with found false, not 404.
+  remediation: Check the route; for keys, generate a new one.
+- status: 405
+  title: Method Not Allowed
+  description: Right path, wrong method; the allow field names the method to use.
+  remediation: Use the method named in allow.
+- status: 409
+  title: Conflict
+  type: already_claimed | already_claimed_elsewhere | verification_in_flight | payment_pending | payment_refused | payment_reversed
+  description: Key-claim conflicts, and on POST /v1/credits/buy/… a payment already seen whose purchase was not credited.
+  remediation: For payment_pending do not pay again; for payment_refused sign a new payment.
+- status: 413
+  title: Payload Too Large
+  description: Request body over 256 KB.
+  remediation: Split the request.
+- status: 429
+  title: Too Many Requests
+  type: rate_limit_exceeded
+  description: More than 100 requests in one minute from the same IP address.
+  remediation: Wait for Retry-After.
+- status: 500
+  title: Internal Server Error
+  description: Unexpected server error.
+  remediation: Report it to support@ibanforge.com.
+- status: 502
+  title: Bad Gateway
+  type: settlement_unconfirmed
+  description: The x402 payment rail could not be reached or answered with an error. settlement_unconfirmed means the payment outcome is unknown and may already be on-chain.
+  remediation: Retry later; on settlement_unconfirmed do not pay again before checking settlement.transaction.
+- status: 503
+  title: Service Unavailable
+  type: verification_unavailable
+  description: The x402 payment rail is unavailable, or on key routes the verification mail could not be sent.
+  remediation: Try again in a few minutes.
+validation_codes:
+- code: invalid_format
+  meaning: Characters other than letters, digits, spaces and hyphens; fewer than 5 characters; or more than 64 characters as sent
+- code: unsupported_country
+  meaning: The first two letters are not one of the 89 IBAN countries
+- code: wrong_length
+  meaning: The length does not match the IBAN length of that country
+- code: invalid_check_digits
+  meaning: Characters 3 and 4 are not two digits, or are 00, 01 or 99
+- code: checksum_failed
+  meaning: The MOD-97 check fails
+- code: invalid_bban_structure
+  meaning: Length and MOD-97 pass, but the national part does not follow the layout the country defines

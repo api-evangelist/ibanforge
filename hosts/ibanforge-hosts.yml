@@ -1,0 +1,85 @@
+generated: '2026-09-25'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 4
+  own: 2
+  other_domain: 0
+  platform: 2
+  roles:
+  - api
+  - other
+  - source
+  - website
+hosts:
+- host: api.ibanforge.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - spec-found
+  - contract-discovery
+  - well-known
+  types:
+  - SecurityTxt
+  - x402
+  serves:
+  - api
+  - docs
+  - spec
+  platform: github.com
+  registrable_domain: ibanforge.com
+  role: api
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  types:
+  - Deprecation
+  - PublicAPIsListing
+  - GitHubOrganization
+  serves: []
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: ibanforge.com
+  found_by:
+  - pointer
+  - probed
+  - docs-index
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - Sandbox
+  - Website
+  - Documentation
+  - StatusPage
+  - TermsOfService
+  - PrivacyPolicy
+  - Pricing
+  - Blog
+  - ChangeLog
+  - Postman
+  - APIReference
+  - GettingStarted
+  - Login
+  - ServiceLevelAgreement
+  serves:
+  - docs
+  - hosting
+  vendor: vercel
+  registrable_domain: ibanforge.com
+  role: website
+  relation: own
+- host: www.npmjs.com
+  found_by:
+  - pointer
+  types:
+  - SDKs
+  serves: []
+  registrable_domain: npmjs.com
+  role: other
+  relation: platform

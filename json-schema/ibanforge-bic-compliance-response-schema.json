@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-bic-compliance-response-schema.json",
+  "title": "BicComplianceResponse",
+  "description": "The answer to POST /v1/iban/compliance with a `bic`: the bank screened directly, without an IBAN. `found` says whether our directory names the institution, independently of the screen: found false with bank_sanctioned true is a real combination.",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/BicComplianceResponse",
+  "type": "object",
+  "required": [
+    "bic",
+    "bic8",
+    "valid_format",
+    "found",
+    "institution",
+    "country",
+    "compliance",
+    "meta",
+    "cost_usdc"
+  ],
+  "properties": {
+    "bic": {
+      "type": "string"
+    },
+    "bic8": {
+      "type": "string"
+    },
+    "valid_format": {
+      "type": "boolean"
+    },
+    "found": {
+      "type": "boolean",
+      "description": "True only when the directory row names an institution."
+    },
+    "institution": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country": {
+      "type": "object",
+      "required": [
+        "code",
+        "name"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Always characters 5-6 of the BIC."
+        },
+        "name": {
+          "type": "string",
+          "description": "The row's country name, then the ISO name, and the code only when neither exists."
+        }
+      }
+    },
+    "compliance": {
+      "$ref": "#/$defs/ComplianceResult"
+    },
+    "meta": {
+      "type": "object",
+      "description": "The same provenance and scope block as on the IBAN form (scope, disclaimer, sanctions_as_of, fatf_as_of, sources).",
+      "required": [
+        "scope",
+        "disclaimer"
+      ]
+    },
+    "cost_usdc": {
+      "type": "number"
+    },
+    "processing_ms": {
+      "type": "number"
+    }
+  },
+  "$defs": {
+    "ComplianceResult": {
+      "type": "object",
+      "required": [
+        "sanctions",
+        "reachability",
+        "vop",
+        "risk_score",
+        "risk_level",
+        "flags"
+      ],
+      "properties": {
+        "sanctions": {
+          "type": "object",
+          "properties": {
+            "country_sanctioned": {
+              "type": "boolean"
+            },
+            "bank_sanctioned": {
+              "type": "boolean",
+              "description": "False also when no bank was screened (bank_screened false): read institution_listed, which is null then."
+            },
+            "matched_lists": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fatf_status": {
+              "type": "string",
+              "enum": [
+                "member",
+                "grey_list",
+                "black_list",
+                "suspended",
+                "non_member"
+              ]
+            },
+            "bank_screened": {
+              "type": "boolean",
+              "description": "Whether a bank was screened at all. When false, bank_sanctioned and matched_lists carry no information."
+            },
+            "institution_listed": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Whether the payee's BANK is on a sanctions list: bank_sanctioned when a bank was screened against every list this service names; null when no bank was screened, or when nothing matched while one of those lists is not loaded on this deployment. Never false without a screen."
+            },
+            "payee_screened": {
+              "type": "boolean",
+              "enum": [
+                false
+              ],
+              "description": "Always false: the payee (the account holder) is never screened here, only the bank and the country."
+            }
+          }
+        },
+        "reachability": {
+          "type": "object",
+          "properties": {
+            "sepa_instant": {
+              "type": "boolean",
+              "description": "Whether the bank supports SEPA Instant Credit Transfer"
+            },
+            "sct": {
+              "type": "boolean",
+              "description": "SEPA Credit Transfer participant"
+            },
+            "sdd": {
+              "type": "boolean",
+              "description": "SEPA Direct Debit participant"
+            },
+            "screened": {
+              "type": "boolean",
+              "description": "False when the EPC scheme registers were not consulted: no bank resolved, or the registers are not loaded on this deployment. The three booleans above are then defaults, not findings, and carry no risk weight (flag sepa_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the registers: screened stays true."
+            },
+            "listed_in_epc_registers": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Whether at least one of the three scheme registers lists the bank; null when the registers were not consulted (screened false). For a bank resolved in the SEPA area, true matches sepa.bank_reachability listed and false matches not_listed; null also when no bank was resolved or the bank code is not allocated (the validation then says no_bank or bank_code_not_allocated). Outside the SEPA area the validation carries no bank_reachability: this field is false there for a resolved bank (the country answers, screened true) and null when no bank was resolved."
+            }
+          }
+        },
+        "vop": {
+          "type": "object",
+          "properties": {
+            "participant": {
+              "type": "boolean",
+              "description": "Whether the bank participates in Verification of Payee"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "pending",
+                "inactive",
+                "not_found"
+              ]
+            },
+            "screened": {
+              "type": "boolean",
+              "description": "False when the EPC VoP register was not consulted: no bank resolved, or the register is not loaded on this deployment. `status: not_found` then describes the absence of a query, not of a registration (flag vop_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the register: screened stays true."
+            },
+            "register_status": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "active",
+                "pending",
+                "inactive",
+                "not_listed",
+                null
+              ],
+              "description": "status under its own name (not_found becomes not_listed); null when the register was not consulted (screened false). The bank's status in the EPC Verification of Payee register: active (the same as vop_participant true), pending, inactive, or not_listed when the register has no row for it; null when no BIC resolved or the register was not consulted (screened false). Outside the SEPA area the country answers instead of the register (not_listed on POST /v1/iban/compliance) whether or not the register is loaded; the validation carries no sepa.vop_register_status there. It says whether the payee's bank answers VoP requests; IBANforge never runs the name check itself."
+            }
+          }
+        },
+        "risk_score": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Composite risk score (0 = no risk, 100 = critical). null when the IBAN did not validate: there was nothing to score."
+        },
+        "risk_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "elevated",
+            "high",
+            "critical",
+            "unassessable"
+          ],
+          "description": "unassessable means the IBAN itself failed validation, so no screening was possible. It is the absence of a verdict, never a favourable one: do not treat it as low."
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of specific risk flags detected. bank_code_inferred carries no weight: the bank named is our inference from a source that does not settle the bank code (bank_code_holder inferred), and no score moves for it. Some flags carry no weight and name a check that did not happen: no_bank_resolved, sepa_register_unavailable, vop_register_unavailable, and sanctions_list_unavailable_<list> (one per named sanctions list not loaded on this deployment, for example sanctions_list_unavailable_un: the bank was screened against the other lists, so bank_sanctioned false says nothing about that one). sanctions_lists_unavailable (a bank was resolved but no sanctions list is loaded on this deployment) holds the score at 50 at least."
+        }
+      }
+    }
+  }
+}

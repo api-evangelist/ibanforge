@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-payment-reference-result-schema.json",
+  "title": "PaymentReferenceResult",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-free-api-openapi.yml#/components/schemas/PaymentReferenceResult",
+  "type": "object",
+  "required": [
+    "reference",
+    "scheme",
+    "valid",
+    "status",
+    "source",
+    "note"
+  ],
+  "properties": {
+    "reference": {
+      "type": "string",
+      "description": "Normalized: uppercase, separators removed"
+    },
+    "scheme": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "rf",
+        "qrr",
+        "ogm",
+        "viitenumero",
+        "kid",
+        "ocr"
+      ],
+      "description": "Null when no supported scheme matches the string"
+    },
+    "valid": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "null is a REAL answer, not a missing one: the scheme was recognised and cannot be checked without the creditor bank configuration (KID, OCR). Never present null to a user as invalid."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "checked",
+        "unverifiable_without_creditor_config",
+        "unrecognised"
+      ]
+    },
+    "check_digit_expected": {
+      "type": "string",
+      "description": "A STRING, so a two-digit value beginning with zero survives — an OGM remainder of 3 is \"03\", and a remainder of 0 is written \"97\"."
+    },
+    "also_valid_as": {
+      "type": "object",
+      "description": "The second reading of an ambiguous string, with its own verdict. A bare 12-digit reference is both a Belgian OGM and a legal Finnish length.",
+      "properties": {
+        "scheme": {
+          "type": "string"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "check_digit_expected": {
+          "type": "string"
+        }
+      }
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The document that publishes the rule. Null only when no scheme matched, so no rule was applied. Relay it: it is what makes the verdict auditable."
+    },
+    "as_of": {
+      "type": "string",
+      "description": "YYYY-MM of that document — the date it carries, never a future validity date"
+    },
+    "note": {
+      "type": "string",
+      "description": "What was checked, and what was not"
+    },
+    "pairing_verdict": {
+      "type": "string",
+      "description": "Pointer to POST /v1/iban/validate for the QRR/SCOR pairing verdict"
+    }
+  }
+}

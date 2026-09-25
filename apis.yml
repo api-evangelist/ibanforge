@@ -1,4 +1,5 @@
 aid: ibanforge
+
 deliveryModel:
   model: saas
   open_source: false
@@ -11,6 +12,7 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
+
 accessModel:
   pricing: published
   onboarding: self-serve
@@ -20,48 +22,171 @@ accessModel:
   label: Paid (free tier) · Self-serve signup
   confidence: high
   source:
-    - https://ibanforge.com/pricing
-    - https://api.ibanforge.com/v1/demo
-    - https://api.ibanforge.com/mcp
-  generated: '2026-08-06'
+  - https://ibanforge.com/pricing
+  - https://api.ibanforge.com/v1/demo
+  - https://api.ibanforge.com/mcp
+  - https://api.ibanforge.com/v1/credits/bundles
+  - https://api.ibanforge.com/.well-known/rate-limits.yml
+  generated: '2026-09-25'
   method: verified
-  notes: >-
-    Free tier is 200 requests/month against an emailed key, no card. GET /v1/demo
-    answers unauthenticated, and the HTTP MCP transport returns full paid responses
-    for 10 tool calls per IP per day with no key and no wallet. Paid access is
-    prepaid credit packs (card or USDC) or per-call x402 on Base L2.
+  notes: Re-verified 2026-09-25 against OpenAPI 1.8.0. POST /v1/iban/validate answers 25 keyless validations a week per source address (reset
+    Monday 00:00 UTC); POST /v1/keys/generate with no body returns an ifk_ key (no e-mail, no card) good for 25 requests a month, 200 once claimed;
+    the hosted MCP transport allows 25 keyless tool calls a week. Paid access is credit packs (1,000 for $4, 5,000 for $20, 25,000 for $80, card
+    or USDC), Pro at $29/month for 10,000 requests, or per-call x402 on Base L2.
+
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ibanforge.png
+
 name: IBANforge
-description: >-
-  Pre-payout IBAN screening for developers and AI agents — validation, issuing-bank
-  identification against national bank registers, Swiss clearing including QR-IID,
-  bank-level sanctions, SEPA and VoP reachability, and risk scoring across 89 IBAN
-  countries.
+
+description: Pre-payout IBAN screening for developers and AI agents — validation, issuing-bank identification against national bank registers,
+  Swiss clearing including QR-IID, bank-level sanctions, SEPA and VoP reachability, and risk scoring across 89 IBAN countries.
+
 url: https://api.ibanforge.com/apis.json
+
 specificationVersion: '0.23'
+
 created: '2026-05-28'
-modified: '2026-08-06'
+
+modified: '2026-09-25'
+
 x-source: provider-published
-x-category: "Finance"
+
+x-category: Finance
+
 x-tier: 1
+
 x-tier-reason: provider-published-artifacts-verified-2026-08-06
+
 x-evidence:
   verified: '2026-08-06'
   trigger: https://github.com/api-search/inbox/issues/3
-  method: >-
-    Every artifact below fetched and confirmed 200 against a control path returning
-    404 on the same host. The OpenAPI in openapi/_original/ is the provider's own
-    document, harvested — not reconstructed.
-  supersedes: >-
-    Profile was bulk-registered from public-apis/public-apis on 2026-05-28 with a
-    single Documentation pointer and no contract, which zeroed contract_quality,
-    governance, operational_transparency, commercial_clarity and all 14
-    agent-readiness dimensions.
+  method: Every artifact below fetched and confirmed 200 against a control path returning 404 on the same host. The OpenAPI in openapi/_original/
+    is the provider's own document, harvested — not reconstructed.
+  supersedes: Profile was bulk-registered from public-apis/public-apis on 2026-05-28 with a single Documentation pointer and no contract, which
+    zeroed contract_quality, governance, operational_transparency, commercial_clarity and all 14 agent-readiness dimensions.
+
 tags:
-  - Finance
-  - Banking
-  - Compliance
-  - MCP
+- Finance
+- Banking
+- Compliance
+- MCP
+- A2A
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
+
+common:
+- type: Overlay
+  url: overlays/ibanforge-account-api-overlay.yaml
+- type: SecurityTxt
+  url: well-known/ibanforge-security.txt
+- type: SecurityTxt
+  url: well-known/ibanforge-api-security.txt
+- type: WellKnown
+  url: well-known/ibanforge-well-known.yml
+- type: AgenticAccess
+  url: agentic-access/ibanforge-agentic-access.yml
+- type: RateLimits
+  url: rate-limits/ibanforge-rate-limits.yml
+- type: Plans
+  url: plans/ibanforge-plans-pricing.yml
+- type: Spectral
+  url: rules/ibanforge-rules.yml
+- type: JSONLD
+  url: json-ld/ibanforge-context.jsonld
+- type: Vocabulary
+  url: vocabulary/ibanforge-vocabulary.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DataModel
+  url: data-model/ibanforge-data-model.yml
+- type: ChangeLog
+  url: changelog/ibanforge-changelog.yml
+- type: Idempotency
+  url: conventions/ibanforge-conventions.yml
+- type: Conventions
+  url: conventions/ibanforge-conventions.yml
+- type: Sandbox
+  url: sandbox/ibanforge-sandbox.yml
+- type: Security
+  url: security/ibanforge-vulnerability-disclosure.yml
+- type: Deprecation
+  url: https://github.com/cammac-creator/ibanforge/blob/main/CHANGELOG.md
+- type: Lifecycle
+  url: lifecycle/ibanforge-lifecycle.yml
+- type: ErrorCatalog
+  url: errors/ibanforge-problem-types.yml
+- type: Conformance
+  url: conformance/ibanforge-conformance.yml
+- type: LLMsTxt
+  url: llms/ibanforge-llms.txt
+- type: ToolCrosswalk
+  url: mcp/ibanforge-tool-crosswalk.yml
+- type: Hosts
+  url: hosts/ibanforge-hosts.yml
+- type: Vendors
+  url: vendors/ibanforge-vendors.yml
+- type: Packages
+  url: packages/ibanforge-packages.yml
+- type: Sandbox
+  url: https://ibanforge.com/playground
+- type: SDKs
+  url: https://www.npmjs.com/package/@ibanforge/sdk
+- type: Authentication
+  url: authentication/ibanforge-authentication.yml
+- type: CapabilityMap
+  url: capabilities/ibanforge-capability-edges.yml
+  name: IBANforge Business Capability Map
+- type: VulnerabilityDisclosure
+  url: security/ibanforge-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/ibanforge-domain-security.yml
+- type: Website
+  url: https://ibanforge.com
+- type: Documentation
+  url: https://ibanforge.com/docs
+- type: MCPServer
+  url: mcp/ibanforge-mcp.yml
+- type: AgentCard
+  url: a2a/ibanforge-a2a.yml
+- type: APICatalog
+  url: well-known/ibanforge-well-known.yml
+- type: LlmsText
+  url: llms/ibanforge-llms.txt
+- type: SecurityTxt
+  url: https://api.ibanforge.com/.well-known/security.txt
+- type: StatusPage
+  url: https://ibanforge.com/status
+- type: TermsOfService
+  url: https://ibanforge.com/legal/terms
+- type: PrivacyPolicy
+  url: https://ibanforge.com/legal/privacy
+- type: Pricing
+  url: https://ibanforge.com/pricing
+- type: x402
+  url: https://api.ibanforge.com/.well-known/x402
+- type: PublicAPIsListing
+  url: https://github.com/public-apis/public-apis
+- url: https://ibanforge.com/blog
+  type: Blog
+- type: Support
+  url: mailto:support@ibanforge.com
+- type: ChangeLog
+  url: https://ibanforge.com/changelog
+- type: GitHubOrganization
+  url: https://github.com/cammac-creator/ibanforge
+- type: Postman
+  url: https://ibanforge.com/ibanforge-postman.json
+- type: APIReference
+  url: https://ibanforge.com/openapi
+- type: GettingStarted
+  url: https://ibanforge.com/docs/onboarding
+- type: Login
+  url: https://ibanforge.com/account
+- type: ServiceLevelAgreement
+  url: https://ibanforge.com/legal/sla
+
 apis:
 - aid: ibanforge:ibanforge-api-keys-api
   name: IBANforge API Keys API
@@ -75,6 +200,11 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-api-keys-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-stats-overview-schema.json
 - aid: ibanforge:ibanforge-bic-api
   name: IBANforge BIC API
   description: BIC/SWIFT lookup endpoints (paid via x402)
@@ -85,10 +215,14 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-bic-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-biclookup-result-schema.json
 - aid: ibanforge:ibanforge-compliance-api
   name: IBANforge Compliance API
-  description: >-
-    Compliance check endpoint — IBAN validation + sanctions + SEPA + VoP + risk score (paid via x402)
+  description: Compliance check endpoint — IBAN validation + sanctions + SEPA + VoP + risk score (paid via x402)
   humanURL: https://api.ibanforge.com
   baseURL: https://api.ibanforge.com
   tags:
@@ -96,11 +230,18 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-compliance-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-ibanvalidation-result-schema.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-compliance-result-schema.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-bic-compliance-response-schema.json
 - aid: ibanforge:ibanforge-credits-api
   name: IBANforge Credits API
-  description: >-
-    Prepaid credit bundles — pay once in USDC (x402), get an API key with N credits; batch validation
-    debits 1 credit per IBAN
+  description: Prepaid credit bundles — pay once in USDC (x402), get an API key with N credits; batch validation debits 1 credit per IBAN
   humanURL: https://api.ibanforge.com
   baseURL: https://api.ibanforge.com
   tags:
@@ -110,6 +251,9 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-credits-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
 - aid: ibanforge:ibanforge-free-api
   name: IBANforge Free API
   description: Free endpoints — no payment required
@@ -120,6 +264,17 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-free-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-ibanvalidation-result-schema.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-health-response-schema.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-payment-reference-result-schema.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-ibanformat-result-schema.json
 - aid: ibanforge:ibanforge-iban-api
   name: IBANforge IBAN API
   description: IBAN validation endpoints (paid via x402)
@@ -130,6 +285,11 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-iban-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-ibanvalidation-result-schema.json
 - aid: ibanforge:ibanforge-mcp-api
   name: IBANforge MCP API
   description: Model Context Protocol endpoint for AI agents (Streamable HTTP)
@@ -140,6 +300,9 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-mcp-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
 - aid: ibanforge:ibanforge-swiss-clearing-api
   name: IBANforge Swiss Clearing API
   description: Swiss BC-Nummer / IID clearing lookup (paid via x402)
@@ -150,44 +313,29 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/ibanforge-swiss-clearing-api-openapi.yml
-common:
-  - type: CapabilityMap
-    url: capabilities/ibanforge-capability-edges.yml
-    name: IBANforge Business Capability Map
-  - type: VulnerabilityDisclosure
-    url: security/ibanforge-vulnerability-disclosure.yml
-  - type: DomainSecurity
-    url: security/ibanforge-domain-security.yml
-  - type: Website
-    url: https://ibanforge.com
-  - type: Documentation
-    url: https://ibanforge.com/docs
-  - type: MCPServer
-    url: mcp/ibanforge-mcp.yml
-  - type: AgentCard
-    url: a2a/ibanforge-a2a.yml
-  - type: APICatalog
-    url: well-known/ibanforge-well-known.yml
-  - type: LlmsText
-    url: llms/ibanforge-llms.txt
-  - type: SecurityTxt
-    url: https://api.ibanforge.com/.well-known/security.txt
-  - type: StatusPage
-    url: https://ibanforge.com/status
-  - type: TermsOfService
-    url: https://ibanforge.com/en/legal/terms
-  - type: PrivacyPolicy
-    url: https://ibanforge.com/en/legal/dpa
-  - type: Pricing
-    url: https://ibanforge.com/pricing
-  - type: x402
-    url: https://api.ibanforge.com/.well-known/x402
-  - type: PublicAPIsListing
-    url: https://github.com/public-apis/public-apis
-  - url: https://ibanforge.com/en/blog
-    type: Blog
-  - type: Support
-    url: mailto:support@ibanforge.com
-maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-ch-clearing-result-schema.json
+- aid: ibanforge:ibanforge-account-api
+  name: IBANforge Account API
+  description: 'The account page, https://ibanforge.com/account, for a person in a browser: a 6-digit code mailed to the address of the keys,
+    then a read-only session cookie that shows every key of that address. Rotating or revoking a key still takes the key itself.'
+  humanURL: https://api.ibanforge.com
+  baseURL: https://api.ibanforge.com
+  tags:
+  - Account
+  properties:
+  - type: OpenAPI
+    url: openapi/ibanforge-account-api-openapi.yml
+  - type: OpenAPI
+    name: OpenAPI (provider-hosted)
+    url: https://api.ibanforge.com/openapi.json
+  - type: JSONSchema
+    url: json-schema/ibanforge-account-overview-schema.json
+x-enrichment:
+  date: '2026-09-25'
+  status: enriched
+  artifacts_added: 22
+  pass: local-v5

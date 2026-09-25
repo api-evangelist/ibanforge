@@ -1,10 +1,12 @@
 openapi: 3.2.0
 info:
   title: IBANforge API Keys API
-  version: 1.4.3
-  description: Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds.
+  version: 1.8.0
+  description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
-    url: https://ibanforge.com
+    name: IBANforge support
+    url: https://github.com/cammac-creator/ibanforge/issues
+    email: support@ibanforge.com
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -12,15 +14,484 @@ servers:
   description: Local development
 tags:
 - name: API Keys
-  description: API key management — generate free keys and check usage
+  description: API key management — mint a key with or without an email address, claim it, rotate it, check its usage
 paths:
   /v1/keys/generate:
     post:
       operationId: generateApiKey
       summary: Generate a free API key
-      description: Generates a free API key with 200 requests/month quota (batch validation counts 1 request per IBAN). One key per email per day.
+      description: 'Generates a free API key. NO BODY AT ALL is the shortest form and it works: an empty request returns an anonymous key with 25 requests/month, no email and no card, and a "claim_url". The response of an anonymous key carries no "email" field. Supply {"email": "..."} instead and the key is issued at 200 requests/month on the historical path (batch validation counts 1 request per IBAN): the first key issued to a network is instant, while a repeat creation from the same network within 7 days must prove the mailbox is readable — that call answers 403 "verification_required" and mails a 6-digit code to the address supplied, and the SAME request is then repeated with a "code" field within 15 minutes. A body that is not empty and not valid JSON keeps its 400. At most 3 keys per network per day, on both paths. An anonymous key is raised later with POST /v1/keys/claim — same key, nothing to replace. A caller that cannot receive mail needs neither path: prepaid credits (POST /v1/credits/buy/1k) and x402 pay-per-call need no key.'
       tags:
       - API Keys
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Optional. Supply it for the historical path (200 requests/month). Omit it, send an empty body, or send null for an anonymous key at 25 requests/month.
+                anonymous:
+                  type: boolean
+                  example: true
+                  description: 'Optional and never required: an explicit way to say what an empty body already says. Accepted so documentation and SDKs have a form to show.'
+                code:
+                  type: string
+                  pattern: ^[0-9]{6}$
+                  example: '123456'
+                  description: Optional. The 6-digit code mailed after a 403 "verification_required". Repeat the same request with it within 15 minutes; omit it to be mailed a fresh one. The challenge locks after 5 wrong attempts.
+      responses:
+        '201':
+          description: API key generated (shown only once). An anonymous key answers api_key, key_prefix, tier, monthly_limit, claim_url, message and terms_url — and NO "email" field. A key created with an address answers the historical body plus "tier".
+        '400':
+          description: Body rejected before any key was considered, and every one of these applies only when an "email" field was supplied — an empty body cannot be refused for its address. "error" is "invalid_json", "invalid_email", "disposable_email" (an address on that path must be a real, non-disposable mailbox), or "undeliverable_email" (the mail server for that domain refused the address, so no verification code could be delivered).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: 'The mailbox must be verified. "verification_required": a 6-digit code was just mailed, repeat this exact request with "code" within 15 minutes. "verification_failed": the code was wrong or expired, and "reason" says which ("wrong_code", "expired", "no_challenge", "too_many_attempts"); request again without "code" to be sent a fresh one.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: '"verification_in_flight": a verification code for that address was issued moments ago for a DIFFERENT key (a claim on POST /v1/keys/claim), and it is not overwritten while its recipient is still copying it. Use that code, or repeat this request in a couple of minutes.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: 'Too many creations. "key_creation_limit": at most 3 free keys per network per day. "verification_rate_limited": too many codes were mailed to this address or from this network today. "rate_limited": one key per email per day. Existing keys keep working in every case. A separate global shield may reduce the allowance of a key minted during a burst; it never refuses one, and claiming that key lifts it straight away.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"verification_unavailable": the mail relay is down or misconfigured on our side, so no key was issued and no code is pending. Retry in a few minutes. An address the mail server refuses answers 400 "undeliverable_email" instead.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/device:
+    post:
+      operationId: openDeviceGrant
+      summary: Open a device authorization request (RFC 8628)
+      description: 'Opens a device authorization request and returns a short code plus an address. Show BOTH to a human — the ready-made link to click, and the plain address with the code to type on a phone — and never open the link yourself. Then poll POST /v1/keys/device/token with the device_code. The request lives 900 seconds. Approving it hands the agent an anonymous key (25 requests/month, no address of any kind); the human may instead verify a mailbox on the page and the key is issued at 200 requests/month. Nothing personal passes through the model: it relays a code and waits. Every request opened counts against the same allowance as POST /v1/keys/generate — 3 per network per day, requests still awaiting approval included, because a pending request is a promised key. The two doors share that allowance, they do not each get one.'
+      tags:
+      - API Keys
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_name:
+                  type: string
+                  maxLength: 60
+                  example: Claude Code
+                  description: Optional. Who is asking, shown to the human on the approval page. Truncated and stripped of control characters and URLs; a value that survives none of that is displayed as a fallback label instead of being refused.
+                reason:
+                  type: string
+                  maxLength: 200
+                  example: validate supplier IBANs before payout
+                  description: Optional. What the key is for, shown to the human on the approval page. Same cleaning.
+                source:
+                  type: string
+                  pattern: ^[a-z0-9_-]{1,40}$
+                  example: mcp-device
+                  description: 'Optional attribution label, same rule as POST /v1/keys/generate. Telemetry only: the per-network allowance is counted on the caller network, so changing this value on every call changes nothing.'
+      responses:
+        '201':
+          description: 'Request opened. Answers device_code (the secret the agent keeps), user_code (what the human types, 8 letters with no vowel and no digit, so nothing to misread), verification_uri (https://ibanforge.com/device), verification_uri_complete (the same with the code pre-filled), expires_in, interval (5 seconds), message, and display_to_human: a ready-made block of text to show a human VERBATIM, carrying the code and the link. It is built here so that every surface shows the same words; do not paraphrase it, and note that it deliberately contains no device_code.'
+        '400':
+          description: '"invalid_json": the body was present and is not a JSON object.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: '"device_rate_limited": this network has taken its free keys for today, counting the requests still awaiting approval, or it opened more than 10 requests in the last hour. Existing keys keep working, the keyless trial needs nothing, and x402 needs no key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"device_unavailable": the request could not be opened. Validation is unaffected; retry in a minute.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/device/token:
+    post:
+      operationId: collectDeviceGrantKey
+      summary: Collect the key once a human has approved (long-polling)
+      description: 'RFC 8628 §3.4. Accepts application/json and application/x-www-form-urlencoded, so an existing OAuth client works unchanged. grant_type is OPTIONAL; when present it must be "urn:ietf:params:oauth:grant-type:device_code". The server holds the request open for up to thirty seconds and answers as soon as the state changes, so a conforming client makes one or two calls a minute. Wait for "interval" between calls: closer than 5 seconds answers "slow_down" immediately. The key is handed over EXACTLY ONCE — store it before doing anything else. The answer also carries config_line, the command to hand the human so they can register the key with their MCP client; this endpoint never edits any configuration file. An approval opens a collection window of at least 180 seconds even when the original request was about to expire, so an approval at the last minute is still collectable. Requests are never held open for a browser: a call carrying Origin or Sec-Fetch-Mode is answered at once, which costs a conforming client nothing.'
+      tags:
+      - API Keys
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - device_code
+              properties:
+                device_code:
+                  type: string
+                  example: ifd_1a2b3c
+                  description: The secret returned by POST /v1/keys/device.
+                grant_type:
+                  type: string
+                  enum:
+                  - urn:ietf:params:oauth:grant-type:device_code
+                  description: Optional. Any other value is refused as "unsupported_grant_type".
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - device_code
+              properties:
+                device_code:
+                  type: string
+                grant_type:
+                  type: string
+      responses:
+        '200':
+          description: 'The key, once and only once: api_key, key_prefix, tier ("anonymous" or "email"), monthly_limit, message, terms_url and config_line. There is NO "email" field on an anonymous key — not null and not a placeholder; the field appears only when a mailbox was verified during approval.'
+        '400':
+          description: 'Every wait and every failure of this endpoint, as RFC 6749 §5.2 requires. "authorization_pending": nobody has approved yet — wait for "interval" and call again, nothing is wrong (the body carries expires_in and interval). "slow_down": you are calling faster than the interval — add 5 seconds to it. "access_denied": somebody refused the request — tell your human and ask whether to try again; open at most one more request. "expired_token": nobody approved in time — ask for a new request at most once, then fall back to the keyless allowance or to x402. "invalid_grant": unknown device_code, or the key was already collected, or the secret belongs to another flow — stop. "unsupported_grant_type": grant_type was present and wrong. "invalid_json": the body is neither valid JSON nor form-encoded.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: 'The per-address request limiter of the whole API, which this endpoint does not bypass: wait retry_after seconds. A client that polls once or twice a minute never meets it.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/device/lookup:
+    post:
+      operationId: lookupDeviceGrant
+      summary: Read a pending device request, and take its approval token
+      description: 'Read by the approval page so it can show what it is about to approve. POST and not GET on purpose: a code in a query string enters the browser history, the access logs of whoever serves the page, and leaks as a Referer to any third-party resource that page loads. The answer carries an approval_token that POST /v1/keys/device/approve and POST /v1/keys/device/deny both require: they are state-changing writes, and without a token they would be reachable from any web page with no prior request. One live token per request — a later lookup replaces it, and it lasts 300 seconds, so a tab left open must be reloaded before it can approve. Unknown, expired and already-decided codes all answer the SAME 404 body after the SAME delay: telling them apart would hand a guesser an oracle.'
+      tags:
+      - API Keys
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user_code
+              properties:
+                user_code:
+                  type: string
+                  example: WDJB-MJHT
+                  description: The code the human typed. Case, spaces and dashes are normalised away before lookup.
+      responses:
+        '200':
+          description: 'user_code, client_name, reason, expires_in, status, anonymous_monthly_limit, claimed_monthly_limit and approval_token. client_name and reason are written by an agent: escape them before display and never render them as markup.'
+        '400':
+          description: '"invalid_json": the body is not a JSON object.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: '"invalid_or_expired": unknown, expired, or already approved or refused. One body and one status for all four, on purpose.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/device/approve:
+    post:
+      operationId: approveDeviceGrant
+      summary: Approve a device request and mint the key
+      description: 'Called by the human, from the approval page. Requires the approval_token from POST /v1/keys/device/lookup, and requires Content-Type: application/json — which is what forces a CORS preflight, so the origin check actually applies. Origin is checked when the header is present and never when it is absent, so command-line use keeps working. Three branches: user_code plus token mints an anonymous key at 25 requests/month; adding "email" mails a 6-digit code instead and answers 202 while the request stays pending; adding "email" and "code" verifies the mailbox and mints at 200 requests/month. The mail branch extends the deadline ONCE, because the code starts its own clock when the human arrives and not when the request was opened. The key is NEVER returned here. It goes only to the agent, through POST /v1/keys/device/token; this answer says what was granted, and the page tells the human to go back to their agent.'
+      tags:
+      - API Keys
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user_code
+              - approval_token
+              properties:
+                user_code:
+                  type: string
+                  example: WDJB-MJHT
+                approval_token:
+                  type: string
+                  example: ifa_1a2b3c
+                  description: From the most recent POST /v1/keys/device/lookup on this code.
+                email:
+                  type: string
+                  format: email
+                  description: Optional. Supply it to raise the key to 200 requests/month by proving the mailbox. Omit it and a key is issued with no address at all.
+                code:
+                  type: string
+                  pattern: ^[0-9]{6}$
+                  example: '123456'
+                  description: Optional. The code mailed by the previous call, submitted within 15 minutes. The challenge locks after 5 wrong attempts.
+      responses:
+        '200':
+          description: 'Approved and minted: ok, tier ("anonymous" or "email"), monthly_limit, "email" when a mailbox was verified, and "notice" when a global shield reduced the allowance. NO field of this answer ever contains the key.'
+        '202':
+          description: '"code_sent": a 6-digit code was mailed to the address supplied. The request is STILL pending and its expires_in is renewed once; submit the code with the same user_code and token.'
+        '400':
+          description: '"invalid_json"; "invalid_email"; "disposable_email" (an address supplied here must be a real, non-disposable mailbox — or approve with no address at all); "undeliverable_email" (the mail server for that domain refused the address).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"approval_token_required": the token is absent, unknown, expired, or superseded by a later lookup — reload the page. "verification_failed": the 6-digit code was wrong or expired, and "reason" says which. "forbidden_origin": the Origin header was present and is not allowed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: '"invalid_or_expired": unknown, expired, or already decided. Same body and same delay as the lookup 404.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: '"verification_in_flight": a code for that address was issued moments ago for a different purpose and is not overwritten while its recipient is still copying it.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: '"unsupported_media_type": send this request as application/json.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: '"verification_rate_limited": too many codes were mailed to this address, to this domain, or from this network today. "key_rate_limited": a key was already issued to that address in the last day — the request stays pending, so the same button still works to take a key with no address, or come back tomorrow.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"verification_unavailable": the mail relay is down on our side, so no code is pending and no key was issued.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/device/deny:
+    post:
+      operationId: denyDeviceGrant
+      summary: Refuse a device request
+      description: 'Called by the human from the approval page when the request is not theirs. Same guards as approve: the approval_token is mandatory, Content-Type must be application/json, and Origin is checked when present. The token matters MORE here than on approve: a cross-site refusal creates nothing, it destroys. The next POST /v1/keys/device/token answers "access_denied", and the agent is allowed to ask its human whether to open one more request — a refusal obtained by somebody else does not end the attempt for good.'
+      tags:
+      - API Keys
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user_code
+              - approval_token
+              properties:
+                user_code:
+                  type: string
+                  example: WDJB-MJHT
+                approval_token:
+                  type: string
+                  example: ifa_1a2b3c
+      responses:
+        '200':
+          description: 'Refused: { "ok": true }. No key exists and none will.'
+        '400':
+          description: '"invalid_json": the body is not a JSON object.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"approval_token_required": the token is absent, unknown, expired, or superseded by a later lookup. "forbidden_origin": the Origin header was present and is not allowed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: '"invalid_or_expired": unknown, expired, or already decided. Same body and same delay as the lookup 404.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: '"unsupported_media_type": send this request as application/json.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/usage:
+    get:
+      operationId: getApiKeyUsage
+      summary: Check API key usage
+      description: 'Returns current month usage and remaining quota for the provided API key. `tier` names the key''s tier ("anonymous", "email", "claimed" or "paid"). `basis` says which ceiling actually governs the key: "monthly" for a free or subscription key, "credits" for a prepaid bundle, "lifetime" when the allowance does NOT start over on the 1st (a key raised by payment, or one born under a protective limit) — on that basis `used` and `remaining` count every month the key has ever served and `month` is only the current calendar month. On a bundle key, `used` counts the calls billed this month for information only — nothing is enforced against `limit`/`remaining`, and the balance that can turn a call away is served alongside as `credits_remaining` / `credits_total`. An anonymous key also carries a "claim" block: where to raise it (https://api.ibanforge.com/v1/keys/claim), to what, by which methods, how much has been settled on it so far and how much is needed. A key that holds an allowance AND prepaid credits (a free key recharged) keeps the basis of its allowance and also carries credits_remaining, credits_total and billing_order: "allowance_then_credits": each call draws on the allowance first, then on the credits, and every billed response says which one paid it in X-Charged-From ("allowance", "credits" or "allowance+credits"). credits_total is everything ever bought on the key, recharges included. `topup` carries the card links that recharge THIS key (they name it by a recharge reference, never by the key) and the USDC route to call with the key presented.'
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      responses:
+        '200':
+          description: 'Usage for the current month: used, limit, remaining, month, key_prefix, basis, tier, topup, plus credits_remaining, credits_total and an explanatory note when basis is "credits", the same with billing_order on a key that holds an allowance and credits, a note when basis is "lifetime", and a "claim" block on an anonymous key'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/report:
+    get:
+      operationId: getApiKeyReport
+      summary: Read everything this key did
+      description: 'Self-service report for the presented key: daily traffic, endpoints called, what failed with a plain-language cause and a suggested fix, and how many distinct networks the key was called from. Authentication is the key itself, and the report only ever covers that key. A person reads the same data on the account page, https://ibanforge.com/account, by signing in with the e-mail address of the key or by pasting the key (see GET /v1/account/keys/report). The footprint reports `unusual: null`, never false, for a key with no traffic: a key that has never been called has not passed a leak check, it has nothing to judge. Its `usage` block is the one GET /v1/keys/usage serves, `basis` included.'
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      parameters:
+      - name: days
+        in: query
+        required: false
+        description: Window in days, clamped to 1..365. Defaults to 30.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 365
+          default: 30
+      responses:
+        '200':
+          description: Usage, traffic shape, failures with their cause, and network footprint
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/revoke:
+    post:
+      operationId: revokeApiKey
+      summary: Revoke the presented API key
+      description: 'Permanently deactivates the key sent in the Authorization header. Authentication is the key itself: whoever holds it may kill it, which is what makes this usable the minute a key leaks. There is no body and no way to revoke a key other than the one presented. Irreversible — use POST /v1/keys/rotate instead if you want a working replacement.'
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
+      responses:
+        '200':
+          description: 'Key deactivated. Returns revoked: true and key_prefix.'
+        '401':
+          description: 'No Authorization: Bearer ifk_… header ("missing_key")'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Key not found or already revoked ("invalid_key")
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/claim:
+    post:
+      operationId: claimApiKey
+      summary: Raise the presented anonymous key to the free tier
+      description: 'Raises the presented anonymous key from 25 to 200 requests a month. THE KEY DOES NOT CHANGE: same key, same prefix, same history, nothing to replace. Authentication is the key itself, in any of the three accepted dialects — never in the body. Two steps on the free rail: POST {"email": "..."} answers 202 and mails a 6-digit code, then the SAME request repeated with "code" within 15 minutes answers 200. PRECONDITION: the key must have served at least one call, otherwise the answer is 403 "unused_key" — a key that has never been used has nothing to raise. A verified mailbox is the only rail that grants the allowance EVERY month. There is also an implicit paid rail with no call to make here: once 1 USD of x402 settlements or a credit pack have been settled while presenting the key, it is raised to 200 requests ONCE, with no monthly renewal. GET /v1/keys/usage serves the counter as a "claim" block. A key that the cohort radar cut inside a burst of automated signups (the API answers 402 "key_revoked_burst" to it) is the one inactive key this route accepts: a successful claim restores it, active, and raises it in the same step ("restored": true in the answer).'
+      tags:
+      - API Keys
+      security:
+      - apiKey: []
       requestBody:
         required: true
         content:
@@ -33,28 +504,89 @@ paths:
                 email:
                   type: string
                   format: email
-                  description: Email address for key registration
+                  description: 'A mailbox you can read. The free tier is attached to the person, not to the address: an address that already holds an active free-tier key, or claimed one in the last 24 hours, answers 409 "already_claimed_elsewhere".'
+                code:
+                  type: string
+                  pattern: ^[0-9]{6}$
+                  example: '123456'
+                  description: The 6-digit code mailed by the first call. Omit it to be mailed one; repeat the request with it within 15 minutes. The challenge locks after 5 wrong attempts, and a code issued for one key is refused for another.
       responses:
-        '201':
-          description: API key generated (shown only once)
+        '200':
+          description: 'Claimed. Returns claimed: true, key_prefix, tier ("claimed"), claim_method ("email_code"), monthly_limit, basis ("monthly"), previous_monthly_limit and claimed_at.'
+        '202':
+          description: Code sent. Returns status "code_sent", key_prefix and expires_in_minutes. Repeat the same request with "code" to finish.
         '400':
-          description: Invalid email
+          description: '"invalid_json" (a non-empty body that is not a JSON object), "invalid_email", "disposable_email" (claiming needs a real mailbox), or "undeliverable_email" (the mail server for that domain refused the address).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: '"missing_key": no key was presented — it goes in the header, never in the body. "invalid_key": the key is unknown or inactive (a key cut for a signup burst is NOT refused here: it is restored by a successful claim).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"unused_key": the key has never served a call. "verification_failed": the code was wrong, expired, absent, locked, or issued for a different key; "reason" says which ("wrong_code", "expired", "no_challenge", "too_many_attempts", "wrong_target").'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: '"already_claimed": the key is already past the anonymous tier. "already_claimed_elsewhere": that address already holds an active free-tier key or claimed one in the last 24 hours — reuse that key, or keep this one at its anonymous allowance. "verification_in_flight": a code for that address was issued moments ago for a different key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '429':
-          description: Rate limited — one key per email per day
-  /v1/keys/usage:
-    get:
-      operationId: getApiKeyUsage
-      summary: Check API key usage
-      description: Returns current month usage and remaining quota for the provided API key.
+          description: '"claim_rate_limited": at most 3 keys raised per network per day, the same cap key creation applies. "verification_rate_limited": too many codes were requested for this address or from this network today. Existing keys keep working in both cases.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"verification_unavailable": the mail relay is down or misconfigured on our side, so no code is pending and the key was not raised. Retry in a few minutes.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/keys/rotate:
+    post:
+      operationId: rotateApiKey
+      summary: Replace the presented API key with a fresh one
+      description: 'Mints a new key inheriting the same plan and the same remaining credits, and revokes the presented one in the same operation. Authentication is the (still valid) key itself. The new key is returned once and never shown again: store it before doing anything else. The TIER survives too: an anonymous key rotates to an anonymous key, a claimed key stays claimed, and the response carries "tier" and "basis" so the holder can see it. Rotation is not a quota reset — the usage ledger moves to the new key.'
       tags:
       - API Keys
       security:
       - apiKey: []
       responses:
-        '200':
-          description: Usage statistics for the current month
+        '201':
+          description: New key issued and the old one revoked. Returns api_key (once), key_prefix, monthly_limit, credits_remaining, tier and basis.
         '401':
-          description: Missing or invalid API key
+          description: 'No Authorization: Bearer ifk_… header ("missing_key")'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Key not found or inactive ("invalid_key")
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /stats:
     get:
       operationId: getStats
@@ -73,6 +605,16 @@ paths:
                 $ref: '#/components/schemas/StatsOverview'
         '403':
           description: 'Authentication required — send Authorization: Bearer ifk_...'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /stats/history:
     get:
       operationId: getStatsHistory
@@ -109,12 +651,43 @@ paths:
                       type: integer
                     revenue:
                       type: number
+                    p50_ms:
+                      type:
+                      - integer
+                      - 'null'
+                      description: 'Median served latency for the day, in milliseconds. Null below 20 measured requests: a percentile over a handful of samples is noise, and a gap is more honest than a made-up figure.'
+                    p95_ms:
+                      type:
+                      - integer
+                      - 'null'
+                      description: 95th percentile of served latency. Same 20-sample floor as p50_ms.
+                    p99_ms:
+                      type:
+                      - integer
+                      - 'null'
+                      description: 'The tail: 99th percentile of served latency, which is what a caller making thousands of requests is exposed to and what a timeout budget should be set from. Its floor is 100 measured requests, not 20, and that is arithmetic rather than caution: the rank n*0.99 lands on the same row as n*0.95 at 20 samples, so a lower floor would publish the p95 twice under two names. Null below it.'
                   required:
                   - date
                   - total
                   - revenue
+        '400':
+          $ref: '#/components/responses/UnknownParameterOrWindow'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '403':
           description: 'Authentication required — send Authorization: Bearer ifk_...'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 components:
   schemas:
     StatsOverview:
@@ -188,16 +761,43 @@ components:
                 type: integer
               revenue:
                 type: number
+    ApiError:
+      type: object
+      required:
+      - error
+      - message
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
+          example: batch_too_large
+        message:
+          type: string
+          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
+          example: Maximum 100 IBANs per batch request
+  responses:
+    UnknownParameterOrWindow:
+      description: Unknown query parameter, or a window past 90 days (audit 2026-09-01, PERF-13).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
   securitySchemes:
     x402Payment:
       type: apiKey
       in: header
-      name: X-Payment
-      description: x402 USDC micropayment token
+      name: PAYMENT-SIGNATURE
+      description: x402 USDC micropayment signature (protocol v2). Clients holding v1 payment requirements may send the same signature as X-Payment; both are accepted.
     apiKey:
       type: http
       scheme: bearer
-      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+      description: API key (Bearer ifk_xxx) — 25 free requests/month without an email address, 200 a month once claimed, or a custom quota for paid keys
+    accountSession:
+      type: apiKey
+      in: cookie
+      name: ibanforge_account
+      description: 'Session of the account page, set by POST /v1/account/session: HttpOnly, Secure, SameSite=Strict, Path=/v1/account, 7 days from sign-in. Read-only: it opens no paid route and no route that acts on a key.'
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt

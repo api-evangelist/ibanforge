@@ -1,0 +1,83 @@
+# Rate limits — IBANforge
+specification: rate-limits
+version: '1.0'
+updated: '2026-09-24'
+
+default:
+  requests: 100
+  window: 1 minute
+  scope: per client IP
+  applies_to: every endpoint except the exemptions below
+
+exemptions:
+  - /health
+  - /ping
+  - /stats
+  - /openapi.json
+  - /v1/demo
+
+quotas:
+  anonymous_key:
+    requests: 25
+    window: 1 month
+    scope: per API key
+    signup: POST /v1/keys/generate with no body at all — no email, no card
+    note: A named allowance of its own, not shared with the other callers on
+      the same address, and it opens every endpoint.
+  free_tier:
+    requests: 200
+    window: 1 month
+    scope: per API key
+    signup: POST /v1/keys/claim on an anonymous key — a mailed 6-digit code
+  mcp_anonymous:
+    requests: 25
+    window: 1 week (ISO week, UTC)
+    scope: per client source address (IPv6 counted per /64)
+    resets: Monday 00:00 UTC
+    unit: one per tool call, one per IBAN in batch_validate_iban
+    note: Full paid responses over the HTTP MCP transport with no key and no wallet. Separate from the REST trial below.
+  mcp_sessions:
+    requests: 30
+    window: 1 day
+    scope: per client source address
+    note: New MCP sessions (initialize); reuse the mcp-session-id instead of opening one per call.
+  rest_anonymous_trial:
+    requests: 25
+    window: 1 week (ISO week, UTC)
+    scope: per client source address (IPv6 counted per /64)
+    applies_to: POST /v1/iban/validate
+    resets: Monday 00:00 UTC
+    note: A taster over plain REST, for a caller with no key and no wallet.
+      Granted only when the body carries a real iban; an empty body still gets the
+      402 discovery envelope. Past the ceiling the route answers 402 with
+      cause.reason = trial_exhausted until the reset. Counted in the service
+      database, so it survives a redeploy. The MCP taster above is a separate
+      allowance, counted by the day.
+  prepaid_credits:
+    note: One credit per validation or lookup; batch validation debits one credit
+      per IBAN. No expiry.
+  x402:
+    note: Per-call settlement is not rate-limited by quota, only by the default
+      per-minute limit.
+
+signalling:
+  headers:
+    # IETF draft spelling, the one standard-aware clients read.
+    - name: RateLimit-Limit
+      description: Requests permitted in the current window.
+    - name: RateLimit-Remaining
+      description: Requests left in the current window.
+    - name: RateLimit-Reset
+      description: Seconds until the window resets (delta-seconds).
+    # Legacy spelling, kept because existing clients read it.
+    - name: X-RateLimit-Limit
+    - name: X-RateLimit-Remaining
+    - name: X-RateLimit-Reset
+      description: Unix timestamp of the reset, not delta-seconds.
+    - name: Retry-After
+      description: Sent with 429 only. Seconds to wait before retrying.
+  exhausted:
+    status: 429
+    body: '{ "error": "rate_limit_exceeded", "message": "..." }'
+    guidance: Retry after the number of seconds in Retry-After. Retrying sooner
+      does not shorten the window.

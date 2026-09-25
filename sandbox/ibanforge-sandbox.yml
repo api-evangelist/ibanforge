@@ -1,0 +1,32 @@
+generated: '2026-09-25'
+method: searched
+source: https://ibanforge.com/pricing
+sources:
+- https://ibanforge.com/pricing
+- https://ibanforge.com/llms-full.txt
+- https://api.ibanforge.com/openapi.json
+- https://ibanforge.com/playground
+name: IBANforge Sandbox and Testing
+description: IBANforge has no separate test-mode host or test keys; testing is done against production with
+  free surfaces. GET /v1/demo returns free, dated example results (including the official example IBANs
+  of CH, BE and AT); the keyless REST trial serves POST /v1/iban/validate 25 times a week per source address
+  in full; the hosted MCP transport allows 25 keyless tool calls a week; GET /v1/test-iban (getTestIban)
+  generates structurally valid test IBANs whose bank codes are drawn from the national registers (CH, DE,
+  AT, BE, SK) with random account digits that belong to nobody; and the browser playground at /playground.
+docs: https://ibanforge.com/playground
+modes:
+- name: keyless trial
+  scope: POST /v1/iban/validate
+  allowance: 25 a week per source address, reset Monday 00:00 UTC
+- name: demo
+  endpoint: GET /v1/demo
+  auth: none
+- name: test IBAN generator
+  endpoint: GET /v1/test-iban
+  operationId: getTestIban
+  auth: none
+- name: playground
+  url: https://ibanforge.com/playground
+key_prefixes:
+- prefix: ifk_
+  mode: live (single mode; there is no test-key prefix)

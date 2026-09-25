@@ -1,0 +1,62 @@
+generated: '2026-09-25'
+method: searched
+source:
+- openapi/
+- https://api.ibanforge.com/openapi.json
+- https://ibanforge.com/docs/errors
+- https://ibanforge.com/legal/dpa
+standards:
+- id: openapi-3.2
+  conforms: true
+  evidence: the document declares 3.2.0
+- id: oauth2
+  conforms: false
+  evidence: 'securitySchemes: accountSession (apiKey), apiKey (http), x402Payment (apiKey)'
+- id: rfc9457
+  conforms: false
+  evidence: no response declares application/problem+json
+- id: idempotency
+  conforms: false
+  evidence: no idempotency key parameter on mutating operations
+- id: pagination
+  conforms: true
+  evidence: list operations take page
+- id: iso-20022
+  conforms: true
+  kind: domain-standard
+  evidence: 'Contract declares ISO 20022 structured postal-address checks against SPS, T2 and Fedwire rules: openapi/_original/ibanforge-openapi.json
+    paths[''/v1/address/check''].post (checkPostalAddress)'
+- id: iso-13616
+  conforms: true
+  kind: domain-standard
+  evidence: 'IBAN structure and MOD-97 check digits per ISO 13616: openapi/_original/ibanforge-openapi.json paths[''/v1/iban/format''].get (formatCheckIBAN)'
+- id: iso-11649
+  conforms: true
+  kind: domain-standard
+  evidence: 'RF creditor reference (ISO 11649, mod 97-10) validation: openapi/_original/ibanforge-openapi.json paths[''/v1/iban/validate''].post
+    (validateIBAN)'
+- id: iso-9362
+  conforms: true
+  kind: domain-standard
+  evidence: "https://ibanforge.com/docs/errors \u2014 invalid_bic_format: \"The BIC is not 8 or 11 alphanumeric characters in the ISO 9362 shape\""
+- id: rfc-8628
+  conforms: true
+  evidence: 'OAuth 2.0 Device Authorization Grant for durable agent keys: openapi/_original/ibanforge-openapi.json paths[''/v1/keys/device''].post
+    (openDeviceGrant)'
+- id: rfc-9727
+  conforms: true
+  evidence: https://api.ibanforge.com/.well-known/api-catalog answers 200 application/linkset+json
+- id: rfc-9116
+  conforms: true
+  evidence: https://api.ibanforge.com/.well-known/security.txt answers 200 with Contact and Canonical
+- id: gdpr
+  conforms: true
+  kind: claimed
+  evidence: "https://ibanforge.com/legal/dpa \u2014 \"Personal data breach: notification to the Controller without undue delay and within 72 hours\
+    \ of becoming aware, with the information required by art. 33(3) GDPR.\""
+- id: x402
+  conforms: true
+  evidence: https://api.ibanforge.com/.well-known/x402 (x402Version 2); x402Payment securityScheme on PAYMENT-SIGNATURE
+note: 'Derived from the provider''s own OpenAPI only: what the contract declares. Claims the contract cannot carry (PCI DSS, SOC 2, FAPI, ISO
+  20022) come from the documentation reader and are merged below when found.'
+derived_rows_by: derive-conformance.py (openapi-3.2, oauth2, rfc9457, idempotency, pagination)

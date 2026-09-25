@@ -1,0 +1,540 @@
+openapi: 3.2.0
+info:
+  title: IBANforge Account API
+  version: 1.8.0
+  description: IBANforge checks the bank behind an IBAN before you pay.
+  contact:
+    name: IBANforge support
+    url: https://github.com/cammac-creator/ibanforge/issues
+    email: support@ibanforge.com
+servers:
+- url: https://api.ibanforge.com
+  description: Production
+- url: http://localhost:3000
+  description: Local development
+tags:
+- name: Account
+  description: 'The account page, https://ibanforge.com/account, for a person in a browser: a 6-digit code mailed to the address of the keys, then a read-only session cookie that shows every key of that address. Rotating or revoking a key still takes the key itself.'
+paths:
+  /v1/account/code:
+    post:
+      operationId: requestAccountSignInCode
+      summary: Mail a 6-digit sign-in code for the account page
+      description: 'First step of signing in to the account page, https://ibanforge.com/account. Made for a person in a browser: the address receives a 6-digit code, and POST /v1/account/session exchanges it for a read-only session. The code is valid 15 minutes and allows 5 tries; a new code replaces the previous one. The same 202 answers, and the same mail leaves, whether or not the address carries keys: this route never tells whether an address holds a key. The code is mailed to the normalized form of the address: a "+tag" is dropped, and at Gmail the dots too. The codes mailed to one address, one domain and one network are capped per day, in one budget shared with POST /v1/keys/generate and POST /v1/keys/claim. Send the request as application/json; a browser Origin that is not the site is refused. An agent holding a key reads the same figures with GET /v1/keys/usage and GET /v1/keys/report, and has no reason to call this route. Never send an address your human has not handed you for this purpose.'
+      tags:
+      - Account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                  example: you@example.com
+                  description: 'One plain address: no list, no display name, no quotes.'
+      responses:
+        '202':
+          description: A code left for this address. The same body answers for every address.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - status
+                - expires_in
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - code_sent
+                  expires_in:
+                    type: integer
+                    example: 900
+                    description: Seconds the code stays valid.
+        '400':
+          description: '"invalid_json": the body is not a JSON object. "invalid_email": not one plain address, or its normalized form is not one. "disposable_email": a throwaway or placeholder domain. "undeliverable_email": the domain has no mail server, or the mail server refused the address.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: '"signed_out": the request carried the account cookie twice. The cookie is cleared.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"forbidden_origin": the browser Origin is not allowed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: '"unsupported_media_type": send the request as application/json.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: '"code_rate_limited": too many codes today for this address, its domain or this network. Try again tomorrow, or paste an API key on the account page.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"code_unavailable": sign-in codes cannot be sent right now (the mail relay is down, or the hourly ceiling of sign-in codes is reached). Try again later, or paste an API key on the account page.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/account/session:
+    post:
+      operationId: openAccountSession
+      summary: Exchange the sign-in code for a session cookie
+      description: 'Second step of signing in to the account page. A right code opens a session: the answer sets the cookie ibanforge_account (HttpOnly, Secure, SameSite=Strict, Path=/v1/account, 7 days from sign-in) and never carries the session token in its body. Every code that cannot be used (wrong, expired, tried too many times, never asked for, or not six digits) gets the same 400 "invalid_code": ask for a new code. An entry that is not six digits does not count as a try. A right code opens a session whether or not the address carries keys; GET /v1/account/overview then says what it holds. The session reads and never writes: it cannot rotate, revoke, claim or top up a key, and it opens no paid route. Same write rules as POST /v1/account/code: application/json, and the browser Origin is checked.'
+      tags:
+      - Account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              - code
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                  example: you@example.com
+                  description: The address the code was asked for, written as the person typed it.
+                code:
+                  type: string
+                  pattern: ^[0-9]{6}$
+                  example: '123456'
+                  description: The 6-digit code of the most recent mail.
+      responses:
+        '200':
+          description: Signed in. Set-Cookie carries the session; the body only says so, with the end of the session.
+          headers:
+            Set-Cookie:
+              description: ibanforge_account=…; Max-Age=604800; Path=/v1/account; HttpOnly; Secure; SameSite=Strict
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - signed_in
+                - expires_at
+                properties:
+                  signed_in:
+                    type: boolean
+                    enum:
+                    - true
+                  expires_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: '"invalid_json", "invalid_email", or "invalid_code": one answer for every code that cannot be used. Ask for a new code with POST /v1/account/code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: '"signed_out": the request carried the account cookie twice. The cookie is cleared.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"forbidden_origin": the browser Origin is not allowed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: '"unsupported_media_type": send the request as application/json.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/account/overview:
+    get:
+      operationId: getAccountOverview
+      summary: Every active key of the signed-in address
+      description: 'Read-only view of the account page: the active keys whose address normalizes to the signed-in one, 50 per page, the most recently called first. For each key: its prefix (never the key itself), its plan, its monthly allowance (the figures of GET /v1/keys/usage) or its credit balance, the calls of this month, the last call, the alerts mailed, and the link that manages a Pro or Editor subscription. `inactive_keys` counts the deactivated keys of the address, without detail. Authentication is the session cookie set by POST /v1/account/session; a browser sends it with credentials: "include". Never cached (Cache-Control: no-store).'
+      tags:
+      - Account
+      security:
+      - accountSession: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number, from 1.
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      responses:
+        '200':
+          description: The overview of the signed-in address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountOverview'
+        '401':
+          description: '"signed_out": no session, an expired or revoked one, or the account cookie sent twice. A cookie that leads to no live session is cleared.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/account/keys/report:
+    get:
+      operationId: getAccountKeyReport
+      summary: The report of one key of the signed-in address
+      description: 'The same body as GET /v1/keys/report (key_prefix, usage, report), for one key of the signed-in address named by its prefix, without the key itself. The prefix travels as a query parameter, never in the path. The window is capped at 90 days here, and report.window_days says the window served. A prefix that is unknown, deactivated or attached to another address gets the same 404. Never cached (Cache-Control: no-store).'
+      tags:
+      - Account
+      security:
+      - accountSession: []
+      parameters:
+      - name: prefix
+        in: query
+        required: true
+        description: The key_prefix of the key, as the overview lists it.
+        schema:
+          type: string
+          maxLength: 64
+          example: ifk_3f9c1a7e
+      - name: days
+        in: query
+        required: false
+        description: Window in days, clamped to 1..90. Defaults to 30.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 90
+          default: 30
+      responses:
+        '200':
+          description: key_prefix, usage (as GET /v1/keys/usage serves it) and report (as GET /v1/keys/report serves it).
+        '401':
+          description: '"signed_out": no live session, or the account cookie sent twice.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: '"not_found": no such key in this account. The same answer for an unknown prefix and for the prefix of another address.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/account/logout:
+    post:
+      operationId: closeAccountSession
+      summary: Sign out of the account page, here or everywhere
+      description: 'Ends the session of this browser and clears its cookie. With {"all": true}, ends every session of the signed-in address (sign out everywhere). Signing out with no live session is not an error: 204 all the same. Same write rules as POST /v1/account/code: application/json, and the browser Origin is checked.'
+      tags:
+      - Account
+      security:
+      - accountSession: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all:
+                  type: boolean
+                  default: false
+                  description: true ends every session of the address, in every browser.
+      responses:
+        '204':
+          description: Signed out. The cookie is cleared.
+        '400':
+          description: '"invalid_json": the body is present and is not a JSON object.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: '"signed_out": the request carried the account cookie twice. The cookie is cleared and nothing is revoked.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: '"forbidden_origin": the browser Origin is not allowed.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: '"unsupported_media_type": send the request as application/json.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  schemas:
+    AccountKey:
+      type: object
+      required:
+      - key_prefix
+      - created_at
+      - plan
+      - allowance
+      - credits
+      - subscription
+      - calls_this_month
+      - last_call_at
+      - alerts
+      - address_proven
+      - actions
+      properties:
+        key_prefix:
+          type: string
+          example: ifk_3f9c1a7e
+          description: The prefix of the key. The key itself is never served.
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        plan:
+          type: string
+          enum:
+          - free
+          - custom
+          - pack
+          - pro
+          - editor
+          - free+pack
+          - custom+pack
+          - pro+pack
+          - editor+pack
+          description: 'A key that holds an allowance AND prepaid credits carries both parts, such as free+pack: the allowance is drawn first, then the credits.'
+        allowance:
+          type:
+          - object
+          - 'null'
+          description: The allowance, with the figures of GET /v1/keys/usage. null on a key born of a purchase, which has no allowance of its own and whose balance is in credits.
+          properties:
+            basis:
+              type: string
+              enum:
+              - monthly
+              - lifetime
+            limit:
+              type: integer
+            used:
+              type: integer
+            remaining:
+              type: integer
+        credits:
+          type:
+          - object
+          - 'null'
+          description: The prepaid balance of a key that holds credits, alone or beside an allowance. purchased_total is the total ever bought on the key, recharges included. null on a key without credits.
+          properties:
+            remaining:
+              type: integer
+            purchased_total:
+              type: integer
+        subscription:
+          type:
+          - object
+          - 'null'
+          properties:
+            plan:
+              type: string
+              enum:
+              - pro
+              - editor
+            status:
+              type: string
+              enum:
+              - active
+            manage_url:
+              type: string
+              format: uri
+              description: 'The customer portal: card, invoices, cancellation.'
+        calls_this_month:
+          type: integer
+          description: Calls billed to the key this month, credit calls included.
+        last_call_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        alerts:
+          type: array
+          description: The alerts mailed for this key, the most recent first.
+          items:
+            type: object
+            properties:
+              kind:
+                type: string
+                enum:
+                - quota_80
+                - credits_low
+              sent_at:
+                type:
+                - string
+                - 'null'
+                format: date-time
+        address_proven:
+          type: boolean
+          description: 'True when the address of this key was proven by a code (created or claimed with a 6-digit code). An address typed at a checkout, or given to a first key without a code, is not: the page then asks you to recognise the key before recharging it.'
+        actions:
+          type: object
+          description: Links the page may offer. topup recharges THIS key by card (the links carry its recharge reference, never the key); subscribe_pro is null until that journey exists; manage_subscription is the portal of a subscribed key.
+          properties:
+            topup:
+              type:
+              - object
+              - 'null'
+              properties:
+                1k:
+                  type: string
+                  format: uri
+                5k:
+                  type: string
+                  format: uri
+                25k:
+                  type: string
+                  format: uri
+            subscribe_pro:
+              type:
+              - string
+              - 'null'
+            manage_subscription:
+              type:
+              - string
+              - 'null'
+    ApiError:
+      type: object
+      required:
+      - error
+      - message
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
+          example: batch_too_large
+        message:
+          type: string
+          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
+          example: Maximum 100 IBANs per batch request
+    AccountOverview:
+      type: object
+      required:
+      - email
+      - session_expires_at
+      - month
+      - page
+      - pages
+      - keys
+      - inactive_keys
+      properties:
+        email:
+          type: string
+          description: The address typed at sign-in, in lower case.
+          example: you@example.com
+        session_expires_at:
+          type: string
+          format: date-time
+          description: When the session ends; sign in again after it.
+        month:
+          type: string
+          example: 2026-09
+          description: The calendar month (UTC) that calls_this_month counts.
+        page:
+          type: integer
+          minimum: 1
+        pages:
+          type: integer
+          minimum: 1
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountKey'
+        inactive_keys:
+          type: integer
+          description: Deactivated keys of the address (revoked or rotated), counted without detail.
+  securitySchemes:
+    x402Payment:
+      type: apiKey
+      in: header
+      name: PAYMENT-SIGNATURE
+      description: x402 USDC micropayment signature (protocol v2). Clients holding v1 payment requirements may send the same signature as X-Payment; both are accepted.
+    apiKey:
+      type: http
+      scheme: bearer
+      description: API key (Bearer ifk_xxx) — 25 free requests/month without an email address, 200 a month once claimed, or a custom quota for paid keys
+    accountSession:
+      type: apiKey
+      in: cookie
+      name: ibanforge_account
+      description: 'Session of the account page, set by POST /v1/account/session: HttpOnly, Secure, SameSite=Strict, Path=/v1/account, 7 days from sign-in. Read-only: it opens no paid route and no route that acts on a key.'
+externalDocs:
+  description: Agent-oriented overview (llms.txt) with copy-paste examples
+  url: https://api.ibanforge.com/llms.txt

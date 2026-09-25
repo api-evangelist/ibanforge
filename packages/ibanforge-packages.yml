@@ -1,0 +1,53 @@
+generated: '2026-09-25'
+method: searched
+source:
+- https://registry.npmjs.org/@ibanforge/sdk
+- https://registry.npmjs.org/ibanforge-mcp
+- https://registry.npmjs.org/ibanforge
+- https://pypi.org/pypi/ibanforge/json
+- https://ibanforge.com/llms-full.txt
+name: IBANforge Packages
+note: All four packages are published by the npm maintainer nytril (cammac@bluewin.ch), the same author as github.com/cammac-creator/ibanforge,
+  which the provider links as its GitHub. The npm `ibanforge` package is the MIT offline validation core (repo cammac-creator/iban-core)
+  the site footer calls "Open-source core (MIT)".
+packages:
+- name: '@ibanforge/sdk'
+  registry: npm
+  url: https://www.npmjs.com/package/@ibanforge/sdk
+  language: typescript
+  official: true
+  version: 1.8.0
+  published: '2026-09-25'
+  description: Official TypeScript SDK for the IBANforge API — IBAN validation, BIC/SWIFT lookup, Swiss BC-Nummer,
+    SEPA/VoP and compliance risk scoring, with API-key auth, typed errors and x402 support.
+  maintainer: nytril
+- name: ibanforge-mcp
+  registry: npm
+  url: https://www.npmjs.com/package/ibanforge-mcp
+  language: typescript
+  official: true
+  version: 1.8.0
+  published: '2026-09-25'
+  description: 'MCP server for IBANforge: check the bank behind an IBAN before you pay. Validation in 89 countries,
+    a bank-code verdict from the national register where one is read, the bank and BIC with their source, SEPA,
+    SEPA Instant and VoP readiness, bank-level sanc'
+  maintainer: nytril
+- name: ibanforge
+  registry: npm
+  url: https://www.npmjs.com/package/ibanforge
+  language: javascript
+  official: true
+  version: 2.1.0
+  published: '2026-08-24'
+  description: 'IBAN validation with EMI/virtual-IBAN detection. Zero dependencies, offline, 89 countries: mod-97
+    (ISO 13616), BBAN parsing, SEPA + VoP reachability, and issuer classification (Wise, Revolut, N26, Monzo...).'
+  maintainer: nytril
+- name: ibanforge
+  registry: pypi
+  url: https://pypi.org/project/ibanforge/
+  language: python
+  official: true
+  version: 1.8.0
+  published: '2026-09-25'
+  description: Official Python SDK for the IBANforge API — IBAN validation, BIC/SWIFT lookup, Swiss BC-Nummer, sanctions/SEPA/VoP
+    compliance triage.

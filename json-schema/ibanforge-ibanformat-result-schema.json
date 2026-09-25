@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-ibanformat-result-schema.json",
+  "title": "IBANFormatResult",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-free-api-openapi.yml#/components/schemas/IBANFormatResult",
+  "type": "object",
+  "required": [
+    "iban",
+    "valid",
+    "upgrade_to_full_validation"
+  ],
+  "properties": {
+    "iban": {
+      "type": "string",
+      "description": "The IBAN as provided (normalized)"
+    },
+    "valid": {
+      "type": "boolean",
+      "description": "mod-97 checksum + country structure result"
+    },
+    "formatted": {
+      "type": "string",
+      "description": "IBAN formatted in groups of 4 (only when valid)"
+    },
+    "country": {
+      "type": "object",
+      "description": "Only present when valid",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "check_digits": {
+      "type": "string"
+    },
+    "bban": {
+      "type": "object",
+      "description": "Parsed BBAN components (only when valid and the country declares a structure)",
+      "properties": {
+        "bank_code": {
+          "type": "string"
+        },
+        "branch_code": {
+          "type": "string"
+        },
+        "account_number": {
+          "type": "string"
+        }
+      }
+    },
+    "error": {
+      "type": "string",
+      "description": "Only when valid=false",
+      "enum": [
+        "invalid_format",
+        "unsupported_country",
+        "wrong_length",
+        "invalid_check_digits",
+        "checksum_failed",
+        "invalid_bban_structure"
+      ]
+    },
+    "error_detail": {
+      "type": "string",
+      "description": "Only when valid=false"
+    },
+    "upgrade_to_full_validation": {
+      "type": "string",
+      "description": "Says what `valid: true` means on this route (well formed, nothing more) and what POST /v1/iban/validate adds: the bank and its BIC with their source, SEPA and VoP readiness, and, where the national register is read, whether the bank code is allocated at all"
+    }
+  }
+}

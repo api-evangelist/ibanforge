@@ -1,56 +1,108 @@
-generated: '2026-08-06'
-method: declared
-publisher: IBANforge
-description: Provider-authored discovery surface for IBANforge's public API and MCP server. Every path
-  below was fetched on 2026-08-06; both hosts return a genuine 404 on a control path, so these 200s
-  are real and not a catch-all handler.
+generated: '2026-09-25'
+method: probed
+generator: harvest-well-known.py
+source: Live GET of the named /.well-known/ path list on every host the record knows; every row is a request that
+  was issued.
+summary:
+  hosts_probed: 2
+  paths_probed: 22
+  documents_served: 7
 hosts:
-- host: https://api.ibanforge.com
+- host: api.ibanforge.com
+  control:
+    path: /.well-known/apis-io-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 0
   documents:
-  - path: /.well-known/api-catalog
-    status: 200
-    type: application/linkset+json
-  - path: /.well-known/agent-card.json
-    status: 200
-    type: application/json
-  - path: /.well-known/mcp/server-card.json
-    status: 200
-    type: application/json
-  - path: /.well-known/agents.json
-    status: 200
-    type: application/json
-  - path: /.well-known/x402
-    status: 200
-    type: application/json
   - path: /.well-known/security.txt
     status: 200
-    type: text/plain
-  - path: /.well-known/oauth-protected-resource
-    status: 200
-    type: application/json
+    standard: RFC 9116
+    content_type: text/plain; charset=utf-8
+    file: ibanforge-api-security.txt
+  - path: /.well-known/openid-configuration
+    status: 404
+    standard: OpenID Connect Discovery 1.0
   - path: /.well-known/oauth-authorization-server
     status: 404
-  - path: /.well-known/api-onboarding
-    status: 404
+    standard: RFC 8414
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    standard: RFC 9728
+    content_type: application/json
+    file: ibanforge-api-oauth-protected-resource.json
+  - path: /.well-known/api-catalog
+    status: 200
+    standard: RFC 9727
+    content_type: application/linkset+json
+    file: ibanforge-api-api-catalog.json
+  - path: /.well-known/apis.json
+    status: 200
+    standard: APIs.json
+    content_type: application/json
+    file: ibanforge-api-apis.json
+    note: 'live on the provider''s host; the document names github.com: the hosting platform serves it'
+    served_by_platform:
+    - github.com
   - path: /.well-known/ai-plugin.json
     status: 404
-- host: https://ibanforge.com
+    standard: OpenAI plugin manifest
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    standard: AAuth
+  - path: /.well-known/ucp.json
+    status: 404
+    standard: UCP
+  - path: /.well-known/acp.json
+    status: 404
+    standard: ACP
+  - path: /.well-known/mcp/server-card.json
+    status: 200
+    standard: MCP server card
+    content_type: application/json
+    file: ibanforge-api-mcp-server-card.json
+    note: 'live on the provider''s host; the document names github.com: the hosting platform serves it'
+    served_by_platform:
+    - github.com
+- host: ibanforge.com
+  control:
+    path: /.well-known/apis-io-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 0
   documents:
   - path: /.well-known/security.txt
     status: 200
-    type: text/plain
-x-evidence:
-  declared: '2026-08-06'
-  verified: '2026-08-06'
-  control_path_status: 404
-  note: Control path /this-path-does-not-exist-control-9f3a returns 404 on both api.ibanforge.com and
-    ibanforge.com, so the 200s above are real credit rather than soft-404 false positives.
-x-notes:
-- '2026-08-07: provider fixed the three null-in-enum schemas within a day of being told, and root-caused
-  it further than we did — the document declared 3.1.0 while still carrying 42 OpenAPI 3.0 `nullable:
-  true` keywords, which 3.1 ignores. All 42 converted to type arrays; zero remain. Re-harvested and
-  verified. NOTE FOR US: spectral:oas 6.16.3 still crashes on the corrected document with `Cannot read
-  properties of null (reading ''enum'')`. Reproduced with a minimal, entirely valid 3.1 document using
-  type: [''string'',''null''] and enum containing null, so the crash is a SPECTRAL defect, not a defect
-  in this provider''s spec. Our 2026-08-06 note that their spec ''fails the most common lint'' was right
-  about the symptom and wrong about the cause.'
+    standard: RFC 9116
+    content_type: text/plain; charset=utf-8
+    file: ibanforge-security.txt
+  - path: /.well-known/openid-configuration
+    status: 404
+    standard: OpenID Connect Discovery 1.0
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    standard: RFC 8414
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    standard: RFC 9728
+  - path: /.well-known/api-catalog
+    status: 200
+    standard: RFC 9727
+    content_type: application/linkset+json
+    file: ibanforge-api-catalog.json
+  - path: /.well-known/apis.json
+    status: 404
+    standard: APIs.json
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    standard: OpenAI plugin manifest
+  - path: /.well-known/aauth-resource.json
+    status: 404
+    standard: AAuth
+  - path: /.well-known/ucp.json
+    status: 404
+    standard: UCP
+  - path: /.well-known/acp.json
+    status: 404
+    standard: ACP
+  - path: /.well-known/mcp/server-card.json
+    status: 404
+    standard: MCP server card

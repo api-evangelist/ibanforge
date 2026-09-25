@@ -1,0 +1,4 @@
+Contact: mailto:security@ibanforge.com
+Preferred-Languages: en, fr, de
+Canonical: https://api.ibanforge.com/.well-known/security.txt
+Policy: https://ibanforge.com/docs

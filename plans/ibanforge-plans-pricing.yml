@@ -1,0 +1,112 @@
+generated: '2026-09-25'
+method: searched
+source: https://ibanforge.com/pricing
+sources:
+- https://ibanforge.com/pricing
+- https://api.ibanforge.com/v1/credits/bundles
+- https://ibanforge.com/llms-full.txt
+name: IBANforge Plans and Pricing
+audience: developer-api
+pricing_basis: per-call
+published: true
+delivery:
+  delivery: managed
+  method: page
+  read: '2026-09-25'
+  managed_tier: Pro
+  note: The site footer links an "Open-source core (MIT)" — the offline IBAN validation library published
+    to npm as `ibanforge` (github.com/cammac-creator/iban-core). It is a library subset (mod-97, BBAN parsing),
+    not a self-hosted edition of the hosted API, so delivery stays managed.
+currency: USD
+plan_count: 6
+note: 'Four payment rails plus a keyless taster. Per-call prices are x402 USDC prices; on a key or a credit
+  pack each call and each IBAN of a batch uses one request or credit. GET /v1/credits/bundles serves the
+  pack catalog machine-readably (1k=4, 5k=20, 25k=80 USDC; Pro 29 USD/month for 10,000 requests). Unused
+  card-paid packs are refundable for 14 days. Corrects the 1.4.3-era profile, which quoted $5 for 1,000.'
+plans:
+- name: Free API key
+  price_text: 25 requests a month, no e-mail and no card
+  price: 0
+  period: month
+  included_quota: 25 requests a month before claim; 200 a month once claimed
+  features:
+  - One empty POST and you hold an ifk_ key; claim it for 200 a month.
+  - Works on every endpoint
+  limits:
+  - 25 requests a month, no e-mail and no card
+  - claim it for 200 a month
+- name: Credit packs
+  price_text: 1k = $4, 5k = $20, 25k = $80 (down to $0.0032/credit)
+  currency: USD
+  period: one-time
+  unit: credit
+  features:
+  - Buy in bulk, never expires
+  - One credit = one validation or lookup — a batch of N IBANs uses N credits.
+  - 'Agents can buy in USDC: POST /v1/credits/buy/1k|5k|25k.'
+  limits:
+  - one credit per validation or lookup; one per IBAN in a batch
+  entries:
+  - name: 1k
+    price_text: $4 1 000
+    price: 4
+    credits: 1000
+  - name: 5k
+    price_text: $20 5 000
+    price: 20
+    credits: 5000
+  - name: 25k
+    price_text: $80 25 000
+    price: 80
+    credits: 25000
+- name: Pro
+  price_text: $29 / month
+  price: 29
+  currency: USD
+  period: month
+  included_quota: 10,000 requests a month
+  features:
+  - 'Pro: 10,000 requests a month, every endpoint, resets on the 1st, cancel anytime from the customer portal.'
+  - Card checkout through Stripe
+  limits:
+  - 10,000 requests a month; unused quota does not roll over
+- name: x402 pay per call
+  price_text: $0.005 per call
+  price: 0.005
+  currency: USDC
+  period: per-use
+  unit: call
+  features:
+  - Any agent with a Base wallet pays in USDC, per request, with no account.
+  - Discovery at /.well-known/x402.
+  entries:
+  - name: POST /v1/iban/validate
+    price_text: $0.005 per call
+  - name: POST /v1/iban/batch
+    price_text: $0.002 per IBAN in USDC via x402 (up to 100)
+  - name: GET /v1/bic/:code
+    price_text: $0.003 per call
+  - name: POST /v1/iban/compliance
+    price_text: $0.02 per call
+  - name: GET /v1/ch/clearing/:iid
+    price_text: $0.003 per call
+  limits:
+  - batch up to 100 IBANs
+- name: Editor / OEM
+  price_text: Editor/OEM starts at $149 per month
+  price: 149
+  currency: USD
+  period: month
+  features:
+  - Need 50,000 requests per month, a written SLA or support commitments?
+  limits:
+  - 50,000 requests per month
+- name: Creditor file audit
+  price_text: $149 up to 5,000 rows, $349 up to 20,000
+  currency: USD
+  period: one-time
+  features:
+  - Upload the CSV or XLSX you pay from and get every row checked against the same registers
+  - free preview first, annotated workbook right after payment
+  limits:
+  - 5,000 rows ($149) or 20,000 rows ($349)

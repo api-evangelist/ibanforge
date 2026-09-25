@@ -1,0 +1,24 @@
+generated: '2026-09-25'
+method: generated
+source: >-
+  Packaged Agent Skills generated from IBANforge's OpenAPI 1.8.0 (https://api.ibanforge.com/openapi.json).
+  Every step is grounded in an operationId verified verbatim in ../openapi/*.yml; cross-cutting rules cite
+  ../conventions/, ../errors/, ../rate-limits/ and ../authentication/. The provider's GitHub AGENTS.md is
+  a contributor guide for coding agents, not an API skill, so nothing was harvested verbatim.
+skills:
+  - file: ibanforge-screen-iban-before-payout.md
+    name: Screen an IBAN before a payout
+    api: openapi/ibanforge-iban-api-openapi.yml
+    operations: [formatCheckIBAN, validateIBAN, complianceCheck]
+  - file: ibanforge-clean-iban-list.md
+    name: Clean a list of IBANs
+    api: openapi/ibanforge-iban-api-openapi.yml
+    operations: [getTestIban, batchValidateIBAN]
+  - file: ibanforge-resolve-bank.md
+    name: Resolve the bank behind a code
+    api: openapi/ibanforge-bic-api-openapi.yml
+    operations: [lookupBIC, lookupChClearing]
+  - file: ibanforge-get-a-free-key.md
+    name: Get a free key
+    api: openapi/ibanforge-api-keys-api-openapi.yml
+    operations: [generateApiKey, claimApiKey, getApiKeyUsage, rotateApiKey]

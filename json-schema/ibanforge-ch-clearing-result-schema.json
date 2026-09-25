@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-ch-clearing-result-schema.json",
+  "title": "ChClearingResult",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-swiss-clearing-api-openapi.yml#/components/schemas/ChClearingResult",
+  "type": "object",
+  "required": [
+    "iid",
+    "found"
+  ],
+  "properties": {
+    "attribution": {
+      "type": "object",
+      "description": "Free tier only. When these results are shown to people, display `text` with a link to `url`; backend-only use owes nothing. Absent on paid plans and on x402 calls.",
+      "required": [
+        "required",
+        "text",
+        "url",
+        "note"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "iid": {
+      "type": "string",
+      "description": "Zero-padded 5-digit IID"
+    },
+    "found": {
+      "type": "boolean"
+    },
+    "institution": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "bank",
+            "cantonal_bank",
+            "postfinance",
+            "raiffeisen",
+            "central_bank",
+            "foreign_participant"
+          ]
+        },
+        "iid_type": {
+          "type": "string",
+          "enum": [
+            "headquarters",
+            "branch",
+            "other"
+          ]
+        },
+        "headquarters_iid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "building_number": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "post_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "town": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    },
+    "bic": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payment_services": {
+      "type": "object",
+      "properties": {
+        "sic": {
+          "type": "boolean",
+          "description": "SIC (Swiss Interbank Clearing) participation"
+        },
+        "rtgs_chf": {
+          "type": "boolean",
+          "description": "Real-Time Gross Settlement CHF"
+        },
+        "instant_payments_chf": {
+          "type": "boolean",
+          "description": "Instant Payments CHF"
+        },
+        "eurosic": {
+          "type": "boolean",
+          "description": "euroSIC participation"
+        },
+        "lsv_bdd_chf": {
+          "type": "boolean",
+          "description": "LSV/BDD CHF direct debit"
+        },
+        "lsv_bdd_eur": {
+          "type": "boolean",
+          "description": "LSV/BDD EUR direct debit"
+        }
+      }
+    },
+    "sic_iid": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "qr_iid": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "QR-IID for QR-bill payments"
+    },
+    "qr_iid_source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Where `qr_iid` comes from: \"register\" when the SIX register allocates it to this institution, otherwise the basis used. Null when there is no QR-IID."
+    },
+    "qr_iids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Every QR-IID allocated to this institution, in register order. `qr_iid` is the first of them; an institution may legitimately hold several."
+    },
+    "valid_on": {
+      "type": "string",
+      "format": "date"
+    },
+    "cost_usdc": {
+      "type": "number"
+    },
+    "processing_ms": {
+      "type": "number"
+    }
+  }
+}

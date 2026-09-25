@@ -1,10 +1,12 @@
 openapi: 3.2.0
 info:
   title: IBANforge MCP API
-  version: 1.4.3
-  description: Pre-payout screening for AI agents — check the bank behind a counterparty IBAN before you send funds.
+  version: 1.8.0
+  description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
-    url: https://ibanforge.com
+    name: IBANforge support
+    url: https://github.com/cammac-creator/ibanforge/issues
+    email: support@ibanforge.com
 servers:
 - url: https://api.ibanforge.com
   description: Production
@@ -18,9 +20,11 @@ paths:
     post:
       operationId: mcpStreamableHttp
       summary: MCP endpoint for AI agents (Streamable HTTP)
-      description: 'Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes the same capabilities as this REST API as 5 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec.'
+      description: 'Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes 11 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing, validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. With no USDC price: validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. Outside the keyless allowance below (they cost no unit and keep answering once it is spent): send_feedback, request_api_key, poll_api_key; request_api_key and poll_api_key are the way to a key. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec. With no credential it answers up to 25 tool units a week per source address (one per tool call, one per IBAN in batch_validate_iban; the week is the ISO week in UTC and resets on Monday 00:00 UTC), an allowance separate from the keyless REST trial.'
       tags:
       - MCP
+      security:
+      - {}
       externalDocs:
         description: MCP setup guide (Claude Desktop, Cursor, HTTP transport)
         url: https://ibanforge.com/docs/mcp
@@ -53,17 +57,54 @@ paths:
           description: JSON-RPC 2.0 response (application/json or text/event-stream, depending on Accept header)
         '400':
           description: Malformed JSON-RPC request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Request body exceeds 256 KB. Applied globally to every operation that takes a body, before routing and before payment, so nothing is charged. Split the input (batch validation accepts up to 100 IBANs per call).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 components:
+  schemas:
+    ApiError:
+      type: object
+      required:
+      - error
+      - message
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
+          example: batch_too_large
+        message:
+          type: string
+          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
+          example: Maximum 100 IBANs per batch request
   securitySchemes:
     x402Payment:
       type: apiKey
       in: header
-      name: X-Payment
-      description: x402 USDC micropayment token
+      name: PAYMENT-SIGNATURE
+      description: x402 USDC micropayment signature (protocol v2). Clients holding v1 payment requirements may send the same signature as X-Payment; both are accepted.
     apiKey:
       type: http
       scheme: bearer
-      description: API key (Bearer ifk_xxx) — 200 free requests/month, or custom quota for paid keys
+      description: API key (Bearer ifk_xxx) — 25 free requests/month without an email address, 200 a month once claimed, or a custom quota for paid keys
+    accountSession:
+      type: apiKey
+      in: cookie
+      name: ibanforge_account
+      description: 'Session of the account page, set by POST /v1/account/session: HttpOnly, Secure, SameSite=Strict, Path=/v1/account, 7 days from sign-in. Read-only: it opens no paid route and no route that acts on a key.'
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt

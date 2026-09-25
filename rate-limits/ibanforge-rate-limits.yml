@@ -1,0 +1,63 @@
+generated: '2026-09-25'
+method: probed
+source: https://api.ibanforge.com/.well-known/rate-limits.yml
+sources:
+- https://api.ibanforge.com/.well-known/rate-limits.yml
+- https://ibanforge.com/llms-full.txt
+- https://ibanforge.com/docs/errors
+name: IBANforge Rate Limits
+note: Read from the provider's machine-readable /.well-known/rate-limits.yml (updated 2026-09-24). limit_text
+  values are copied verbatim from that document (whitespace squashed).
+limit_count: 6
+limits:
+- name: default per-IP limit
+  limit_text: 'requests: 100 window: 1 minute scope: per client IP'
+  max: 100
+  limit: 100
+  window: 1 minute
+  scope: per client IP
+  applies_to: every endpoint except /health, /ping, /stats, /openapi.json, /v1/demo
+- name: anonymous key quota
+  limit_text: 'requests: 25 window: 1 month scope: per API key signup: POST /v1/keys/generate with no body at all'
+  max: 25
+  limit: 25
+  window: 1 month
+  scope: per API key
+  endpoint: POST /v1/keys/generate
+- name: free tier quota (claimed key)
+  limit_text: 'requests: 200 window: 1 month scope: per API key signup: POST /v1/keys/claim on an anonymous key'
+  max: 200
+  limit: 200
+  window: 1 month
+  scope: per API key
+  plan: Free API key
+  endpoint: POST /v1/keys/claim
+- name: MCP anonymous taster
+  limit_text: 'requests: 25 window: 1 week (ISO week, UTC) scope: per client source address (IPv6 counted per /64) resets: Monday 00:00 UTC unit: one per tool call, one per IBAN in batch_validate_iban'
+  max: 25
+  window: 1 week (ISO week, UTC)
+  scope: per client source address
+- name: MCP sessions
+  limit_text: 'requests: 30 window: 1 day scope: per client source address note: New MCP sessions (initialize)'
+  max: 30
+  limit: 30
+  window: 1 day
+  scope: per client source address
+- name: REST anonymous trial
+  limit_text: 'requests: 25 window: 1 week (ISO week, UTC) scope: per client source address (IPv6 counted per /64) applies_to: POST /v1/iban/validate'
+  max: 25
+  window: 1 week (ISO week, UTC)
+  scope: per client source address
+  endpoint: POST /v1/iban/validate
+headers:
+- RateLimit-Limit
+- RateLimit-Remaining
+- RateLimit-Reset
+- X-RateLimit-Limit
+- X-RateLimit-Remaining
+- X-RateLimit-Reset
+- Retry-After
+exhausted:
+  status: 429
+  body: '{ "error": "rate_limit_exceeded", "message": "..." }'
+  retry_after: Sent with 429 only. Seconds to wait before retrying.

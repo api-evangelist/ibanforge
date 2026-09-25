@@ -1,0 +1,421 @@
+{
+  "@context": {
+    "@vocab": "https://ibanforge.com/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "ibanforge": "https://ibanforge.com/schema#",
+    "AccountKey": "ibanforge:AccountKey",
+    "key_prefix": {
+      "@id": "ibanforge:key_prefix",
+      "@type": "xsd:string"
+    },
+    "created_at": {
+      "@id": "ibanforge:created_at",
+      "@type": "xsd:dateTime"
+    },
+    "plan": {
+      "@id": "ibanforge:plan",
+      "@type": "xsd:string"
+    },
+    "allowance": {
+      "@id": "ibanforge:allowance"
+    },
+    "credits": {
+      "@id": "ibanforge:credits"
+    },
+    "subscription": {
+      "@id": "ibanforge:subscription"
+    },
+    "calls_this_month": {
+      "@id": "ibanforge:calls_this_month",
+      "@type": "xsd:integer"
+    },
+    "last_call_at": {
+      "@id": "ibanforge:last_call_at",
+      "@type": "xsd:dateTime"
+    },
+    "alerts": {
+      "@id": "ibanforge:alerts",
+      "@container": "@list"
+    },
+    "address_proven": {
+      "@id": "ibanforge:address_proven",
+      "@type": "xsd:boolean"
+    },
+    "actions": {
+      "@id": "ibanforge:actions"
+    },
+    "ApiError": "ibanforge:ApiError",
+    "error": {
+      "@id": "ibanforge:error",
+      "@type": "xsd:string"
+    },
+    "message": {
+      "@id": "ibanforge:message",
+      "@type": "xsd:string"
+    },
+    "AccountOverview": "ibanforge:AccountOverview",
+    "email": {
+      "@id": "ibanforge:email",
+      "@type": "xsd:string"
+    },
+    "session_expires_at": {
+      "@id": "ibanforge:session_expires_at",
+      "@type": "xsd:dateTime"
+    },
+    "month": {
+      "@id": "ibanforge:month",
+      "@type": "xsd:string"
+    },
+    "page": {
+      "@id": "ibanforge:page",
+      "@type": "xsd:integer"
+    },
+    "pages": {
+      "@id": "ibanforge:pages",
+      "@type": "xsd:integer"
+    },
+    "keys": {
+      "@id": "ibanforge:keys",
+      "@container": "@list"
+    },
+    "inactive_keys": {
+      "@id": "ibanforge:inactive_keys",
+      "@type": "xsd:integer"
+    },
+    "StatsOverview": "ibanforge:StatsOverview",
+    "total_operations": {
+      "@id": "ibanforge:total_operations",
+      "@type": "xsd:integer"
+    },
+    "by_type": {
+      "@id": "ibanforge:by_type"
+    },
+    "total_revenue_usdc": {
+      "@id": "ibanforge:total_revenue_usdc",
+      "@type": "xsd:decimal"
+    },
+    "total_revenue_attempted_usdc": {
+      "@id": "ibanforge:total_revenue_attempted_usdc",
+      "@type": "xsd:decimal"
+    },
+    "revenue_note": {
+      "@id": "ibanforge:revenue_note",
+      "@type": "xsd:string"
+    },
+    "top_countries": {
+      "@id": "ibanforge:top_countries",
+      "@container": "@list"
+    },
+    "last_7_days": {
+      "@id": "ibanforge:last_7_days",
+      "@container": "@list"
+    },
+    "BICLookupResult": "ibanforge:BICLookupResult",
+    "attribution": {
+      "@id": "ibanforge:attribution"
+    },
+    "bic": {
+      "@id": "ibanforge:bic",
+      "@type": "xsd:string"
+    },
+    "bic8": {
+      "@id": "ibanforge:bic8",
+      "@type": "xsd:string"
+    },
+    "bic11": {
+      "@id": "ibanforge:bic11",
+      "@type": "xsd:string"
+    },
+    "found": {
+      "@id": "ibanforge:found",
+      "@type": "xsd:boolean"
+    },
+    "valid_format": {
+      "@id": "ibanforge:valid_format",
+      "@type": "xsd:boolean"
+    },
+    "institution": {
+      "@id": "ibanforge:institution",
+      "@type": "xsd:string"
+    },
+    "country": {
+      "@id": "ibanforge:country"
+    },
+    "city": {
+      "@id": "ibanforge:city",
+      "@type": "xsd:string"
+    },
+    "address": {
+      "@id": "ibanforge:address"
+    },
+    "address_available": {
+      "@id": "ibanforge:address_available",
+      "@type": "xsd:boolean"
+    },
+    "postal_address": {
+      "@id": "ibanforge:postal_address"
+    },
+    "branch_code": {
+      "@id": "ibanforge:branch_code",
+      "@type": "xsd:string"
+    },
+    "branch_info": {
+      "@id": "ibanforge:branch_info",
+      "@type": "xsd:string"
+    },
+    "lei": {
+      "@id": "ibanforge:lei",
+      "@type": "xsd:string"
+    },
+    "lei_status": {
+      "@id": "ibanforge:lei_status",
+      "@type": "xsd:string"
+    },
+    "is_test_bic": {
+      "@id": "ibanforge:is_test_bic",
+      "@type": "xsd:boolean"
+    },
+    "source": {
+      "@id": "ibanforge:source",
+      "@type": "xsd:string"
+    },
+    "source_name": {
+      "@id": "ibanforge:source_name",
+      "@type": "xsd:string"
+    },
+    "source_as_of": {
+      "@id": "ibanforge:source_as_of",
+      "@type": "xsd:string"
+    },
+    "listed_in_current_source": {
+      "@id": "ibanforge:listed_in_current_source",
+      "@type": "xsd:boolean"
+    },
+    "official_identity": {
+      "@id": "ibanforge:official_identity"
+    },
+    "note": {
+      "@id": "ibanforge:note",
+      "@type": "xsd:string"
+    },
+    "sanctions": {
+      "@id": "ibanforge:sanctions"
+    },
+    "cost_usdc": {
+      "@id": "ibanforge:cost_usdc",
+      "@type": "xsd:decimal"
+    },
+    "processing_ms": {
+      "@id": "ibanforge:processing_ms",
+      "@type": "xsd:decimal"
+    },
+    "ComplianceResult": "ibanforge:ComplianceResult",
+    "reachability": {
+      "@id": "ibanforge:reachability"
+    },
+    "vop": {
+      "@id": "ibanforge:vop"
+    },
+    "risk_score": {
+      "@id": "ibanforge:risk_score",
+      "@type": "xsd:integer"
+    },
+    "risk_level": {
+      "@id": "ibanforge:risk_level",
+      "@type": "xsd:string"
+    },
+    "flags": {
+      "@id": "ibanforge:flags",
+      "@container": "@list"
+    },
+    "IBANValidationResult": "ibanforge:IBANValidationResult",
+    "trial": {
+      "@id": "ibanforge:trial"
+    },
+    "iban": {
+      "@id": "ibanforge:iban",
+      "@type": "xsd:string"
+    },
+    "valid": {
+      "@id": "ibanforge:valid",
+      "@type": "xsd:boolean"
+    },
+    "bank_code_holder": {
+      "@id": "ibanforge:bank_code_holder",
+      "@type": "xsd:string"
+    },
+    "checks": {
+      "@id": "ibanforge:checks"
+    },
+    "national_check_digits": {
+      "@id": "ibanforge:national_check_digits"
+    },
+    "check_digits": {
+      "@id": "ibanforge:check_digits",
+      "@type": "xsd:string"
+    },
+    "bban": {
+      "@id": "ibanforge:bban"
+    },
+    "formatted": {
+      "@id": "ibanforge:formatted",
+      "@type": "xsd:string"
+    },
+    "clearing": {
+      "@id": "ibanforge:clearing"
+    },
+    "error_detail": {
+      "@id": "ibanforge:error_detail",
+      "@type": "xsd:string"
+    },
+    "reference_check": {
+      "@id": "ibanforge:reference_check"
+    },
+    "sepa": {
+      "@id": "ibanforge:sepa"
+    },
+    "issuer": {
+      "@id": "ibanforge:issuer"
+    },
+    "psd_registration": {
+      "@id": "ibanforge:psd_registration"
+    },
+    "risk_indicators": {
+      "@id": "ibanforge:risk_indicators"
+    },
+    "bank_code_check": {
+      "@id": "ibanforge:bank_code_check"
+    },
+    "modulus_check": {
+      "@id": "ibanforge:modulus_check"
+    },
+    "next_steps": {
+      "@id": "ibanforge:next_steps",
+      "@container": "@list"
+    },
+    "BicComplianceResponse": "ibanforge:BicComplianceResponse",
+    "compliance": {
+      "@id": "ibanforge:compliance",
+      "@type": "@id"
+    },
+    "meta": {
+      "@id": "ibanforge:meta"
+    },
+    "ReferenceCheckBlock": "ibanforge:ReferenceCheckBlock",
+    "reference": {
+      "@id": "ibanforge:reference",
+      "@type": "xsd:string"
+    },
+    "scheme": {
+      "@id": "ibanforge:scheme",
+      "@type": "xsd:string"
+    },
+    "status": {
+      "@id": "ibanforge:status",
+      "@type": "xsd:string"
+    },
+    "check_digit_expected": {
+      "@id": "ibanforge:check_digit_expected",
+      "@type": "xsd:string"
+    },
+    "also_valid_as": {
+      "@id": "ibanforge:also_valid_as"
+    },
+    "as_of": {
+      "@id": "ibanforge:as_of",
+      "@type": "xsd:string"
+    },
+    "pairing": {
+      "@id": "ibanforge:pairing",
+      "@type": "xsd:string"
+    },
+    "pairing_source": {
+      "@id": "ibanforge:pairing_source",
+      "@type": "xsd:string"
+    },
+    "pairing_as_of": {
+      "@id": "ibanforge:pairing_as_of",
+      "@type": "xsd:string"
+    },
+    "IBANFormatResult": "ibanforge:IBANFormatResult",
+    "upgrade_to_full_validation": {
+      "@id": "ibanforge:upgrade_to_full_validation",
+      "@type": "xsd:string"
+    },
+    "HealthResponse": "ibanforge:HealthResponse",
+    "version": {
+      "@id": "ibanforge:version",
+      "@type": "xsd:string"
+    },
+    "served_at": {
+      "@id": "ibanforge:served_at",
+      "@type": "xsd:dateTime"
+    },
+    "uptime_seconds": {
+      "@id": "ibanforge:uptime_seconds",
+      "@type": "xsd:decimal"
+    },
+    "bic_database_entries": {
+      "@id": "ibanforge:bic_database_entries",
+      "@type": "xsd:integer"
+    },
+    "bic_data_last_updated": {
+      "@id": "ibanforge:bic_data_last_updated",
+      "@type": "xsd:string"
+    },
+    "bic_sources": {
+      "@id": "ibanforge:bic_sources",
+      "@container": "@list"
+    },
+    "frozen_bic_sources": {
+      "@id": "ibanforge:frozen_bic_sources",
+      "@container": "@list"
+    },
+    "PaymentReferenceResult": "ibanforge:PaymentReferenceResult",
+    "pairing_verdict": {
+      "@id": "ibanforge:pairing_verdict",
+      "@type": "xsd:string"
+    },
+    "ChClearingResult": "ibanforge:ChClearingResult",
+    "iid": {
+      "@id": "ibanforge:iid",
+      "@type": "xsd:string"
+    },
+    "payment_services": {
+      "@id": "ibanforge:payment_services"
+    },
+    "sic_iid": {
+      "@id": "ibanforge:sic_iid",
+      "@type": "xsd:string"
+    },
+    "qr_iid": {
+      "@id": "ibanforge:qr_iid",
+      "@type": "xsd:string"
+    },
+    "qr_iid_source": {
+      "@id": "ibanforge:qr_iid_source",
+      "@type": "xsd:string"
+    },
+    "qr_iids": {
+      "@id": "ibanforge:qr_iids",
+      "@container": "@list"
+    },
+    "valid_on": {
+      "@id": "ibanforge:valid_on",
+      "@type": "xsd:date"
+    }
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "IBANforge API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects IBANforge's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-09-25) from openapi/ibanforge-account-api-openapi.yml, openapi/ibanforge-api-keys-api-openapi.yml, openapi/ibanforge-bic-api-openapi.yml.",
+  "dcterms:created": "2026-09-25",
+  "dcterms:source": [
+    "openapi/ibanforge-account-api-openapi.yml",
+    "openapi/ibanforge-api-keys-api-openapi.yml",
+    "openapi/ibanforge-bic-api-openapi.yml",
+    "openapi/ibanforge-compliance-api-openapi.yml",
+    "openapi/ibanforge-credits-api-openapi.yml"
+  ]
+}

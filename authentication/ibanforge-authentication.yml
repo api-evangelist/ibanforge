@@ -1,0 +1,62 @@
+generated: '2026-09-25'
+method: derived
+source: openapi/ibanforge-account-api-openapi.yml, openapi/ibanforge-api-keys-api-openapi.yml,
+  openapi/ibanforge-bic-api-openapi.yml, openapi/ibanforge-compliance-api-openapi.yml, openapi/ibanforge-credits-api-openapi.yml,
+  openapi/ibanforge-free-api-openapi.yml, openapi/ibanforge-iban-api-openapi.yml, openapi/ibanforge-mcp-api-openapi.yml,
+  openapi/ibanforge-swiss-clearing-api-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - cookie
+  - header
+schemes:
+- name: x402Payment
+  type: apiKey
+  in: header
+  parameter: PAYMENT-SIGNATURE
+  description: x402 USDC micropayment signature (protocol v2). Clients holding v1 payment requirements
+    may send the same signature as X-Payment; both are accepted.
+  sources:
+  - openapi/ibanforge-account-api-openapi.yml
+  - openapi/ibanforge-api-keys-api-openapi.yml
+  - openapi/ibanforge-bic-api-openapi.yml
+  - openapi/ibanforge-compliance-api-openapi.yml
+  - openapi/ibanforge-credits-api-openapi.yml
+  - openapi/ibanforge-free-api-openapi.yml
+  - openapi/ibanforge-iban-api-openapi.yml
+  - openapi/ibanforge-mcp-api-openapi.yml
+  - openapi/ibanforge-swiss-clearing-api-openapi.yml
+- name: apiKey
+  type: http
+  scheme: bearer
+  description: API key (Bearer ifk_xxx) — 25 free requests/month without an email address, 200
+    a month once claimed, or a custom quota for paid keys
+  sources:
+  - openapi/ibanforge-account-api-openapi.yml
+  - openapi/ibanforge-api-keys-api-openapi.yml
+  - openapi/ibanforge-bic-api-openapi.yml
+  - openapi/ibanforge-compliance-api-openapi.yml
+  - openapi/ibanforge-credits-api-openapi.yml
+  - openapi/ibanforge-free-api-openapi.yml
+  - openapi/ibanforge-iban-api-openapi.yml
+  - openapi/ibanforge-mcp-api-openapi.yml
+  - openapi/ibanforge-swiss-clearing-api-openapi.yml
+- name: accountSession
+  type: apiKey
+  in: cookie
+  parameter: ibanforge_account
+  description: 'Session of the account page, set by POST /v1/account/session: HttpOnly, Secure,
+    SameSite=Strict, Path=/v1/account, 7 days from sign-in. Read-only: it opens no paid route
+    and no route that acts on a key.'
+  sources:
+  - openapi/ibanforge-account-api-openapi.yml
+  - openapi/ibanforge-api-keys-api-openapi.yml
+  - openapi/ibanforge-bic-api-openapi.yml
+  - openapi/ibanforge-compliance-api-openapi.yml
+  - openapi/ibanforge-credits-api-openapi.yml
+  - openapi/ibanforge-free-api-openapi.yml
+  - openapi/ibanforge-iban-api-openapi.yml
+  - openapi/ibanforge-mcp-api-openapi.yml
+  - openapi/ibanforge-swiss-clearing-api-openapi.yml

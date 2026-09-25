@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/ibanforge/main/json-schema/ibanforge-account-overview-schema.json",
+  "title": "AccountOverview",
+  "x-generated": "2026-09-25",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/ibanforge-account-api-openapi.yml#/components/schemas/AccountOverview",
+  "type": "object",
+  "required": [
+    "email",
+    "session_expires_at",
+    "month",
+    "page",
+    "pages",
+    "keys",
+    "inactive_keys"
+  ],
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "The address typed at sign-in, in lower case."
+    },
+    "session_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session ends; sign in again after it."
+    },
+    "month": {
+      "type": "string",
+      "description": "The calendar month (UTC) that calls_this_month counts."
+    },
+    "page": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "pages": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AccountKey"
+      }
+    },
+    "inactive_keys": {
+      "type": "integer",
+      "description": "Deactivated keys of the address (revoked or rotated), counted without detail."
+    }
+  },
+  "$defs": {
+    "AccountKey": {
+      "type": "object",
+      "required": [
+        "key_prefix",
+        "created_at",
+        "plan",
+        "allowance",
+        "credits",
+        "subscription",
+        "calls_this_month",
+        "last_call_at",
+        "alerts",
+        "address_proven",
+        "actions"
+      ],
+      "properties": {
+        "key_prefix": {
+          "type": "string",
+          "description": "The prefix of the key. The key itself is never served."
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "plan": {
+          "type": "string",
+          "enum": [
+            "free",
+            "custom",
+            "pack",
+            "pro",
+            "editor",
+            "free+pack",
+            "custom+pack",
+            "pro+pack",
+            "editor+pack"
+          ],
+          "description": "A key that holds an allowance AND prepaid credits carries both parts, such as free+pack: the allowance is drawn first, then the credits."
+        },
+        "allowance": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "The allowance, with the figures of GET /v1/keys/usage. null on a key born of a purchase, which has no allowance of its own and whose balance is in credits.",
+          "properties": {
+            "basis": {
+              "type": "string",
+              "enum": [
+                "monthly",
+                "lifetime"
+              ]
+            },
+            "limit": {
+              "type": "integer"
+            },
+            "used": {
+              "type": "integer"
+            },
+            "remaining": {
+              "type": "integer"
+            }
+          }
+        },
+        "credits": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "The prepaid balance of a key that holds credits, alone or beside an allowance. purchased_total is the total ever bought on the key, recharges included. null on a key without credits.",
+          "properties": {
+            "remaining": {
+              "type": "integer"
+            },
+            "purchased_total": {
+              "type": "integer"
+            }
+          }
+        },
+        "subscription": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "plan": {
+              "type": "string",
+              "enum": [
+                "pro",
+                "editor"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active"
+              ]
+            },
+            "manage_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "The customer portal: card, invoices, cancellation."
+            }
+          }
+        },
+        "calls_this_month": {
+          "type": "integer",
+          "description": "Calls billed to the key this month, credit calls included."
+        },
+        "last_call_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "alerts": {
+          "type": "array",
+          "description": "The alerts mailed for this key, the most recent first.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "quota_80",
+                  "credits_low"
+                ]
+              },
+              "sent_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "address_proven": {
+          "type": "boolean",
+          "description": "True when the address of this key was proven by a code (created or claimed with a 6-digit code). An address typed at a checkout, or given to a first key without a code, is not: the page then asks you to recognise the key before recharging it."
+        },
+        "actions": {
+          "type": "object",
+          "description": "Links the page may offer. topup recharges THIS key by card (the links carry its recharge reference, never the key); subscribe_pro is null until that journey exists; manage_subscription is the portal of a subscribed key.",
+          "properties": {
+            "topup": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "1k": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "5k": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "25k": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            },
+            "subscribe_pro": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "manage_subscription": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

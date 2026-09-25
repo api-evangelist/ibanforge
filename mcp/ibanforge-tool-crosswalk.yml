@@ -1,0 +1,117 @@
+generated: '2026-09-25'
+method: derived
+source:
+- mcp/ibanforge-mcp.yml
+- openapi/_original/ibanforge-openapi.json
+name: IBANforge Tool Crosswalk
+surfaces:
+  openapi: https://api.ibanforge.com/openapi.json
+  mcp: https://api.ibanforge.com/mcp
+  mcp_gated: false
+  graphql: null
+crosswalk:
+- tool: validate_iban
+  category: iban
+  rest:
+  - validateIBAN
+  binding: same-backend
+  confidence: high
+- tool: batch_validate_iban
+  category: iban
+  rest:
+  - batchValidateIBAN
+  binding: same-backend
+  confidence: high
+- tool: lookup_bic
+  category: bic
+  rest:
+  - lookupBIC
+  binding: same-backend
+  confidence: high
+- tool: check_compliance
+  category: compliance
+  rest:
+  - complianceCheck
+  binding: same-backend
+  confidence: high
+- tool: validate_payment_reference
+  category: free
+  rest:
+  - validatePaymentReference
+  - validatePaymentReferencePost
+  binding: same-backend
+  confidence: high
+- tool: check_swiss_qr_bill
+  category: free
+  rest:
+  - checkSwissQrBill
+  binding: same-backend
+  confidence: high
+- tool: check_postal_address
+  category: free
+  rest:
+  - checkPostalAddress
+  binding: same-backend
+  confidence: high
+- tool: lookup_ch_clearing
+  category: swiss-clearing
+  rest:
+  - lookupChClearing
+  binding: same-backend
+  confidence: high
+- tool: send_feedback
+  category: free
+  rest:
+  - submitFeedback
+  binding: same-backend
+  confidence: high
+- tool: request_api_key
+  category: api-keys
+  rest:
+  - openDeviceGrant
+  binding: semantic
+  confidence: medium
+  note: "Device grant (RFC 8628) \u2014 matched by name and changelog 1.7.0 description; tool may wrap the device\
+    \ flow."
+- tool: poll_api_key
+  category: api-keys
+  rest:
+  - collectDeviceGrantKey
+  binding: semantic
+  confidence: medium
+  note: "Device grant (RFC 8628) \u2014 matched by name and changelog 1.7.0 description; tool may wrap the device\
+    \ flow."
+mcp_only: []
+rest_only:
+- approveDeviceGrant
+- buyCreditBundle
+- claimApiKey
+- closeAccountSession
+- denyDeviceGrant
+- formatCheckIBAN
+- generateApiKey
+- getAccountKeyReport
+- getAccountOverview
+- getApiKeyReport
+- getApiKeyUsage
+- getCreditBalance
+- getDemo
+- getFeedbackStatus
+- getHealth
+- getIBANStructure
+- getStats
+- getStatsHistory
+- getTestIban
+- listCreditBundles
+- listIBANStructures
+- lookupDeviceGrant
+- mcpStreamableHttp
+- openAccountSession
+- requestAccountSignInCode
+- revokeApiKey
+- rotateApiKey
+coverage:
+  tools: 11
+  mapped: 11
+  rest_operations: 39
+  rest_only: 27

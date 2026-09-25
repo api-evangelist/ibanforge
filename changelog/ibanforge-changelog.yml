@@ -1,0 +1,53 @@
+generated: '2026-09-25'
+method: searched
+source: https://github.com/cammac-creator/ibanforge/blob/main/CHANGELOG.md
+sources:
+- https://raw.githubusercontent.com/cammac-creator/ibanforge/main/CHANGELOG.md
+- https://ibanforge.com/changelog
+name: IBANforge Changelog
+docs: https://ibanforge.com/changelog
+scheme: semver
+format: Keep a Changelog 1.1.0
+current_version: 1.8.0
+entries:
+- version: 1.8.0
+  date: '2026-09-25'
+  breaking: false
+  highlights:
+  - GET /v1/demo also validates the official example IBANs of Switzerland, Belgium and Austria
+  - The hosted MCP transport's keyless allowance is counted by the week (25 tool units per source address), no longer 10 a day
+  - The entry credit pack costs $4 (was $5)
+- version: 1.7.0
+  date: '2026-09-15'
+  breaking: false
+  highlights:
+  - Device grant (RFC 8628) for a durable agent key approved by a human (POST /v1/keys/device)
+  - ibanforge-mcp gains the two device-grant tools
+- version: 1.6.0
+  date: '2026-09-15'
+  breaking: false
+  highlights:
+  - ibanforge-mcp bounds every request, never retries a POST on its own, keeps cause and Retry-After
+  - One definition of each monthly allowance across all surfaces
+- version: 1.5.0
+  date: '2026-09-02'
+  breaking: false
+  highlights:
+  - Creditor file audit (POST /v1/audit/upload) sold at a displayed price
+  - Free Swiss QR-bill payload check (POST /v1/ch/qr-bill/check)
+- version: 1.4.4
+  date: '2026-09-01'
+  breaking: false
+  highlights:
+  - Every error response in the OpenAPI document now has a schema
+  - Self-service key lifecycle (revoke, rotate, credits balance) added to the contract
+- version: 1.4.4
+  date: '2026-08-30'
+  breaking: false
+  highlights:
+  - Fixed the bank sanctions screen discarding designated banks it could not name
+- version: 1.4.3
+  date: '2026-08-06'
+  breaking: false
+  highlights:
+  - MCP tool annotations on the npm package; sepa.vop_participant on every validate response

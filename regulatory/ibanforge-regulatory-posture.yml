@@ -1,0 +1,59 @@
+generated: '2026-09-25'
+method: searched
+probe: true
+source: https://ibanforge.com/legal/privacy
+sources:
+- https://ibanforge.com/legal/privacy
+- https://ibanforge.com/legal/dpa
+signals:
+  subprocessors:
+    url: https://ibanforge.com/legal/privacy
+    section: '3. Processors we use'
+    evidence:
+    - source: https://ibanforge.com/legal/dpa
+      http_status: 200
+      fetched: '2026-09-25'
+      quote: >-
+        "The Controller authorises the sub-processors listed in the Privacy Policy §3 (Railway — Amsterdam
+        (EU) hosting; Vercel — website & dashboard; Stripe — card payments; Coinbase CDP — USDC settlement,
+        with the x402.org facilitator as fallback; Infomaniak — email; GitHub — public code & CI; Anthropic
+        — AI-assisted drafting of correspondence)."
+    note: A named processor table with role and region, in a revision-dated Privacy Policy and DPA.
+  data_residency:
+    url: https://ibanforge.com/legal/dpa
+    region: Amsterdam (EU)
+    evidence:
+    - source: https://ibanforge.com/legal/dpa
+      http_status: 200
+      fetched: '2026-09-25'
+      quote: >-
+        "processing runs in Railway's Amsterdam (EU) region, not Zurich; only Railway's network edge sits
+        in Zurich."
+  incident_notification:
+    url: https://ibanforge.com/legal/dpa
+    stated_sla: without undue delay and within 72 hours of becoming aware
+    evidence:
+    - source: https://ibanforge.com/legal/dpa
+      http_status: 200
+      fetched: '2026-09-25'
+      quote: >-
+        "Personal data breach: notification to the Controller without undue delay and within 72 hours of
+        becoming aware, with the information required by art. 33(3) GDPR."
+  data_subject_request:
+    url: https://ibanforge.com/legal/privacy
+    section: '5. Your rights'
+    channel: support@ibanforge.com
+    stated_sla: we answer within 30 days
+    rights_named: [access, rectification, deletion, restriction, copy of your data, objection]
+    evidence:
+    - source: https://ibanforge.com/legal/privacy
+      http_status: 200
+      fetched: '2026-09-25'
+      quote: >-
+        "Under the FADP/GDPR you can request access, rectification, deletion, restriction, or a copy of your
+        data, and object to processing. Write to support@ibanforge.com — we answer within 30 days."
+probed_absent:
+- {url: https://ibanforge.com/accessibility, status: 404}
+- {url: https://ibanforge.com/security/sbom, status: 404}
+- {url: https://ibanforge.com/ai/transparency, status: 404}
+- {url: https://ibanforge.com/transparency, status: 404}

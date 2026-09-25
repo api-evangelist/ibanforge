@@ -1,0 +1,27 @@
+generated: '2026-09-25'
+method: searched
+source: https://github.com/cammac-creator/ibanforge/blob/main/CHANGELOG.md
+sources:
+- https://raw.githubusercontent.com/cammac-creator/ibanforge/main/CHANGELOG.md
+- https://ibanforge.com/legal/sla
+- https://ibanforge.com/status
+name: IBANforge Lifecycle
+versioning:
+  scheme: semver
+  statement: The format follows Keep a Changelog and the project adheres to Semantic Versioning.
+  path_version: /v1
+  current: 1.8.0
+deprecation:
+  policy: Deprecations are announced in the changelog's Deprecated section with a no-earlier-than removal date.
+  docs: https://github.com/cammac-creator/ibanforge/blob/main/CHANGELOG.md
+  examples:
+  - MCP lookup_bic flat country_code / country_name pair deprecated since 1.4.0, removed no earlier than 2027-01-01
+  - Unreleased — reading bank_code_check.status "verified", sepa.schemes and similar fields for what their names suggest; they keep their values, read the new fields instead
+  deprecated_operations: []
+status_page: https://ibanforge.com/status
+sla:
+  url: https://ibanforge.com/legal/sla
+  applies_to: Editor/OEM subscriptions only
+  availability: 99.5% Availability of the IBANforge API per calendar month
+  service_credits: 10% below 99.5%, 25% below 99.0%, 50% below 95.0% of the monthly fee
+  maintenance_notice: at least 48 hours in advance on the status page or by email

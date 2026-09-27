@@ -952,124 +952,6 @@ paths:
                 $ref: '#/components/schemas/ApiError'
 components:
   schemas:
-    ComplianceResult:
-      type: object
-      required:
-      - sanctions
-      - reachability
-      - vop
-      - risk_score
-      - risk_level
-      - flags
-      properties:
-        sanctions:
-          type: object
-          properties:
-            country_sanctioned:
-              type: boolean
-            bank_sanctioned:
-              type: boolean
-              description: 'False also when no bank was screened (bank_screened false): read institution_listed, which is null then.'
-            matched_lists:
-              type: array
-              items:
-                type: string
-              example:
-              - OFAC
-            fatf_status:
-              type: string
-              enum:
-              - member
-              - grey_list
-              - black_list
-              - suspended
-              - non_member
-            bank_screened:
-              type: boolean
-              description: Whether a bank was screened at all. When false, bank_sanctioned and matched_lists carry no information.
-            institution_listed:
-              type:
-              - boolean
-              - 'null'
-              description: 'Whether the payee''s BANK is on a sanctions list: bank_sanctioned when a bank was screened against every list this service names; null when no bank was screened, or when nothing matched while one of those lists is not loaded on this deployment. Never false without a screen.'
-            payee_screened:
-              type: boolean
-              enum:
-              - false
-              description: 'Always false: the payee (the account holder) is never screened here, only the bank and the country.'
-        reachability:
-          type: object
-          properties:
-            sepa_instant:
-              type: boolean
-              description: Whether the bank supports SEPA Instant Credit Transfer
-            sct:
-              type: boolean
-              description: SEPA Credit Transfer participant
-            sdd:
-              type: boolean
-              description: SEPA Direct Debit participant
-            screened:
-              type: boolean
-              description: 'False when the EPC scheme registers were not consulted: no bank resolved, or the registers are not loaded on this deployment. The three booleans above are then defaults, not findings, and carry no risk weight (flag sepa_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the registers: screened stays true.'
-            listed_in_epc_registers:
-              type:
-              - boolean
-              - 'null'
-              description: 'Whether at least one of the three scheme registers lists the bank; null when the registers were not consulted (screened false). For a bank resolved in the SEPA area, true matches sepa.bank_reachability listed and false matches not_listed; null also when no bank was resolved or the bank code is not allocated (the validation then says no_bank or bank_code_not_allocated). Outside the SEPA area the validation carries no bank_reachability: this field is false there for a resolved bank (the country answers, screened true) and null when no bank was resolved.'
-        vop:
-          type: object
-          properties:
-            participant:
-              type: boolean
-              description: Whether the bank participates in Verification of Payee
-            status:
-              type: string
-              enum:
-              - active
-              - pending
-              - inactive
-              - not_found
-            screened:
-              type: boolean
-              description: 'False when the EPC VoP register was not consulted: no bank resolved, or the register is not loaded on this deployment. `status: not_found` then describes the absence of a query, not of a registration (flag vop_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the register: screened stays true.'
-            register_status:
-              type:
-              - string
-              - 'null'
-              enum:
-              - active
-              - pending
-              - inactive
-              - not_listed
-              - null
-              description: 'status under its own name (not_found becomes not_listed); null when the register was not consulted (screened false). The bank''s status in the EPC Verification of Payee register: active (the same as vop_participant true), pending, inactive, or not_listed when the register has no row for it; null when no BIC resolved or the register was not consulted (screened false). Outside the SEPA area the country answers instead of the register (not_listed on POST /v1/iban/compliance) whether or not the register is loaded; the validation carries no sepa.vop_register_status there. It says whether the payee''s bank answers VoP requests; IBANforge never runs the name check itself.'
-        risk_score:
-          type:
-          - integer
-          - 'null'
-          minimum: 0
-          maximum: 100
-          description: 'Composite risk score (0 = no risk, 100 = critical). null when the IBAN did not validate: there was nothing to score.'
-        risk_level:
-          type: string
-          enum:
-          - low
-          - medium
-          - elevated
-          - high
-          - critical
-          - unassessable
-          description: 'unassessable means the IBAN itself failed validation, so no screening was possible. It is the absence of a verdict, never a favourable one: do not treat it as low.'
-        flags:
-          type: array
-          items:
-            type: string
-          description: 'List of specific risk flags detected. bank_code_inferred carries no weight: the bank named is our inference from a source that does not settle the bank code (bank_code_holder inferred), and no score moves for it. Some flags carry no weight and name a check that did not happen: no_bank_resolved, sepa_register_unavailable, vop_register_unavailable, and sanctions_list_unavailable_<list> (one per named sanctions list not loaded on this deployment, for example sanctions_list_unavailable_un: the bank was screened against the other lists, so bank_sanctioned false says nothing about that one). sanctions_lists_unavailable (a bank was resolved but no sanctions list is loaded on this deployment) holds the score at 50 at least.'
-          example:
-          - fatf_grey_list
-          - emi_issuer
-          - no_vop
     IBANValidationResult:
       type: object
       required:
@@ -1975,65 +1857,6 @@ components:
           example: 2026-02
         note:
           type: string
-    IBANFormatResult:
-      type: object
-      required:
-      - iban
-      - valid
-      - upgrade_to_full_validation
-      properties:
-        iban:
-          type: string
-          description: The IBAN as provided (normalized)
-          example: CH1000230000000012345
-        valid:
-          type: boolean
-          description: mod-97 checksum + country structure result
-        formatted:
-          type: string
-          description: IBAN formatted in groups of 4 (only when valid)
-          example: CH10 0023 0000 0000 1234 5
-        country:
-          type: object
-          description: Only present when valid
-          properties:
-            code:
-              type: string
-              example: CH
-            name:
-              type: string
-              example: Switzerland
-        check_digits:
-          type: string
-          example: '10'
-        bban:
-          type: object
-          description: Parsed BBAN components (only when valid and the country declares a structure)
-          properties:
-            bank_code:
-              type: string
-              example: '00230'
-            branch_code:
-              type: string
-            account_number:
-              type: string
-              example: '000000012345'
-        error:
-          type: string
-          description: Only when valid=false
-          enum:
-          - invalid_format
-          - unsupported_country
-          - wrong_length
-          - invalid_check_digits
-          - checksum_failed
-          - invalid_bban_structure
-        error_detail:
-          type: string
-          description: Only when valid=false
-        upgrade_to_full_validation:
-          type: string
-          description: 'Says what `valid: true` means on this route (well formed, nothing more) and what POST /v1/iban/validate adds: the bank and its BIC with their source, SEPA and VoP readiness, and, where the national register is read, whether the bank code is allocated at all'
     ApiError:
       type: object
       required:
@@ -2145,6 +1968,124 @@ components:
                 - 'null'
               complete:
                 type: boolean
+    ComplianceResult:
+      type: object
+      required:
+      - sanctions
+      - reachability
+      - vop
+      - risk_score
+      - risk_level
+      - flags
+      properties:
+        sanctions:
+          type: object
+          properties:
+            country_sanctioned:
+              type: boolean
+            bank_sanctioned:
+              type: boolean
+              description: 'False also when no bank was screened (bank_screened false): read institution_listed, which is null then.'
+            matched_lists:
+              type: array
+              items:
+                type: string
+              example:
+              - OFAC
+            fatf_status:
+              type: string
+              enum:
+              - member
+              - grey_list
+              - black_list
+              - suspended
+              - non_member
+            bank_screened:
+              type: boolean
+              description: Whether a bank was screened at all. When false, bank_sanctioned and matched_lists carry no information.
+            institution_listed:
+              type:
+              - boolean
+              - 'null'
+              description: 'Whether the payee''s BANK is on a sanctions list: bank_sanctioned when a bank was screened against every list this service names; null when no bank was screened, or when nothing matched while one of those lists is not loaded on this deployment. Never false without a screen.'
+            payee_screened:
+              type: boolean
+              enum:
+              - false
+              description: 'Always false: the payee (the account holder) is never screened here, only the bank and the country.'
+        reachability:
+          type: object
+          properties:
+            sepa_instant:
+              type: boolean
+              description: Whether the bank supports SEPA Instant Credit Transfer
+            sct:
+              type: boolean
+              description: SEPA Credit Transfer participant
+            sdd:
+              type: boolean
+              description: SEPA Direct Debit participant
+            screened:
+              type: boolean
+              description: 'False when the EPC scheme registers were not consulted: no bank resolved, or the registers are not loaded on this deployment. The three booleans above are then defaults, not findings, and carry no risk weight (flag sepa_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the registers: screened stays true.'
+            listed_in_epc_registers:
+              type:
+              - boolean
+              - 'null'
+              description: 'Whether at least one of the three scheme registers lists the bank; null when the registers were not consulted (screened false). For a bank resolved in the SEPA area, true matches sepa.bank_reachability listed and false matches not_listed; null also when no bank was resolved or the bank code is not allocated (the validation then says no_bank or bank_code_not_allocated). Outside the SEPA area the validation carries no bank_reachability: this field is false there for a resolved bank (the country answers, screened true) and null when no bank was resolved.'
+        vop:
+          type: object
+          properties:
+            participant:
+              type: boolean
+              description: Whether the bank participates in Verification of Payee
+            status:
+              type: string
+              enum:
+              - active
+              - pending
+              - inactive
+              - not_found
+            screened:
+              type: boolean
+              description: 'False when the EPC VoP register was not consulted: no bank resolved, or the register is not loaded on this deployment. `status: not_found` then describes the absence of a query, not of a registration (flag vop_register_unavailable when a bank was resolved). Outside the SEPA area the country answers instead of the register: screened stays true.'
+            register_status:
+              type:
+              - string
+              - 'null'
+              enum:
+              - active
+              - pending
+              - inactive
+              - not_listed
+              - null
+              description: 'status under its own name (not_found becomes not_listed); null when the register was not consulted (screened false). The bank''s status in the EPC Verification of Payee register: active (the same as vop_participant true), pending, inactive, or not_listed when the register has no row for it; null when no BIC resolved or the register was not consulted (screened false). Outside the SEPA area the country answers instead of the register (not_listed on POST /v1/iban/compliance) whether or not the register is loaded; the validation carries no sepa.vop_register_status there. It says whether the payee''s bank answers VoP requests; IBANforge never runs the name check itself.'
+        risk_score:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100
+          description: 'Composite risk score (0 = no risk, 100 = critical). null when the IBAN did not validate: there was nothing to score.'
+        risk_level:
+          type: string
+          enum:
+          - low
+          - medium
+          - elevated
+          - high
+          - critical
+          - unassessable
+          description: 'unassessable means the IBAN itself failed validation, so no screening was possible. It is the absence of a verdict, never a favourable one: do not treat it as low.'
+        flags:
+          type: array
+          items:
+            type: string
+          description: 'List of specific risk flags detected. bank_code_inferred carries no weight: the bank named is our inference from a source that does not settle the bank code (bank_code_holder inferred), and no score moves for it. Some flags carry no weight and name a check that did not happen: no_bank_resolved, sepa_register_unavailable, vop_register_unavailable, and sanctions_list_unavailable_<list> (one per named sanctions list not loaded on this deployment, for example sanctions_list_unavailable_un: the bank was screened against the other lists, so bank_sanctioned false says nothing about that one). sanctions_lists_unavailable (a bank was resolved but no sanctions list is loaded on this deployment) holds the score at 50 at least.'
+          example:
+          - fatf_grey_list
+          - emi_issuer
+          - no_vop
     PaymentReferenceResult:
       type: object
       required:
@@ -2209,6 +2150,65 @@ components:
         pairing_verdict:
           type: string
           description: Pointer to POST /v1/iban/validate for the QRR/SCOR pairing verdict
+    IBANFormatResult:
+      type: object
+      required:
+      - iban
+      - valid
+      - upgrade_to_full_validation
+      properties:
+        iban:
+          type: string
+          description: The IBAN as provided (normalized)
+          example: CH1000230000000012345
+        valid:
+          type: boolean
+          description: mod-97 checksum + country structure result
+        formatted:
+          type: string
+          description: IBAN formatted in groups of 4 (only when valid)
+          example: CH10 0023 0000 0000 1234 5
+        country:
+          type: object
+          description: Only present when valid
+          properties:
+            code:
+              type: string
+              example: CH
+            name:
+              type: string
+              example: Switzerland
+        check_digits:
+          type: string
+          example: '10'
+        bban:
+          type: object
+          description: Parsed BBAN components (only when valid and the country declares a structure)
+          properties:
+            bank_code:
+              type: string
+              example: '00230'
+            branch_code:
+              type: string
+            account_number:
+              type: string
+              example: '000000012345'
+        error:
+          type: string
+          description: Only when valid=false
+          enum:
+          - invalid_format
+          - unsupported_country
+          - wrong_length
+          - invalid_check_digits
+          - checksum_failed
+          - invalid_bban_structure
+        error_detail:
+          type: string
+          description: Only when valid=false
+        upgrade_to_full_validation:
+          type: string
+          description: 'Says what `valid: true` means on this route (well formed, nothing more) and what POST /v1/iban/validate adds: the bank and its BIC with their source, SEPA and VoP readiness, and, where the national register is read, whether the bank code is allocated at all'
   securitySchemes:
     x402Payment:
       type: apiKey

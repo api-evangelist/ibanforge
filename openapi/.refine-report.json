@@ -20,9 +20,10 @@
   "notes": [
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "ibanforge-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+1 apis, 9 total)"
+    "apis.yml register: already-registered"
   ],
   "skipped": [
+    "ibanforge-account-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "ibanforge-api-keys-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "ibanforge-bic-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "ibanforge-compliance-api-openapi.yml: previously refined output, superseded by openapi/_original/",

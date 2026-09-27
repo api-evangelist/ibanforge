@@ -339,3 +339,10 @@ x-enrichment:
   status: enriched
   artifacts_added: 22
   pass: local-v5
+x-a2a:
+  verified: true
+  probed: '2026-09-26'
+  url: "https://api.ibanforge.com/.well-known/agent-card.json"
+  grade: "conformant"
+  protocol_version: "1.0"
+  control: 404

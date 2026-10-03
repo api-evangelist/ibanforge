@@ -63,6 +63,21 @@ paths:
                 $ref: '#/components/schemas/ApiError'
 components:
   schemas:
+    ApiError:
+      type: object
+      required:
+      - error
+      - message
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
+          example: batch_too_large
+        message:
+          type: string
+          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
+          example: Maximum 100 IBANs per batch request
     BICLookupResult:
       type: object
       required:
@@ -369,21 +384,6 @@ components:
           example: 0.003
         processing_ms:
           type: number
-    ApiError:
-      type: object
-      required:
-      - error
-      - message
-      additionalProperties: true
-      properties:
-        error:
-          type: string
-          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
-          example: batch_too_large
-        message:
-          type: string
-          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
-          example: Maximum 100 IBANs per batch request
   securitySchemes:
     x402Payment:
       type: apiKey

@@ -292,67 +292,6 @@ components:
           type: string
           description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
           example: Maximum 100 IBANs per batch request
-    ReferenceCheckBlock:
-      type: object
-      description: 'Served inside POST /v1/iban/validate when a `reference` was supplied. Carries TWO independent verdicts: `valid` (the reference checksum) and `pairing` (whether it may legally travel with this account). A reference can be arithmetically valid and still illegal on that IBAN, and the reverse. Each verdict names its own document.'
-      required:
-      - reference
-      - scheme
-      - valid
-      - status
-      - source
-      - pairing
-      - note
-      properties:
-        reference:
-          type: string
-          example: '210000000003139471430009017'
-        scheme:
-          type: string
-          nullable: true
-          enum:
-          - rf
-          - qrr
-          - ogm
-          - viitenumero
-          - kid
-          - ocr
-        valid:
-          type: boolean
-          nullable: true
-        status:
-          type: string
-          enum:
-          - checked
-          - unverifiable_without_creditor_config
-          - unrecognised
-        check_digit_expected:
-          type: string
-        also_valid_as:
-          type: object
-        source:
-          type: string
-          nullable: true
-          description: Provenance of the CHECKSUM verdict
-        as_of:
-          type: string
-          example: 2026-02
-        pairing:
-          type: string
-          enum:
-          - ok
-          - qrr_requires_qr_iban
-          - scor_forbidden_with_qr_iban
-          - not_applicable
-          description: Per the Swiss Implementation Guidelines a QRR reference may only be used with a QR-IBAN (institution identifier in the SIX range 30000-31999), and an ISO 11649 (SCOR) reference may not. `not_applicable` outside CH/LI, where there is no QR-IBAN to pair against — including for a valid RF reference, whose own checksum verdict is unaffected.
-        pairing_source:
-          type: string
-          description: Provenance of the PAIRING verdict — a DIFFERENT document from `source`
-        pairing_as_of:
-          type: string
-          example: 2026-02
-        note:
-          type: string
     IBANValidationResult:
       type: object
       required:
@@ -1197,6 +1136,67 @@ components:
             - code
             - do
             - because
+    ReferenceCheckBlock:
+      type: object
+      description: 'Served inside POST /v1/iban/validate when a `reference` was supplied. Carries TWO independent verdicts: `valid` (the reference checksum) and `pairing` (whether it may legally travel with this account). A reference can be arithmetically valid and still illegal on that IBAN, and the reverse. Each verdict names its own document.'
+      required:
+      - reference
+      - scheme
+      - valid
+      - status
+      - source
+      - pairing
+      - note
+      properties:
+        reference:
+          type: string
+          example: '210000000003139471430009017'
+        scheme:
+          type: string
+          nullable: true
+          enum:
+          - rf
+          - qrr
+          - ogm
+          - viitenumero
+          - kid
+          - ocr
+        valid:
+          type: boolean
+          nullable: true
+        status:
+          type: string
+          enum:
+          - checked
+          - unverifiable_without_creditor_config
+          - unrecognised
+        check_digit_expected:
+          type: string
+        also_valid_as:
+          type: object
+        source:
+          type: string
+          nullable: true
+          description: Provenance of the CHECKSUM verdict
+        as_of:
+          type: string
+          example: 2026-02
+        pairing:
+          type: string
+          enum:
+          - ok
+          - qrr_requires_qr_iban
+          - scor_forbidden_with_qr_iban
+          - not_applicable
+          description: Per the Swiss Implementation Guidelines a QRR reference may only be used with a QR-IBAN (institution identifier in the SIX range 30000-31999), and an ISO 11649 (SCOR) reference may not. `not_applicable` outside CH/LI, where there is no QR-IBAN to pair against — including for a valid RF reference, whose own checksum verdict is unaffected.
+        pairing_source:
+          type: string
+          description: Provenance of the PAIRING verdict — a DIFFERENT document from `source`
+        pairing_as_of:
+          type: string
+          example: 2026-02
+        note:
+          type: string
   securitySchemes:
     x402Payment:
       type: apiKey

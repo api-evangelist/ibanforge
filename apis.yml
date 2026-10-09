@@ -187,6 +187,8 @@ common:
 - type: ServiceLevelAgreement
   url: https://ibanforge.com/legal/sla
 
+- type: SpectralRules
+  url: https://github.com/cammac-creator/ibanforge/blob/ae22f27867ae94f251a5531f50a86c969e987500/.spectral.yaml
 apis:
 - aid: ibanforge:ibanforge-api-keys-api
   name: IBANforge API Keys API

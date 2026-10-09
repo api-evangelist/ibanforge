@@ -110,3 +110,57 @@ plans:
   - free preview first, annotated workbook right after payment
   limits:
   - 5,000 rows ($149) or 20,000 rows ($349)
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  - subscription
+  units:
+  - credit
+  - request
+  plans:
+  - name: Free API key
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Credit packs
+    access: other
+    model: free
+    model_how: derived
+    units:
+    - credit
+    periods:
+    - one-time
+  - name: Pro
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: x402 pay per call
+    access: other
+    model: free
+    model_how: derived
+    units:
+    - request
+    periods:
+    - other
+  - name: Editor / OEM
+    access: other
+    model: subscription
+    model_how: derived
+    units: []
+    periods:
+    - month
+  - name: Creditor file audit
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods:
+    - one-time

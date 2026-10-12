@@ -49,12 +49,11 @@
   arazzo: null
 - slug: ibanforge-postman
   label: Postman
-  partner: postman
   partner_name: Postman
   category: developer-tools
   use_case: Postman collection
   type: claimed
   evidence: https://github.com/cammac-creator/ibanforge/tree/main/integrations/postman
   source: edge
-  status: pending-generation
+  status: pending-partner-spec
   arazzo: null

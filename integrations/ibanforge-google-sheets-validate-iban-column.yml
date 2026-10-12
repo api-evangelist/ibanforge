@@ -1,0 +1,73 @@
+arazzo: 1.0.1
+info:
+  title: Validate an IBAN column in Google Sheets with IBANforge
+  version: 1.0.0
+  description: Reads a column of IBANs from a Google Sheet, validates them with IBANforge batch validation (up to 100 per call), and writes the results back beside them. Mirrors the provider-built Google Sheets Apps Script add-on.
+x-integration:
+  partner: google-sheets
+  edge_evidence: https://github.com/cammac-creator/ibanforge/tree/main/integrations/sheets
+  edge_type: claimed
+  method: generated
+  generated: '2026-10-12'
+  generator: enrichment local-v5
+  guessed_steps:
+  - step: validateBatch
+    cause: catalog
+    why: Sheets returns values as a 2D array; flattening the column into the ibans[] string array is a client-side transform Arazzo cannot express.
+  - step: writeResults
+    cause: catalog
+    why: Mapping results[] objects to row values is a client-side transform; the payload expression is indicative.
+sourceDescriptions:
+- name: sheets
+  url: https://raw.githubusercontent.com/api-evangelist/google-sheets/refs/heads/main/openapi/google-sheets-values-api-openapi.yml
+  type: openapi
+- name: ibanforge
+  url: https://raw.githubusercontent.com/api-evangelist/ibanforge/refs/heads/main/openapi/ibanforge-iban-api-openapi.yml
+  type: openapi
+workflows:
+- workflowId: validateIbanColumn
+  summary: Read IBANs from a sheet range, validate in batch, write results back.
+  inputs:
+    type: object
+    required: [spreadsheetId, ibanRange, resultRange]
+    properties:
+      spreadsheetId: {type: string}
+      ibanRange: {type: string, description: "A1 range holding up to 100 IBANs, e.g. Sheet1!A2:A101"}
+      resultRange: {type: string, description: "A1 range to write results to, e.g. Sheet1!B2:B101"}
+  steps:
+  - stepId: readIbans
+    operationId: $sourceDescriptions.sheets.getValues
+    parameters:
+    - {name: spreadsheetId, in: path, value: $inputs.spreadsheetId}
+    - {name: range, in: path, value: $inputs.ibanRange}
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      values: $response.body#/values
+  - stepId: validateBatch
+    operationId: $sourceDescriptions.ibanforge.batchValidateIBAN
+    requestBody:
+      contentType: application/json
+      payload:
+        ibans: $steps.readIbans.outputs.values
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      results: $response.body#/results
+  - stepId: writeResults
+    operationId: $sourceDescriptions.sheets.updateValues
+    parameters:
+    - {name: spreadsheetId, in: path, value: $inputs.spreadsheetId}
+    - {name: range, in: path, value: $inputs.resultRange}
+    - {name: valueInputOption, in: query, value: RAW}
+    requestBody:
+      contentType: application/json
+      payload:
+        range: $inputs.resultRange
+        values: $steps.validateBatch.outputs.results
+    successCriteria:
+    - condition: $statusCode == 200
+    outputs:
+      updatedCells: $response.body#/updatedCells
+  outputs:
+    results: $steps.validateBatch.outputs.results

@@ -77,6 +77,12 @@ maintainers:
   email: kin@apievangelist.com
 
 common:
+- type: Spectral
+  url: rules/ibanforge-ibanforge-spectral-rules.yml
+- type: IntegrationEdges
+  url: integrations/ibanforge-integration-edges.yml
+- type: TrustCenter
+  url: https://ibanforge.com/trust
 - type: Overlay
   url: overlays/ibanforge-account-api-overlay.yaml
 - type: SecurityTxt
@@ -337,9 +343,9 @@ apis:
   - type: JSONSchema
     url: json-schema/ibanforge-account-overview-schema.json
 x-enrichment:
-  date: '2026-09-25'
+  date: '2026-10-12'
   status: enriched
-  artifacts_added: 22
+  artifacts_added: 2
   pass: local-v5
 x-a2a:
   verified: true

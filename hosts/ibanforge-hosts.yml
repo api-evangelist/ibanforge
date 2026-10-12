@@ -1,4 +1,4 @@
-generated: '2026-09-25'
+generated: '2026-10-12'
 method: derived
 source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
 generator: derive-hosts.py
@@ -40,6 +40,7 @@ hosts:
   - Deprecation
   - PublicAPIsListing
   - GitHubOrganization
+  - SpectralRules
   serves: []
   registrable_domain: github.com
   role: source

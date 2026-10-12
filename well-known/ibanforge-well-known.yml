@@ -1,4 +1,4 @@
-generated: '2026-09-25'
+generated: '2026-10-12'
 method: probed
 generator: harvest-well-known.py
 source: Live GET of the named /.well-known/ path list on every host the record knows; every row is a request that

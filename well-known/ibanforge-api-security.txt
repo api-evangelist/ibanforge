@@ -1,4 +1,5 @@
-Contact: mailto:security@ibanforge.com
+Contact: mailto:support@ibanforge.com
+Expires: 2027-04-01T00:00:00.000Z
 Preferred-Languages: en, fr, de
 Canonical: https://api.ibanforge.com/.well-known/security.txt
-Policy: https://ibanforge.com/docs
+Policy: https://github.com/cammac-creator/ibanforge/blob/main/SECURITY.md

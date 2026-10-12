@@ -1,4 +1,4 @@
-generated: '2026-09-25'
+generated: '2026-10-12'
 method: derived
 generator: derive-vocabulary.py
 source:
@@ -11,7 +11,7 @@ vocabulary:
   name: IBANforge Domain Vocabulary
   description: 'Terms declared by IBANforge''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
     Derived, not authored.'
-  version: '2026-09-25'
+  version: '2026-10-12'
   terms:
   - term: Account
     definition: 'The account page, https://ibanforge.com/account, for a person in a browser: a 6-digit code mailed to the address of the keys,
@@ -87,23 +87,18 @@ vocabulary:
     tags:
     - Object
     source: openapi/ibanforge-bic-api-openapi.yml#/components/schemas/BICLookupResult
-  - term: ComplianceResult
-    definition: 'Object declared by the contract with fields: sanctions, reachability, vop, risk_score, risk_level, flags.'
-    tags:
-    - Object
-    source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/ComplianceResult
-  - term: IBANValidationResult
-    definition: 'Object declared by the contract with fields: trial, attribution, iban, valid, bank_code_holder, checks, national_check_digits,
-      country, check_digits, bban, bic, formatted. (14 more)'
-    tags:
-    - Object
-    source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/IBANValidationResult
   - term: BicComplianceResponse
     definition: 'The answer to POST /v1/iban/compliance with a `bic`: the bank screened directly, without an IBAN. `found` says whether our directory
       names the institution, independently of the screen: found false with bank_sanctioned true is a real combination.'
     tags:
     - Object
     source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/BicComplianceResponse
+  - term: IBANValidationResult
+    definition: 'Object declared by the contract with fields: trial, attribution, iban, valid, bank_code_holder, checks, national_check_digits,
+      country, check_digits, bban, bic, formatted. (14 more)'
+    tags:
+    - Object
+    source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/IBANValidationResult
   - term: ReferenceCheckBlock
     definition: 'Served inside POST /v1/iban/validate when a `reference` was supplied. Carries TWO independent verdicts: `valid` (the reference
       checksum) and `pairing` (whether it may legally travel with this account). A reference can be arithmetically valid and still illegal on
@@ -111,11 +106,11 @@ vocabulary:
     tags:
     - Object
     source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/ReferenceCheckBlock
-  - term: IBANFormatResult
-    definition: 'Object declared by the contract with fields: iban, valid, formatted, country, check_digits, bban, error, error_detail, upgrade_to_full_validation.'
+  - term: ComplianceResult
+    definition: 'Object declared by the contract with fields: sanctions, reachability, vop, risk_score, risk_level, flags.'
     tags:
     - Object
-    source: openapi/ibanforge-free-api-openapi.yml#/components/schemas/IBANFormatResult
+    source: openapi/ibanforge-compliance-api-openapi.yml#/components/schemas/ComplianceResult
   - term: HealthResponse
     definition: 'Object declared by the contract with fields: status, version, served_at, uptime_seconds, bic_database_entries, bic_data_last_updated,
       bic_sources, frozen_bic_sources.'
@@ -128,6 +123,11 @@ vocabulary:
     tags:
     - Object
     source: openapi/ibanforge-free-api-openapi.yml#/components/schemas/PaymentReferenceResult
+  - term: IBANFormatResult
+    definition: 'Object declared by the contract with fields: iban, valid, formatted, country, check_digits, bban, error, error_detail, upgrade_to_full_validation.'
+    tags:
+    - Object
+    source: openapi/ibanforge-free-api-openapi.yml#/components/schemas/IBANFormatResult
   - term: ChClearingResult
     definition: 'Object declared by the contract with fields: attribution, iid, found, institution, address, bic, payment_services, sic_iid, qr_iid,
       qr_iid_source, qr_iids, valid_on. (2 more)'

@@ -1,4 +1,4 @@
-generated: '2026-09-25'
+generated: '2026-10-12'
 method: derived
 generator: derive-data-model.py
 source:
@@ -52,11 +52,11 @@ relationships:
   to: AccountKey
   type: has_many
   via: keys
-- from: IBANValidationResult
-  to: ReferenceCheckBlock
-  type: has_one
-  via: reference_check
 - from: BicComplianceResponse
   to: ComplianceResult
   type: has_one
   via: compliance
+- from: IBANValidationResult
+  to: ReferenceCheckBlock
+  type: has_one
+  via: reference_check

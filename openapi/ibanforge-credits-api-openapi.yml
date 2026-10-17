@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: IBANforge Credits API
-  version: 1.8.0
+  version: 1.9.0
   description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
     name: IBANforge support
@@ -20,7 +20,7 @@ paths:
     get:
       operationId: getCreditBalance
       summary: Read the remaining credits of the presented key
-      description: 'For a key with prepaid credits: credits_remaining, credits_total (everything ever bought on the key, recharges included), credits_used and the top-up endpoints. For a key without credits the answer is type: "subscription" with a pointer to GET /v1/keys/usage. On every key, `allowance` gives the allowance of the key (null on a key born of a purchase, which has none), `billing_order` is "allowance_then_credits" on a key that holds both, and `topup` carries the card links that recharge THIS key. When the credits of a key born of a purchase run out, billed routes answer 402 with cause.reason "credits_exhausted", the same links, and X-Credits-Topup-Url (the 1,000-credit one). Authentication is the key itself, in any of the three places every billed route accepts: Authorization: Bearer, X-API-Key, or ?api_key=.'
+      description: 'For a key with prepaid credits: credits_remaining, credits_total (everything ever bought on the key, recharges included), credits_used and the top-up endpoints. For a key without credits the answer is type: "subscription" with a pointer to GET /v1/keys/usage. On every key, `allowance` gives the allowance of the key (null on a key born of a purchase, which has none), `billing_order` is "allowance_then_credits" on a key that holds both, and `topup` carries the card links that recharge THIS key (and, on a key without a subscription, `topup.pro`: the Pro link that puts the subscription on it). When the credits of a key born of a purchase run out, billed routes answer 402 with cause.reason "credits_exhausted", the same links, and X-Credits-Topup-Url (the 1,000-credit one). Authentication is the key itself, in any of the three places every billed route accepts: Authorization: Bearer, X-API-Key, or ?api_key=.'
       tags:
       - Credits
       security:

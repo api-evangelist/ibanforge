@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: IBANforge Account API
-  version: 1.8.0
+  version: 1.9.0
   description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
     name: IBANforge support
@@ -273,6 +273,93 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
+  /v1/account/receipts:
+    get:
+      operationId: getAccountReceipts
+      summary: The purchases paid by the signed-in address, to find their receipts
+      description: 'The credit packs and subscriptions paid by the signed-in address, the most recent first, 100 at most. A card payment belongs to the address its payer gave at checkout, and to that address alone; a USDC payment, and a card payment recorded before the purchase register existed, belong to the address of the key they landed on (a rotated or deactivated key included). Only money that was actually taken: nothing pending or failed; a refunded or disputed purchase stays, with its status. Each purchase is named by an opaque `ref`, never by a sequential number. For a pack paid by card, `receipt` is the path of GET /v1/account/receipt that gives its Stripe receipt; for a card subscription, `invoices` is the Stripe customer portal where its invoices live; a USDC purchase has neither. No call to Stripe is made here, and no receipt link is served in this list. Authentication is the session cookie. Never cached (Cache-Control: no-store).'
+      tags:
+      - Account
+      security:
+      - accountSession: []
+      responses:
+        '200':
+          description: The purchases of the signed-in address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountReceipts'
+        '401':
+          description: '"signed_out": no session, an expired or revoked one, or the account cookie sent twice. A cookie that leads to no live session is cleared.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/account/receipt:
+    get:
+      operationId: getAccountReceiptLink
+      summary: The Stripe receipt of one purchase of the signed-in address
+      description: 'Asks Stripe for the receipt of one pack paid by card, named by the `ref` GET /v1/account/receipts lists, and answers its link (`url`, which always starts with https://pay.stripe.com/receipts/): the receipt opens on Stripe. Stripe makes a receipt link expire 30 days after giving it, never the receipt itself: open the link, do not store it; ask this route again for a fresh one. The link opens the receipt for whoever holds it. The ref travels as a query parameter. A ref that is unknown, belongs to another address or names a purchase without a card receipt (a subscription, a USDC payment) gets the same 404. Never cached (Cache-Control: no-store).'
+      tags:
+      - Account
+      security:
+      - accountSession: []
+      parameters:
+      - name: ref
+        in: query
+        required: true
+        description: The ref of the purchase, as GET /v1/account/receipts lists it.
+        schema:
+          type: string
+          pattern: ^rcpt_[0-9a-f]{24}$
+          example: rcpt_3f9c1a7e5b2d4c6e8a0b1c2d
+      responses:
+        '200':
+          description: The link of the Stripe receipt.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - ref
+                - url
+                properties:
+                  ref:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+                    description: The Stripe receipt, valid 30 days. Always starts with https://pay.stripe.com/receipts/
+        '401':
+          description: '"signed_out": no live session, or the account cookie sent twice.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: '"receipt_not_found": no such receipt in this account. The same answer for an unknown ref, the ref of another address, and a purchase without a card receipt.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Rate limit exceeded. Applied globally by the server, so any operation can answer it. Honour the Retry-After header; see https://api.ibanforge.com/rate-limits.yml
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '503':
+          description: '"receipt_unavailable": Stripe did not give the receipt just now. Try again in a minute; support@ibanforge.com sends it otherwise.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
   /v1/account/logout:
     post:
       operationId: closeAccountSession
@@ -334,6 +421,136 @@ paths:
                 $ref: '#/components/schemas/ApiError'
 components:
   schemas:
+    AccountOverview:
+      type: object
+      required:
+      - email
+      - session_expires_at
+      - month
+      - page
+      - pages
+      - keys
+      - inactive_keys
+      properties:
+        email:
+          type: string
+          description: The address typed at sign-in, in lower case.
+          example: you@example.com
+        session_expires_at:
+          type: string
+          format: date-time
+          description: When the session ends; sign in again after it.
+        month:
+          type: string
+          example: 2026-09
+          description: The calendar month (UTC) that calls_this_month counts.
+        page:
+          type: integer
+          minimum: 1
+        pages:
+          type: integer
+          minimum: 1
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountKey'
+        inactive_keys:
+          type: integer
+          description: Deactivated keys of the address (revoked or rotated), counted without detail.
+    AccountReceipt:
+      type: object
+      required:
+      - ref
+      - paid_at
+      - kind
+      - plan
+      - rail
+      - credits
+      - amount
+      - status
+      - key_prefix
+      - receipt
+      - invoices
+      properties:
+        ref:
+          type: string
+          example: rcpt_3f9c1a7e5b2d4c6e8a0b1c2d
+          description: The opaque reference of the purchase, for GET /v1/account/receipt.
+        paid_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: When the payment settled, else when it was recorded (UTC).
+        kind:
+          type: string
+          enum:
+          - pack
+          - subscription
+        plan:
+          type:
+          - string
+          - 'null'
+          enum:
+          - pro
+          - editor
+          - null
+          description: The plan of a subscription; null for a pack, or when unknown.
+        rail:
+          type: string
+          enum:
+          - card
+          - usdc
+        credits:
+          type:
+          - integer
+          - 'null'
+          description: The credits of a pack; null for a subscription.
+        amount:
+          type:
+          - object
+          - 'null'
+          description: The amount taken, in minor units of its currency (400 and "usd" is 4.00 USD); null when unknown.
+          required:
+          - minor
+          - currency
+          properties:
+            minor:
+              type: integer
+            currency:
+              type: string
+              example: usd
+        status:
+          type: string
+          enum:
+          - paid
+          - refunded
+          - disputed
+        key_prefix:
+          type: string
+          example: ifk_3f9c1a7e
+          description: The key the purchase landed on. The key itself is never served.
+        receipt:
+          type:
+          - string
+          - 'null'
+          example: /v1/account/receipt?ref=rcpt_3f9c1a7e5b2d4c6e8a0b1c2d
+          description: 'For a pack paid by card: the path, on the API host, that gives its Stripe receipt. Null otherwise.'
+        invoices:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: 'For a subscription paid by card: the Stripe customer portal, where its invoices live. Null otherwise.'
+    AccountReceipts:
+      type: object
+      required:
+      - receipts
+      properties:
+        receipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountReceipt'
     AccountKey:
       type: object
       required:
@@ -364,6 +581,7 @@ components:
           - free
           - custom
           - pack
+          - none
           - pro
           - editor
           - free+pack
@@ -445,7 +663,7 @@ components:
           description: 'True when the address of this key was proven by a code (created or claimed with a 6-digit code). An address typed at a checkout, or given to a first key without a code, is not: the page then asks you to recognise the key before recharging it.'
         actions:
           type: object
-          description: Links the page may offer. topup recharges THIS key by card (the links carry its recharge reference, never the key); subscribe_pro is null until that journey exists; manage_subscription is the portal of a subscribed key.
+          description: Links the page may offer. topup recharges THIS key by card (the links carry its recharge reference, never the key); subscribe_pro is the Pro link that puts the subscription on THIS key, null on a key that already carries one; manage_subscription is the portal of a subscribed key.
           properties:
             topup:
               type:
@@ -484,42 +702,6 @@ components:
           type: string
           description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
           example: Maximum 100 IBANs per batch request
-    AccountOverview:
-      type: object
-      required:
-      - email
-      - session_expires_at
-      - month
-      - page
-      - pages
-      - keys
-      - inactive_keys
-      properties:
-        email:
-          type: string
-          description: The address typed at sign-in, in lower case.
-          example: you@example.com
-        session_expires_at:
-          type: string
-          format: date-time
-          description: When the session ends; sign in again after it.
-        month:
-          type: string
-          example: 2026-09
-          description: The calendar month (UTC) that calls_this_month counts.
-        page:
-          type: integer
-          minimum: 1
-        pages:
-          type: integer
-          minimum: 1
-        keys:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountKey'
-        inactive_keys:
-          type: integer
-          description: Deactivated keys of the address (revoked or rotated), counted without detail.
   securitySchemes:
     x402Payment:
       type: apiKey

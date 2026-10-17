@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: IBANforge Swiss Clearing API
-  version: 1.8.0
+  version: 1.9.0
   description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
     name: IBANforge support

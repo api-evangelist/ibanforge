@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: IBANforge MCP API
-  version: 1.8.0
+  version: 1.9.0
   description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
     name: IBANforge support
@@ -20,11 +20,12 @@ paths:
     post:
       operationId: mcpStreamableHttp
       summary: MCP endpoint for AI agents (Streamable HTTP)
-      description: 'Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes 11 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing, validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. With no USDC price: validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. Outside the keyless allowance below (they cost no unit and keep answering once it is spent): send_feedback, request_api_key, poll_api_key; request_api_key and poll_api_key are the way to a key. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec. With no credential it answers up to 25 tool units a week per source address (one per tool call, one per IBAN in batch_validate_iban; the week is the ISO week in UTC and resets on Monday 00:00 UTC), an allowance separate from the keyless REST trial.'
+      description: 'Model Context Protocol endpoint — Streamable HTTP transport, JSON-RPC 2.0 over POST. Exposes 11 MCP tools: validate_iban, batch_validate_iban, lookup_bic, check_compliance, lookup_ch_clearing, validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. With no USDC price: validate_payment_reference, check_postal_address, check_swiss_qr_bill, send_feedback, request_api_key, poll_api_key. Outside the keyless allowance below (they cost no unit and keep answering once it is spent): send_feedback, request_api_key, poll_api_key; request_api_key and poll_api_key are the way to a key. Flow: POST an `initialize` request, then `tools/list` and `tools/call` (include the returned Mcp-Session-Id header on follow-up calls). Also available as a stdio server via `npx -y ibanforge-mcp`. This path speaks MCP, not the REST conventions documented elsewhere in this spec. With no credential it answers up to 25 tool units a week per source address (one per tool call, one per IBAN in batch_validate_iban; the week is the ISO week in UTC and resets on Monday 00:00 UTC), an allowance separate from the keyless REST trial. With an API key (Authorization: Bearer ifk_… or X-API-Key), tool calls count against that key exactly as on the REST API instead; x402 is not read on this path.'
       tags:
       - MCP
       security:
       - {}
+      - apiKey: []
       externalDocs:
         description: MCP setup guide (Claude Desktop, Cursor, HTTP transport)
         url: https://ibanforge.com/docs/mcp

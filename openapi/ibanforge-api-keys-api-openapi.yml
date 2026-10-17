@@ -1,7 +1,7 @@
 openapi: 3.2.0
 info:
   title: IBANforge API Keys API
-  version: 1.8.0
+  version: 1.9.0
   description: IBANforge checks the bank behind an IBAN before you pay.
   contact:
     name: IBANforge support
@@ -399,7 +399,7 @@ paths:
     get:
       operationId: getApiKeyUsage
       summary: Check API key usage
-      description: 'Returns current month usage and remaining quota for the provided API key. `tier` names the key''s tier ("anonymous", "email", "claimed" or "paid"). `basis` says which ceiling actually governs the key: "monthly" for a free or subscription key, "credits" for a prepaid bundle, "lifetime" when the allowance does NOT start over on the 1st (a key raised by payment, or one born under a protective limit) — on that basis `used` and `remaining` count every month the key has ever served and `month` is only the current calendar month. On a bundle key, `used` counts the calls billed this month for information only — nothing is enforced against `limit`/`remaining`, and the balance that can turn a call away is served alongside as `credits_remaining` / `credits_total`. An anonymous key also carries a "claim" block: where to raise it (https://api.ibanforge.com/v1/keys/claim), to what, by which methods, how much has been settled on it so far and how much is needed. A key that holds an allowance AND prepaid credits (a free key recharged) keeps the basis of its allowance and also carries credits_remaining, credits_total and billing_order: "allowance_then_credits": each call draws on the allowance first, then on the credits, and every billed response says which one paid it in X-Charged-From ("allowance", "credits" or "allowance+credits"). credits_total is everything ever bought on the key, recharges included. `topup` carries the card links that recharge THIS key (they name it by a recharge reference, never by the key) and the USDC route to call with the key presented.'
+      description: 'Returns current month usage and remaining quota for the provided API key. `tier` names the key''s tier ("anonymous", "email", "claimed" or "paid"). `basis` says which ceiling actually governs the key: "monthly" for a free or subscription key, "credits" for a prepaid bundle, "lifetime" when the allowance does NOT start over on the 1st (a key raised by payment, or one born under a protective limit) — on that basis `used` and `remaining` count every month the key has ever served and `month` is only the current calendar month. On a bundle key, `used` counts the calls billed this month for information only — nothing is enforced against `limit`/`remaining`, and the balance that can turn a call away is served alongside as `credits_remaining` / `credits_total`. An anonymous key also carries a "claim" block: where to raise it (https://api.ibanforge.com/v1/keys/claim), to what, by which methods, how much has been settled on it so far and how much is needed. A key that holds an allowance AND prepaid credits (a free key recharged) keeps the basis of its allowance and also carries credits_remaining, credits_total and billing_order: "allowance_then_credits": each call draws on the allowance first, then on the credits, and every billed response says which one paid it in X-Charged-From ("allowance", "credits" or "allowance+credits"). credits_total is everything ever bought on the key, recharges included. `topup` carries the card links that recharge THIS key (they name it by a recharge reference, never by the key) and the USDC route to call with the key presented; on a key without a subscription, `topup.pro` is the Pro link that puts the subscription on THIS key.'
       tags:
       - API Keys
       security:
@@ -689,22 +689,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiError'
 components:
+  responses:
+    UnknownParameterOrWindow:
+      description: Unknown query parameter, or a window past 90 days (audit 2026-09-01, PERF-13).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
   schemas:
-    ApiError:
-      type: object
-      required:
-      - error
-      - message
-      additionalProperties: true
-      properties:
-        error:
-          type: string
-          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
-          example: batch_too_large
-        message:
-          type: string
-          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
-          example: Maximum 100 IBANs per batch request
     StatsOverview:
       type: object
       required:
@@ -776,13 +768,21 @@ components:
                 type: integer
               revenue:
                 type: number
-  responses:
-    UnknownParameterOrWindow:
-      description: Unknown query parameter, or a window past 90 days (audit 2026-09-01, PERF-13).
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
+    ApiError:
+      type: object
+      required:
+      - error
+      - message
+      additionalProperties: true
+      properties:
+        error:
+          type: string
+          description: 'Stable machine-readable token in snake_case, e.g. "invalid_json", "invalid_request", "batch_too_large", "payment_required", "payload_too_large", "rate_limit_exceeded". Branch on this, never on `message`. An invalid IBAN is not an ApiError: validation answers 200 with `valid: false`.'
+          example: batch_too_large
+        message:
+          type: string
+          description: Human-readable sentence explaining the failure. Wording may change; the token above will not.
+          example: Maximum 100 IBANs per batch request
   securitySchemes:
     x402Payment:
       type: apiKey

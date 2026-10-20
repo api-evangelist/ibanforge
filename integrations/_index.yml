@@ -73,7 +73,7 @@
     registered_name: io.github.cammac-creator/ibanforge
     register_id: io.github.cammac-creator/ibanforge
     detected_by: sweep-agent-tools.py
-    detected: '2026-10-15'
+    detected: '2026-10-19'
   status: not-a-workflow
   arazzo: null
 - slug: ibanforge-a2a-protocol-own-agent-card
@@ -95,7 +95,7 @@
     matched_domain: ibanforge.com
     matched_by: own-domain
     detected_by: sweep-ai-agents.py
-    detected: '2026-10-15'
+    detected: '2026-10-19'
   status: not-a-workflow
   arazzo: null
 - slug: ibanforge-npm-registry
@@ -119,9 +119,9 @@
       released_field: modified
       lapsed: false
       page: https://www.npmjs.com/package/@ibanforge/sdk
-      repo_leg: github-org:cammac-creator
+      repo_leg: domain:ibanforge.com
       publisher_leg: org:ibanforge
-      matched_by: github-org
+      matched_by: domain
     current: true
     signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
       24 months'

@@ -274,3 +274,9 @@ components:
 externalDocs:
   description: Agent-oriented overview (llms.txt) with copy-paste examples
   url: https://api.ibanforge.com/llms.txt
+x-provenance:
+  method: harvested
+  publisher: IBANforge
+  source: https://api.ibanforge.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
